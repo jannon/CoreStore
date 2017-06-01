@@ -24,8 +24,8 @@ class Palette: NSManagedObject {
         
         get {
             
-            let KVCKey = "colorName"
-            if let colorName = self.accessValueForKVCKey(KVCKey) as? String {
+            let KVCKey = #keyPath(Palette.colorName)
+            if let colorName = self.getValue(forKvcKey: KVCKey) as? String {
                 
                 return colorName
             }
@@ -49,7 +49,7 @@ class Palette: NSManagedObject {
         }
         set {
             
-            self.setValue(newValue, forKVCKey: "colorName")
+            self.setValue(newValue.cs_toImportableNativeType(), forKvcKey: #keyPath(Palette.colorName))
         }
     }
     

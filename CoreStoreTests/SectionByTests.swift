@@ -29,10 +29,9 @@ import XCTest
 import CoreStore
 
 
-#if os(iOS) || os(watchOS) || os(tvOS)
-
 //MARK: - SectionByTests
 
+@available(OSX 10.12, *)
 final class SectionByTests: XCTestCase {
     
     @objc
@@ -42,16 +41,14 @@ final class SectionByTests: XCTestCase {
             
             let sectionBy = SectionBy("key")
             XCTAssertEqual(sectionBy.sectionKeyPath, "key")
-            XCTAssertEqual(sectionBy.sectionIndexTransformer(sectionName: "key"), "key")
+            XCTAssertEqual(sectionBy.sectionIndexTransformer("key"), "key")
         }
         do {
             
             let sectionBy = SectionBy("key") { $0.flatMap { "\($0):suffix" } }
             XCTAssertEqual(sectionBy.sectionKeyPath, "key")
-            XCTAssertEqual(sectionBy.sectionIndexTransformer(sectionName: "key"), "key:suffix")
-            XCTAssertNil(sectionBy.sectionIndexTransformer(sectionName: nil))
+            XCTAssertEqual(sectionBy.sectionIndexTransformer("key"), "key:suffix")
+            XCTAssertNil(sectionBy.sectionIndexTransformer(nil))
         }
     }
 }
-
-#endif

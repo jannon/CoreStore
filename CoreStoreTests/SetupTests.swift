@@ -29,43 +29,51 @@ import CoreStore
 
 // MARK: - SetupTests
 
-class SetupTests: BaseTestCase {
+class SetupTests: BaseTestDataTestCase {
     
     @objc
     dynamic func test_ThatDataStacks_ConfigureCorrectly() {
         
         do {
             
-            let model = NSManagedObjectModel.mergedModelFromBundles([NSBundle(forClass: self.dynamicType)])!
-            
-            let stack = DataStack(model: model, migrationChain: nil)
-            XCTAssertEqual(stack.coordinator.managedObjectModel, model)
+            let schemaHistory = SchemaHistory(
+                XcodeDataModelSchema.from(
+                    modelName: "Model",
+                    bundle: Bundle(for: type(of: self))
+                )
+            )
+            let stack = DataStack(schemaHistory: schemaHistory)
+            XCTAssertEqual(stack.coordinator.managedObjectModel, schemaHistory.rawModel)
             XCTAssertEqual(stack.rootSavingContext.persistentStoreCoordinator, stack.coordinator)
-            XCTAssertNil(stack.rootSavingContext.parentContext)
-            XCTAssertEqual(stack.mainContext.parentContext, stack.rootSavingContext)
-            XCTAssertEqual(stack.model, model)
-            XCTAssertTrue(stack.migrationChain.valid)
-            XCTAssertTrue(stack.migrationChain.empty)
-            XCTAssertTrue(stack.migrationChain.rootVersions.isEmpty)
-            XCTAssertTrue(stack.migrationChain.leafVersions.isEmpty)
+            XCTAssertNil(stack.rootSavingContext.parent)
+            XCTAssertFalse(stack.rootSavingContext.isDataStackContext)
+            XCTAssertFalse(stack.rootSavingContext.isTransactionContext)
+            XCTAssertEqual(stack.mainContext.parent, stack.rootSavingContext)
+            XCTAssertTrue(stack.mainContext.isDataStackContext)
+            XCTAssertFalse(stack.mainContext.isTransactionContext)
+            XCTAssertEqual(stack.schemaHistory.rawModel, schemaHistory.rawModel)
+            XCTAssertTrue(stack.schemaHistory.migrationChain.isValid)
+            XCTAssertTrue(stack.schemaHistory.migrationChain.isEmpty)
+            XCTAssertTrue(stack.schemaHistory.migrationChain.rootVersions.isEmpty)
+            XCTAssertTrue(stack.schemaHistory.migrationChain.leafVersions.isEmpty)
             
             CoreStore.defaultStack = stack
             XCTAssertEqual(CoreStore.defaultStack, stack)
         }
         do {
             
-            let migrationChain: MigrationChain = ["version1", "version2", "version3"]
+            let migrationChain: MigrationChain = ["version1", "version2", "version3", "Model"]
             
-            let stack = self.expectLogger([.LogWarning]) {
+            let stack = self.expectLogger([.logWarning]) {
                 
                 DataStack(
-                    modelName: "Model",
-                    bundle: NSBundle(forClass: self.dynamicType),
+                    xcodeModelName: "Model",
+                    bundle: Bundle(for: type(of: self)),
                     migrationChain: migrationChain
                 )
             }
             XCTAssertEqual(stack.modelVersion, "Model")
-            XCTAssertEqual(stack.migrationChain, migrationChain)
+            XCTAssertEqual(stack.schemaHistory.migrationChain, migrationChain)
             
             CoreStore.defaultStack = stack
             XCTAssertEqual(CoreStore.defaultStack, stack)
@@ -76,8 +84,8 @@ class SetupTests: BaseTestCase {
     dynamic func test_ThatInMemoryStores_SetupCorrectly() {
         
         let stack = DataStack(
-            modelName: "Model",
-            bundle: NSBundle(forClass: self.dynamicType)
+            xcodeModelName: "Model",
+            bundle: Bundle(for: type(of: self))
         )
         do {
             
@@ -131,8 +139,8 @@ class SetupTests: BaseTestCase {
     dynamic func test_ThatSQLiteStores_SetupCorrectly() {
         
         let stack = DataStack(
-            modelName: "Model",
-            bundle: NSBundle(forClass: self.dynamicType)
+            xcodeModelName: "Model",
+            bundle: Bundle(for: type(of: self))
         )
         do {
             
@@ -154,7 +162,7 @@ class SetupTests: BaseTestCase {
             let sqliteStore = SQLiteStore(
                 fileName: "ConfigStore1.sqlite",
                 configuration: "Config1",
-                localStorageOptions: .RecreateStoreOnModelMismatch
+                localStorageOptions: .recreateStoreOnModelMismatch
             )
             do {
                 
@@ -173,7 +181,7 @@ class SetupTests: BaseTestCase {
             let sqliteStore = SQLiteStore(
                 fileName: "ConfigStore2.sqlite",
                 configuration: "Config2",
-                localStorageOptions: .RecreateStoreOnModelMismatch
+                localStorageOptions: .recreateStoreOnModelMismatch
             )
             do {
                 
@@ -190,15 +198,73 @@ class SetupTests: BaseTestCase {
     }
     
     @objc
+    dynamic func test_ThatSQLiteStores_DeleteFilesCorrectly() {
+        
+        let fileManager = FileManager.default
+        let sqliteStore = SQLiteStore()
+        func createStore() throws -> [String: Any] {
+            
+            do {
+                
+                let stack = DataStack(
+                    xcodeModelName: "Model",
+                    bundle: Bundle(for: type(of: self))
+                )
+                try! stack.addStorageAndWait(sqliteStore)
+                self.prepareTestDataForStack(stack)
+            }
+            XCTAssertTrue(fileManager.fileExists(atPath: sqliteStore.fileURL.path))
+            XCTAssertTrue(fileManager.fileExists(atPath: sqliteStore.fileURL.path.appending("-shm")))
+            
+            return try NSPersistentStoreCoordinator.metadataForPersistentStore(
+                ofType: type(of: sqliteStore).storeType,
+                at: sqliteStore.fileURL,
+                options: sqliteStore.storeOptions
+            )
+        }
+        do {
+            
+            let metadata = try createStore()
+            let stack = DataStack(
+                xcodeModelName: "Model",
+                bundle: Bundle(for: type(of: self))
+            )
+            try sqliteStore.cs_eraseStorageAndWait(
+                metadata: metadata,
+                soureModelHint: stack.schemaHistory.schema(for: metadata)?.rawModel()
+            )
+            XCTAssertFalse(fileManager.fileExists(atPath: sqliteStore.fileURL.path))
+            XCTAssertFalse(fileManager.fileExists(atPath: sqliteStore.fileURL.path.appending("-wal")))
+            XCTAssertFalse(fileManager.fileExists(atPath: sqliteStore.fileURL.path.appending("-shm")))
+        }
+        catch {
+            
+            XCTFail()
+        }
+        do {
+            
+            let metadata = try createStore()
+            try sqliteStore.cs_eraseStorageAndWait(metadata: metadata, soureModelHint: nil)
+            XCTAssertFalse(fileManager.fileExists(atPath: sqliteStore.fileURL.path))
+            XCTAssertFalse(fileManager.fileExists(atPath: sqliteStore.fileURL.path.appending("-wal")))
+            XCTAssertFalse(fileManager.fileExists(atPath: sqliteStore.fileURL.path.appending("-shm")))
+        }
+        catch {
+            
+            XCTFail()
+        }
+    }
+    
+    @objc
     dynamic func test_ThatLegacySQLiteStores_SetupCorrectly() {
         
         let stack = DataStack(
-            modelName: "Model",
-            bundle: NSBundle(forClass: self.dynamicType)
+            xcodeModelName: "Model",
+            bundle: Bundle(for: type(of: self))
         )
         do {
             
-            let sqliteStore = SQLiteStore()
+            let sqliteStore = SQLiteStore.legacy()
             do {
                 
                 try stack.addStorageAndWait(sqliteStore)
@@ -213,10 +279,10 @@ class SetupTests: BaseTestCase {
         }
         do {
             
-            let sqliteStore = SQLiteStore(
+            let sqliteStore = SQLiteStore.legacy(
                 fileName: "ConfigStore1.sqlite",
                 configuration: "Config1",
-                localStorageOptions: .RecreateStoreOnModelMismatch
+                localStorageOptions: .recreateStoreOnModelMismatch
             )
             do {
                 
@@ -232,10 +298,10 @@ class SetupTests: BaseTestCase {
         }
         do {
             
-            let sqliteStore = SQLiteStore(
+            let sqliteStore = SQLiteStore.legacy(
                 fileName: "ConfigStore2.sqlite",
                 configuration: "Config2",
-                localStorageOptions: .RecreateStoreOnModelMismatch
+                localStorageOptions: .recreateStoreOnModelMismatch
             )
             do {
                 
@@ -248,6 +314,64 @@ class SetupTests: BaseTestCase {
             let persistentStore = stack.persistentStoreForStorage(sqliteStore)
             XCTAssertNotNil(persistentStore)
             XCTAssert(sqliteStore.matchesPersistentStore(persistentStore!))
+        }
+    }
+    
+    @objc
+    dynamic func test_ThatLegacySQLiteStores_DeleteFilesCorrectly() {
+        
+        let fileManager = FileManager.default
+        let sqliteStore = SQLiteStore.legacy()
+        func createStore() throws -> [String: Any] {
+            
+            do {
+                
+                let stack = DataStack(
+                    xcodeModelName: "Model",
+                    bundle: Bundle(for: type(of: self))
+                )
+                try! stack.addStorageAndWait(sqliteStore)
+                self.prepareTestDataForStack(stack)
+            }
+            XCTAssertTrue(fileManager.fileExists(atPath: sqliteStore.fileURL.path))
+            XCTAssertTrue(fileManager.fileExists(atPath: sqliteStore.fileURL.path.appending("-shm")))
+            
+            return try NSPersistentStoreCoordinator.metadataForPersistentStore(
+                ofType: type(of: sqliteStore).storeType,
+                at: sqliteStore.fileURL,
+                options: sqliteStore.storeOptions
+            )
+        }
+        do {
+            
+            let metadata = try createStore()
+            let stack = DataStack(
+                xcodeModelName: "Model",
+                bundle: Bundle(for: type(of: self))
+            )
+            try sqliteStore.cs_eraseStorageAndWait(
+                metadata: metadata,
+                soureModelHint: stack.schemaHistory.schema(for: metadata)?.rawModel()
+            )
+            XCTAssertFalse(fileManager.fileExists(atPath: sqliteStore.fileURL.path))
+            XCTAssertFalse(fileManager.fileExists(atPath: sqliteStore.fileURL.path.appending("-wal")))
+            XCTAssertFalse(fileManager.fileExists(atPath: sqliteStore.fileURL.path.appending("-shm")))
+        }
+        catch {
+            
+            XCTFail()
+        }
+        do {
+            
+            let metadata = try createStore()
+            try sqliteStore.cs_eraseStorageAndWait(metadata: metadata, soureModelHint: nil)
+            XCTAssertFalse(fileManager.fileExists(atPath: sqliteStore.fileURL.path))
+            XCTAssertFalse(fileManager.fileExists(atPath: sqliteStore.fileURL.path.appending("-wal")))
+            XCTAssertFalse(fileManager.fileExists(atPath: sqliteStore.fileURL.path.appending("-shm")))
+        }
+        catch {
+            
+            XCTFail()
         }
     }
 }

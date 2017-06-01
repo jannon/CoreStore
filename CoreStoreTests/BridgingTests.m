@@ -163,7 +163,7 @@
 - (void)test_ThatDataStacks_BridgeCorrectly {
     
     CSDataStack *dataStack = [[CSDataStack alloc]
-                              initWithModelName:@"Model"
+                              initWithXcodeModelName:@"Model"
                               bundle:[NSBundle bundleForClass:[self class]]
                               versionChain:nil];
     XCTAssertNotNil(dataStack);
@@ -201,7 +201,7 @@
     
     [CSCoreStore
      setDefaultStack:[[CSDataStack alloc]
-                      initWithModelName:@"Model"
+                      initWithXcodeModelName:@"Model"
                       bundle:[NSBundle bundleForClass:[self class]]
                       versionChain:nil]];
     [CSCoreStore
@@ -212,15 +212,27 @@
         CSUnsafeDataTransaction *transaction = [CSCoreStore beginUnsafe];
         XCTAssertNotNil(transaction);
         XCTAssert([transaction isKindOfClass:[CSUnsafeDataTransaction class]]);
+        NSError *error;
+        BOOL result = [transaction commitAndWaitWithError:&error];
+        XCTAssertTrue(result);
+        XCTAssertNil(error);
     }
     {
         XCTestExpectation *expectation = [self expectationWithDescription:@"sync"];
-        [CSCoreStore beginSynchronous:^(CSSynchronousDataTransaction * _Nonnull transaction) {
-            
-            XCTAssertNotNil(transaction);
-            XCTAssert([transaction isKindOfClass:[CSSynchronousDataTransaction class]]);
-            [expectation fulfill];
-        }];
+        NSError *error;
+        BOOL result = [CSCoreStore
+         beginSynchronous:^(CSSynchronousDataTransaction * _Nonnull transaction) {
+             
+             XCTAssertNotNil(transaction);
+             XCTAssert([transaction isKindOfClass:[CSSynchronousDataTransaction class]]);
+             NSError *error;
+             XCTAssertTrue([transaction commitAndWaitWithError:&error]);
+             XCTAssertNil(error);
+             [expectation fulfill];
+         }
+                       error:&error];
+        XCTAssertTrue(result);
+        XCTAssertNil(error);
     }
     {
         XCTestExpectation *expectation = [self expectationWithDescription:@"async"];
@@ -228,7 +240,15 @@
             
             XCTAssertNotNil(transaction);
             XCTAssert([transaction isKindOfClass:[CSAsynchronousDataTransaction class]]);
-            [expectation fulfill];
+            [transaction
+             commitWithSuccess:^{
+                 
+                 [expectation fulfill];
+             }
+             failure:^(CSError *error){
+                 
+                 XCTFail();
+             }];
         }];
     }
     [self waitForExpectationsWithTimeout:10 handler:nil];
