@@ -29,6 +29,25 @@ import XCTest
 import CoreStore
 
 
+// MARK: - XCTAssertAllEqual
+
+private func XCTAssertAllEqual(_ whereClauses: Where...) {
+    
+    XCTAssertAllEqual(whereClauses)
+}
+
+private func XCTAssertAllEqual(_ whereClauses: [Where]) {
+    
+    for i in whereClauses.indices {
+        
+        for j in whereClauses.indices where j != i {
+            
+            XCTAssertEqual(whereClauses[i], whereClauses[j])
+        }
+    }
+}
+
+
 //MARK: - WhereTests
 
 final class WhereTests: XCTestCase {
@@ -88,6 +107,123 @@ final class WhereTests: XCTestCase {
     }
     
     @objc
+    dynamic func test_ThatWhereClauses_BridgeArgumentsCorrectly() {
+        
+        do {
+            
+            let value: Int = 100
+            XCTAssertAllEqual(
+                Where("%K == %d", "key", value),
+                Where("%K == %d", "key", value as AnyObject),
+                Where("%K == %d", "key", NSNumber(value: value)),
+                Where("%K == %@", "key", value),
+                Where("%K == %@", "key", value as AnyObject),
+                Where("%K == %@", "key", NSNumber(value: value)),
+                Where("key", isEqualTo: value),
+                Where("key", isEqualTo: NSNumber(value: value))
+            )
+        }
+        do {
+            
+            let value = NSNumber(value: 100)
+            XCTAssertAllEqual(
+                Where("%K == %d", "key", value),
+                Where("%K == %d", "key", value as AnyObject),
+                Where("%K == %d", "key", value.intValue),
+                Where("%K == %@", "key", value),
+                Where("%K == %@", "key", value as AnyObject),
+                Where("%K == %@", "key", value.intValue),
+                Where("key", isEqualTo: value),
+                Where("key", isEqualTo: value.intValue)
+            )
+        }
+        do {
+            
+            let value: Int64 = Int64.max
+            XCTAssertAllEqual(
+                Where("%K == %d", "key", value),
+                Where("%K == %d", "key", value as AnyObject),
+                Where("%K == %d", "key", NSNumber(value: value)),
+                Where("%K == %@", "key", value),
+                Where("%K == %@", "key", value as AnyObject),
+                Where("%K == %@", "key", NSNumber(value: value)),
+                Where("key", isEqualTo: value),
+                Where("key", isEqualTo: NSNumber(value: value))
+            )
+        }
+        do {
+            
+            let value = NSNumber(value: Int64.max)
+            XCTAssertAllEqual(
+                Where("%K == %d", "key", value),
+                Where("%K == %d", "key", value as AnyObject),
+                Where("%K == %d", "key", value.int64Value),
+                Where("%K == %@", "key", value),
+                Where("%K == %@", "key", value as AnyObject),
+                Where("%K == %@", "key", value.int64Value),
+                Where("key", isEqualTo: value),
+                Where("key", isEqualTo: value.int64Value)
+            )
+        }
+        do {
+            
+            let value: String = "value"
+            XCTAssertAllEqual(
+                Where("%K == %s", "key", value),
+                Where("%K == %s", "key", value as AnyObject),
+                Where("%K == %s", "key", NSString(string: value)),
+                Where("%K == %@", "key", value),
+                Where("%K == %@", "key", value as AnyObject),
+                Where("%K == %@", "key", NSString(string: value)),
+                Where("key", isEqualTo: value),
+                Where("key", isEqualTo: value as NSString),
+                Where("key", isEqualTo: NSString(string: value))
+            )
+        }
+        do {
+            
+            let value = NSString(string: "value")
+            XCTAssertAllEqual(
+                Where("%K == %s", "key", value),
+                Where("%K == %s", "key", value as String),
+                Where("%K == %s", "key", value as String as AnyObject),
+                Where("%K == %@", "key", value),
+                Where("%K == %@", "key", value as String),
+                Where("%K == %@", "key", value as String as AnyObject),
+                Where("key", isEqualTo: value),
+                Where("key", isEqualTo: value as String),
+                Where("key", isEqualTo: value as String as NSString)
+            )
+        }
+        do {
+            
+            let value: [Int] = [100, 200]
+            XCTAssertAllEqual(
+                Where("%K IN %@", "key", value),
+                Where("%K IN %@", "key", value as AnyObject),
+                Where("%K IN %@", "key", value as [AnyObject]),
+                Where("%K IN %@", "key", value as NSArray),
+                Where("%K IN %@", "key", NSArray(array: value)),
+                Where("%K IN %@", "key", value as AnyObject as! NSArray),
+                Where("key", isMemberOf: value)
+            )
+        }
+        do {
+            
+            let value: [Int64] = [Int64.min, 100, Int64.max]
+            XCTAssertAllEqual(
+                Where("%K IN %@", "key", value),
+                Where("%K IN %@", "key", value as AnyObject),
+                Where("%K IN %@", "key", value as [AnyObject]),
+                Where("%K IN %@", "key", value as NSArray),
+                Where("%K IN %@", "key", NSArray(array: value)),
+                Where("%K IN %@", "key", value as AnyObject as! NSArray),
+                Where("key", isMemberOf: value)
+            )
+        }
+    }
+    
+    @objc
     dynamic func test_ThatWhereClauseOperations_ComputeCorrectly() {
         
         let whereClause1 = Where("key1", isEqualTo: "value1")
@@ -98,7 +234,7 @@ final class WhereTests: XCTestCase {
             
             let notWhere = !whereClause1
             let notPredicate = NSCompoundPredicate(
-                type: .NotPredicateType,
+                type: .not,
                 subpredicates: [whereClause1.predicate]
             )
             XCTAssertEqual(notWhere.predicate, notPredicate)
@@ -108,10 +244,10 @@ final class WhereTests: XCTestCase {
             
             let andWhere = whereClause1 && whereClause2 && whereClause3
             let andPredicate = NSCompoundPredicate(
-                type: .AndPredicateType,
+                type: .and,
                 subpredicates: [
                     NSCompoundPredicate(
-                        type: .AndPredicateType,
+                        type: .and,
                         subpredicates: [whereClause1.predicate, whereClause2.predicate]
                     ),
                     whereClause3.predicate
@@ -124,10 +260,10 @@ final class WhereTests: XCTestCase {
             
             let orWhere = whereClause1 || whereClause2 || whereClause3
             let orPredicate = NSCompoundPredicate(
-                type: .OrPredicateType,
+                type: .or,
                 subpredicates: [
                     NSCompoundPredicate(
-                        type: .OrPredicateType,
+                        type: .or,
                         subpredicates: [whereClause1.predicate, whereClause2.predicate]
                     ),
                     whereClause3.predicate
