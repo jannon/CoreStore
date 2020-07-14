@@ -2,7 +2,7 @@
 //  CoreStoreStrings.swift
 //  CoreStore
 //
-//  Copyright © 2017 John Rommel Estropia
+//  Copyright © 2018 John Rommel Estropia
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -64,3 +64,11 @@ public typealias EntityName = String
  An `String` that pertains to a dynamically-accessable class name (usable with NSClassFromString(...)).
  */
 public typealias ClassName = String
+
+
+// MARK: - KeyPathString
+
+/**
+ An `String` that pertains to a attribute keyPaths.
+ */
+public typealias KeyPathString = String

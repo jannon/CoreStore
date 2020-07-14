@@ -2,7 +2,7 @@
 //  DefaultLogger.swift
 //  CoreStore
 //
-//  Copyright © 2015 John Rommel Estropia
+//  Copyright © 2018 John Rommel Estropia
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -32,12 +32,6 @@ import Foundation
  The `DefaultLogger` is a basic implementation of the `CoreStoreLogger` protocol.
  */
 public final class DefaultLogger: CoreStoreLogger {
-    
-    /**
-     When `true`, all `NSManagedObject` attribute and relationship access will raise an assertion when executed on the wrong transaction/datastack queue. Defaults to `false`.
-     */
-    // TODO: test before release (rolled back)
-//    public var enableObjectConcurrencyDebugging: Bool = false
     
     /**
      Creates a `DefaultLogger`.

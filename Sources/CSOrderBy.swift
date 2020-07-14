@@ -2,7 +2,7 @@
 //  CSOrderBy.swift
 //  CoreStore
 //
-//  Copyright © 2016 John Rommel Estropia
+//  Copyright © 2018 John Rommel Estropia
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,7 @@ import CoreData
  - SeeAlso: `OrderBy`
  */
 @objc
-public final class CSOrderBy: NSObject, CSFetchClause, CSQueryClause, CSDeleteClause, CoreStoreObjectiveCType {
+public final class CSOrderBy: NSObject, CSFetchClause, CSQueryClause, CSDeleteClause {
     
     /**
      The list of sort descriptors
@@ -95,7 +95,7 @@ public final class CSOrderBy: NSObject, CSFetchClause, CSQueryClause, CSDeleteCl
     
     public override var description: String {
         
-        return "(\(String(reflecting: type(of: self)))) \(self.bridgeToSwift.coreStoreDumpString)"
+        return "(\(String(reflecting: Self.self))) \(self.bridgeToSwift.coreStoreDumpString)"
     }
     
     
@@ -110,11 +110,11 @@ public final class CSOrderBy: NSObject, CSFetchClause, CSQueryClause, CSDeleteCl
     
     // MARK: CoreStoreObjectiveCType
     
-    public let bridgeToSwift: OrderBy
+    public let bridgeToSwift: OrderBy<NSManagedObject>
     
-    public init(_ swiftValue: OrderBy) {
+    public init<O: NSManagedObject>(_ swiftValue: OrderBy<O>) {
         
-        self.bridgeToSwift = swiftValue
+        self.bridgeToSwift = swiftValue.downcast()
         super.init()
     }
 }
@@ -122,12 +122,20 @@ public final class CSOrderBy: NSObject, CSFetchClause, CSQueryClause, CSDeleteCl
 
 // MARK: - OrderBy
 
-extension OrderBy: CoreStoreSwiftType {
+extension OrderBy where O: NSManagedObject {
     
     // MARK: CoreStoreSwiftType
     
     public var bridgeToObjectiveC: CSOrderBy {
         
         return CSOrderBy(self)
+    }
+    
+    
+    // MARK: FilePrivate
+    
+    fileprivate func downcast() -> OrderBy<NSManagedObject> {
+        
+        return OrderBy<NSManagedObject>(self.sortDescriptors)
     }
 }

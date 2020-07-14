@@ -2,7 +2,7 @@
 //  Tweak.swift
 //  CoreStore
 //
-//  Copyright © 2015 John Rommel Estropia
+//  Copyright © 2018 John Rommel Estropia
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -63,7 +63,7 @@ public struct Tweak: FetchClause, QueryClause, DeleteClause {
     
     // MARK: FetchClause, QueryClause, DeleteClause
     
-    public func applyToFetchRequest<ResultType: NSFetchRequestResult>(_ fetchRequest: NSFetchRequest<ResultType>) {
+    public func applyToFetchRequest<ResultType>(_ fetchRequest: NSFetchRequest<ResultType>) {
         
         self.closure(fetchRequest as! NSFetchRequest<NSFetchRequestResult>)
     }

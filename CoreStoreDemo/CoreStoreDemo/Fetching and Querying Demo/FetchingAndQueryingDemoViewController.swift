@@ -3,7 +3,7 @@
 //  CoreStoreDemo
 //
 //  Created by John Rommel Estropia on 2015/06/12.
-//  Copyright © 2015 John Rommel Estropia. All rights reserved.
+//  Copyright © 2018 John Rommel Estropia. All rights reserved.
 //
 
 import UIKit
@@ -25,7 +25,7 @@ private struct Static {
         _ = try? dataStack.perform(
             synchronous: { (transaction) in
                 
-                transaction.deleteAll(From<TimeZone>())
+                try transaction.deleteAll(From<TimeZone>())
                 
                 for name in NSTimeZone.knownTimeZoneNames {
                     
@@ -164,67 +164,80 @@ class FetchingAndQueryingDemoViewController: UIViewController, UITableViewDataSo
             title: "All Time Zones",
             fetch: { () -> [TimeZone] in
                 
-                return Static.timeZonesStack.fetchAll(
-                    From<TimeZone>(),
-                    OrderBy(.ascending(#keyPath(TimeZone.name)))
-                )!
+                return try! Static.timeZonesStack.fetchAll(
+                    From<TimeZone>()
+                        .orderBy(.ascending(\.name))
+                )
             }
         ),
         (
             title: "Time Zones in Asia",
             fetch: { () -> [TimeZone] in
                 
-                return Static.timeZonesStack.fetchAll(
-                    From<TimeZone>(),
-                    Where("%K BEGINSWITH[c] %@", #keyPath(TimeZone.name), "Asia"),
-                    OrderBy(.ascending(#keyPath(TimeZone.secondsFromGMT)))
-                )!
+                return try! Static.timeZonesStack.fetchAll(
+                    From<TimeZone>()
+                        .where(
+                            format: "%K BEGINSWITH[c] %@",
+                            #keyPath(TimeZone.name),
+                            "Asia"
+                        )
+                        .orderBy(.ascending(\.secondsFromGMT))
+                )
             }
         ),
         (
             title: "Time Zones in America and Europe",
             fetch: { () -> [TimeZone] in
                 
-                return Static.timeZonesStack.fetchAll(
-                    From<TimeZone>(),
-                    Where("%K BEGINSWITH[c] %@", #keyPath(TimeZone.name), "America")
-                        || Where("%K BEGINSWITH[c] %@", #keyPath(TimeZone.name), "Europe"),
-                    OrderBy(.ascending(#keyPath(TimeZone.secondsFromGMT)))
-                )!
+                return try! Static.timeZonesStack.fetchAll(
+                    From<TimeZone>()
+                        .where(
+                            format: "%K BEGINSWITH[c] %@ OR %K BEGINSWITH[c] %@",
+                            #keyPath(TimeZone.name),
+                            "America",
+                            #keyPath(TimeZone.name),
+                            "Europe"
+                        )
+                        .orderBy(.ascending(\.secondsFromGMT))
+                )
             }
         ),
         (
             title: "All Time Zones Except America",
             fetch: { () -> [TimeZone] in
                 
-                return Static.timeZonesStack.fetchAll(
-                    From<TimeZone>(),
-                    !Where("%K BEGINSWITH[c] %@", #keyPath(TimeZone.name), "America"),
-                    OrderBy(.ascending(#keyPath(TimeZone.secondsFromGMT)))
-                    )!
+                return try! Static.timeZonesStack.fetchAll(
+                    From<TimeZone>()
+                        .where(
+                            format: "%K BEGINSWITH[c] %@",
+                            #keyPath(TimeZone.name),
+                            "America"
+                        )
+                        .orderBy(.ascending(\.secondsFromGMT))
+                    )
             }
         ),
         (
             title: "Time Zones with Summer Time",
             fetch: { () -> [TimeZone] in
                 
-                return Static.timeZonesStack.fetchAll(
-                    From<TimeZone>(),
-                    Where("hasDaylightSavingTime", isEqualTo: true),
-                    OrderBy(.ascending(#keyPath(TimeZone.name)))
-                )!
+                return try! Static.timeZonesStack.fetchAll(
+                    From<TimeZone>()
+                        .where(\.hasDaylightSavingTime == true)
+                        .orderBy(.ascending(\.name))
+                )
             }
         )
     ]
     
-    private let queryingItems = [
+    private let queryingItems: [(title: String, query: () -> Any)] = [
         (
             title: "Number of Time Zones",
             query: { () -> Any in
                 
-                return Static.timeZonesStack.queryValue(
-                    From<TimeZone>(),
-                    Select<NSNumber>(.count(#keyPath(TimeZone.name)))
+                return try! Static.timeZonesStack.queryValue(
+                    From<TimeZone>()
+                        .select(NSNumber.self, .count(\.name))
                 )!
             }
         ),
@@ -232,10 +245,10 @@ class FetchingAndQueryingDemoViewController: UIViewController, UITableViewDataSo
             title: "Abbreviation For Tokyo's Time Zone",
             query: { () -> Any in
                 
-                return Static.timeZonesStack.queryValue(
-                    From<TimeZone>(),
-                    Select<String>(#keyPath(TimeZone.abbreviation)),
-                    Where("%K ENDSWITH[c] %@", #keyPath(TimeZone.name), "Tokyo")
+                return try! Static.timeZonesStack.queryValue(
+                    From<TimeZone>()
+                        .select(String.self, .attribute(\.abbreviation))
+                        .where(format: "%K ENDSWITH[c] %@", #keyPath(TimeZone.name), "Tokyo")
                 )!
             }
         ),
@@ -243,38 +256,53 @@ class FetchingAndQueryingDemoViewController: UIViewController, UITableViewDataSo
             title: "All Abbreviations",
             query: { () -> Any in
                 
-                return Static.timeZonesStack.queryAttributes(
-                    From<TimeZone>(),
-                    Select<NSDictionary>(#keyPath(TimeZone.name), #keyPath(TimeZone.abbreviation)),
-                    OrderBy(.ascending(#keyPath(TimeZone.name)))
-                )!
+                return try! Static.timeZonesStack.queryAttributes(
+                    From<TimeZone>()
+                        .select(
+                            NSDictionary.self,
+                            .attribute(\.name),
+                            .attribute(\.abbreviation)
+                        )
+                        .orderBy(.ascending(\.name))
+                )
             }
         ),
         (
             title: "Number of Countries per Time Zone",
             query: { () -> Any in
                 
-                return Static.timeZonesStack.queryAttributes(
-                    From<TimeZone>(),
-                    Select<NSDictionary>(.count(#keyPath(TimeZone.abbreviation)), #keyPath(TimeZone.abbreviation)),
-                    GroupBy(#keyPath(TimeZone.abbreviation)),
-                    OrderBy(.ascending(#keyPath(TimeZone.secondsFromGMT)), .ascending(#keyPath(TimeZone.name)))
-                )!
+                return try! Static.timeZonesStack.queryAttributes(
+                    From<TimeZone>()
+                        .select(
+                            NSDictionary.self,
+                            .count(\.abbreviation),
+                            .attribute(\.abbreviation)
+                        )
+                        .groupBy(\.abbreviation)
+                        .orderBy(
+                            .ascending(\.secondsFromGMT),
+                            .ascending(\.name)
+                        )
+                )
             }
         ),
         (
             title: "Number of Countries with Summer Time",
             query: { () -> Any in
                 
-                return Static.timeZonesStack.queryAttributes(
-                    From<TimeZone>(),
-                    Select<NSDictionary>(
-                        .count(#keyPath(TimeZone.hasDaylightSavingTime), as: "numberOfCountries"),
-                        #keyPath(TimeZone.hasDaylightSavingTime)
-                    ),
-                    GroupBy(#keyPath(TimeZone.hasDaylightSavingTime)),
-                    OrderBy(.descending(#keyPath(TimeZone.hasDaylightSavingTime)))
-                )!
+                return try! Static.timeZonesStack.queryAttributes(
+                    From<TimeZone>()
+                        .select(
+                            NSDictionary.self,
+                            .count(\.hasDaylightSavingTime, as: "numberOfCountries"),
+                            .attribute(\.hasDaylightSavingTime)
+                        )
+                        .groupBy(\.hasDaylightSavingTime)
+                        .orderBy(
+                            .descending(\.hasDaylightSavingTime),
+                            .ascending(\.name)
+                        )
+                )
             }
         )
     ]

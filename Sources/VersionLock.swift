@@ -2,7 +2,7 @@
 //  VersionLock.swift
 //  CoreStore
 //
-//  Copyright © 2017 John Rommel Estropia
+//  Copyright © 2018 John Rommel Estropia
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -32,16 +32,16 @@ import Foundation
  The `VersionLock` contains the version hashes for entities. This is then passed to the `CoreStoreSchema`, which contains all entities for the store. An assertion will be raised if any `Entity` doesn't match the version hash.
  ```
  class Animal: CoreStoreObject {
-     let species = Value.Required<String>("species")
+     let species = Value.Required<String>("species", initial: "")
      let nickname = Value.Optional<String>("nickname")
      let master = Relationship.ToOne<Person>("master")
  }
  class Person: CoreStoreObject {
-     let name = Value.Required<String>("name")
+     let name = Value.Required<String>("name", initial: "")
      let pet = Relationship.ToOne<Animal>("pet", inverse: { $0.master })
  }
  
- CoreStore.defaultStack = DataStack(
+ CoreStoreDefaults.dataStack = DataStack(
      CoreStoreSchema(
          modelVersion: "V1",
          entities: [
@@ -110,13 +110,8 @@ public struct VersionLock: ExpressibleByDictionaryLiteral, Equatable {
         
         var hashesByEntityName: [EntityName: Data] = [:]
         for (entityName, intArray) in keyValues {
-            
-            hashesByEntityName[entityName] = Data(
-                buffer: UnsafeBufferPointer(
-                    start: intArray,
-                    count: intArray.count
-                )
-            )
+
+            hashesByEntityName[entityName] = intArray.withUnsafeBufferPointer(Data.init(buffer:))
         }
         self.hashesByEntityName = hashesByEntityName
     }

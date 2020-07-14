@@ -2,7 +2,7 @@
 //  NSPersistentStoreCoordinator+Setup.swift
 //  CoreStore
 //
-//  Copyright © 2016 John Rommel Estropia. All rights reserved.
+//  Copyright © 2018 John Rommel Estropia. All rights reserved.
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,7 @@ import CoreData
 
 // MARK: - NSPersistentStoreCoordinator
 
-internal extension NSPersistentStoreCoordinator {
+extension NSPersistentStoreCoordinator {
     
     @nonobjc
     internal func performAsynchronously(_ closure: @escaping () -> Void) {
@@ -72,15 +72,13 @@ internal extension NSPersistentStoreCoordinator {
     }
     
     @nonobjc
-    internal func addPersistentStoreSynchronously(_ storeType: String, configuration: ModelConfiguration, URL storeURL: URL?, options: [NSObject : AnyObject]?) throws -> NSPersistentStore {
+    internal func addPersistentStoreSynchronously(_ storeType: String, configuration: ModelConfiguration, URL storeURL: URL?, options: [AnyHashable: Any]?) throws -> NSPersistentStore {
         
-        var store: NSPersistentStore?
-        var storeError: NSError?
-        self.performSynchronously {
+        return try self.performSynchronously {
             
             do {
                 
-                store = try self.addPersistentStore(
+                return try self.addPersistentStore(
                     ofType: storeType,
                     configurationName: configuration,
                     at: storeURL,
@@ -89,13 +87,8 @@ internal extension NSPersistentStoreCoordinator {
             }
             catch {
                 
-                storeError = error as NSError
+                throw CoreStoreError(error)
             }
         }
-        if let store = store {
-            
-            return store
-        }
-        throw CoreStoreError(storeError)
     }
 }

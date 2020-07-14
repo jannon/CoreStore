@@ -2,7 +2,7 @@
 //  ObjectObserverTests.swift
 //  CoreStore
 //
-//  Copyright © 2016 John Rommel Estropia
+//  Copyright © 2018 John Rommel Estropia
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -31,7 +31,7 @@ import CoreStore
 
 // MARK: - ObjectObserverTests
 
-@available(OSX 10.12, *)
+@available(macOS 10.12, *)
 class ObjectObserverTests: BaseTestDataTestCase {
     
     @objc
@@ -41,9 +41,9 @@ class ObjectObserverTests: BaseTestDataTestCase {
             
             self.prepareTestDataForStack(stack)
             
-            guard let object = stack.fetchOne(
+            guard let object = try stack.fetchOne(
                 From<TestEntity1>(),
-                Where(#keyPath(TestEntity1.testEntityID), isEqualTo: 101)) else {
+                Where<TestEntity1>(#keyPath(TestEntity1.testEntityID), isEqualTo: 101)) else {
                     
                     XCTFail()
                     return
@@ -57,8 +57,8 @@ class ObjectObserverTests: BaseTestDataTestCase {
             
             var events = 0
             
-            let willUpdateExpectation = self.expectation(
-                forNotification: "objectMonitor:willUpdateObject:",
+            _ = self.expectation(
+                forNotification: NSNotification.Name(rawValue: "objectMonitor:willUpdateObject:"),
                 object: observer,
                 handler: { (note) -> Bool in
                     
@@ -74,8 +74,8 @@ class ObjectObserverTests: BaseTestDataTestCase {
                     return events == 0
                 }
             )
-            let didUpdateExpectation = self.expectation(
-                forNotification: "objectMonitor:didUpdateObject:changedPersistentKeys:",
+            _ = self.expectation(
+                forNotification: NSNotification.Name(rawValue: "objectMonitor:didUpdateObject:changedPersistentKeys:"),
                 object: observer,
                 handler: { (note) -> Bool in
                     
@@ -138,9 +138,9 @@ class ObjectObserverTests: BaseTestDataTestCase {
             
             self.prepareTestDataForStack(stack)
             
-            guard let object = stack.fetchOne(
+            guard let object = try stack.fetchOne(
                 From<TestEntity1>(),
-                Where(#keyPath(TestEntity1.testEntityID), isEqualTo: 101)) else {
+                Where<TestEntity1>(#keyPath(TestEntity1.testEntityID), isEqualTo: 101)) else {
                     
                     XCTFail()
                     return
@@ -154,8 +154,8 @@ class ObjectObserverTests: BaseTestDataTestCase {
             
             var events = 0
             
-            let didDeleteExpectation = self.expectation(
-                forNotification: "objectMonitor:didDeleteObject:",
+            _ = self.expectation(
+                forNotification: NSNotification.Name(rawValue: "objectMonitor:didDeleteObject:"),
                 object: observer,
                 handler: { (note) -> Bool in
                     
@@ -203,7 +203,7 @@ class ObjectObserverTests: BaseTestDataTestCase {
 
 // MARK: TestObjectObserver
 
-@available(OSX 10.12, *)
+@available(macOS 10.12, *)
 class TestObjectObserver: ObjectObserver {
     
     typealias ObjectEntityType = TestEntity1
@@ -219,7 +219,7 @@ class TestObjectObserver: ObjectObserver {
         )
     }
     
-    func objectMonitor(_ monitor: ObjectMonitor<TestEntity1>, didUpdateObject object: TestEntity1, changedPersistentKeys: Set<KeyPath>) {
+    func objectMonitor(_ monitor: ObjectMonitor<TestEntity1>, didUpdateObject object: TestEntity1, changedPersistentKeys: Set<String>) {
         
         NotificationCenter.default.post(
             name: NSNotification.Name(rawValue: "objectMonitor:didUpdateObject:changedPersistentKeys:"),

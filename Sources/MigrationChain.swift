@@ -2,7 +2,7 @@
 //  MigrationChain.swift
 //  CoreStore
 //
-//  Copyright © 2015 John Rommel Estropia
+//  Copyright © 2018 John Rommel Estropia
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -87,9 +87,9 @@ public struct MigrationChain: ExpressibleByNilLiteral, ExpressibleByStringLitera
     /**
      Initializes the `MigrationChain` with a linear order of versions, which becomes the order of the `DataStack`'s progressive migrations.
      */
-    public init<T: Collection>(_ elements: T) where T.Iterator.Element == String, T.SubSequence.Iterator.Element == String, T.Index: Comparable {
+    public init<T: Collection>(_ elements: T) where T.Iterator.Element == String {
         
-        CoreStore.assert(Set(elements).count == Array(elements).count, "\(cs_typeName(MigrationChain.self))'s migration chain could not be created due to duplicate version strings.")
+        Internals.assert(Set(elements).count == Array(elements).count, "\(Internals.typeName(MigrationChain.self))'s migration chain could not be created due to duplicate version strings.")
         
         var lastVersion: String?
         var versionTree = [String: String]()
@@ -117,21 +117,22 @@ public struct MigrationChain: ExpressibleByNilLiteral, ExpressibleByStringLitera
         
         var isValid = true
         var versionTree = [String: String]()
-        elements.forEach { (sourceVersion, destinationVersion) in
+        elements.forEach {
             
+            let (sourceVersion, destinationVersion) = $0
             guard let _ = versionTree.updateValue(destinationVersion, forKey: sourceVersion) else {
                 
                 return
             }
             
-            CoreStore.assert(false, "\(cs_typeName(MigrationChain.self))'s migration chain could not be created due to ambiguous version paths.")
+            Internals.assert(false, "\(Internals.typeName(MigrationChain.self))'s migration chain could not be created due to ambiguous version paths.")
             
             isValid = false
         }
         let leafVersions = Set(
             elements
-                .filter { versionTree[$1] == nil }
-                .map { $1 }
+                .filter { versionTree[$0.1] == nil }
+                .map { $0.1 }
         )
         
         let isVersionAmbiguous = { (start: String) -> Bool in
@@ -142,7 +143,7 @@ public struct MigrationChain: ExpressibleByNilLiteral, ExpressibleByStringLitera
                 
                 if checklist.contains(nextVersion) {
                     
-                    CoreStore.assert(false, "\(cs_typeName(MigrationChain.self))'s migration chain could not be created due to looping version paths.")
+                    Internals.assert(false, "\(Internals.typeName(MigrationChain.self))'s migration chain could not be created due to looping version paths.")
                     
                     return true
                 }

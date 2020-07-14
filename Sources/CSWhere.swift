@@ -2,7 +2,7 @@
 //  CSWhere.swift
 //  CoreStore
 //
-//  Copyright © 2016 John Rommel Estropia
+//  Copyright © 2018 John Rommel Estropia
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,7 @@ import CoreData
  - SeeAlso: `Where`
  */
 @objc
-public final class CSWhere: NSObject, CSFetchClause, CSQueryClause, CSDeleteClause, CoreStoreObjectiveCType {
+public final class CSWhere: NSObject, CSFetchClause, CSQueryClause, CSDeleteClause {
     
     /**
      The internal `NSPredicate` instance for the `Where` clause
@@ -85,7 +85,7 @@ public final class CSWhere: NSObject, CSFetchClause, CSQueryClause, CSDeleteClau
      - parameter value: the arguments for the `==` operator
      */
     @objc
-    public convenience init(keyPath: KeyPath, isEqualTo value: CoreDataNativeType?) {
+    public convenience init(keyPath: KeyPathString, isEqualTo value: CoreDataNativeType?) {
         
         self.init(value == nil || value is NSNull
             ? Where("\(keyPath) == nil")
@@ -99,7 +99,7 @@ public final class CSWhere: NSObject, CSFetchClause, CSQueryClause, CSDeleteClau
      - parameter list: the array to check membership of
      */
     @objc
-    public convenience init(keyPath: KeyPath, isMemberOf list: [CoreDataNativeType]) {
+    public convenience init(keyPath: KeyPathString, isMemberOf list: [CoreDataNativeType]) {
         
         self.init(Where("\(keyPath) IN %@", list as NSArray))
     }
@@ -134,7 +134,7 @@ public final class CSWhere: NSObject, CSFetchClause, CSQueryClause, CSDeleteClau
     
     public override var description: String {
         
-        return "(\(String(reflecting: type(of: self)))) \(self.bridgeToSwift.coreStoreDumpString)"
+        return "(\(String(reflecting: Self.self))) \(self.bridgeToSwift.coreStoreDumpString)"
     }
     
     
@@ -149,11 +149,11 @@ public final class CSWhere: NSObject, CSFetchClause, CSQueryClause, CSDeleteClau
     
     // MARK: CoreStoreObjectiveCType
     
-    public let bridgeToSwift: Where
+    public let bridgeToSwift: Where<NSManagedObject>
     
-    public init(_ swiftValue: Where) {
+    public init<O: NSManagedObject>(_ swiftValue: Where<O>) {
         
-        self.bridgeToSwift = swiftValue
+        self.bridgeToSwift = swiftValue.downcast()
         super.init()
     }
 }
@@ -161,12 +161,20 @@ public final class CSWhere: NSObject, CSFetchClause, CSQueryClause, CSDeleteClau
 
 // MARK: - Where
 
-extension Where: CoreStoreSwiftType {
+extension Where where O: NSManagedObject {
     
     // MARK: CoreStoreSwiftType
     
     public var bridgeToObjectiveC: CSWhere {
         
         return CSWhere(self)
+    }
+    
+    
+    // MARK: FilePrivate
+    
+    fileprivate func downcast() -> Where<NSManagedObject> {
+        
+        return Where<NSManagedObject>(self.predicate)
     }
 }

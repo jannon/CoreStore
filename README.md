@@ -5,48 +5,50 @@
 Unleashing the real power of Core Data with the elegance and safety of Swift
 <br />
 <br />
-<a href="https://travis-ci.org/JohnEstropia/CoreStore"><img alt="Build Status" src="https://img.shields.io/travis/JohnEstropia/CoreStore/master.svg?style=flat" /></a>
+<a href="https://app.bitrise.io/app/e736852157296019#/builds"><img alt="Build Status" src="https://img.shields.io/bitrise/e736852157296019/master.svg?label=build&token=vhgAmaiF3tWZoQyFLkKM7g&logo=bitrise" /></a>
+<a href="https://github.com/JohnEstropia/CoreStore/commits"><img alt="Last Commit" src="https://img.shields.io/github/last-commit/johnestropia/corestore.svg?style=flat" /></a>
 <a href="http://cocoadocs.org/docsets/CoreStore"><img alt="Platform" src="https://img.shields.io/cocoapods/p/CoreStore.svg?style=flat" /></a>
 <a href="https://raw.githubusercontent.com/JohnEstropia/CoreStore/master/LICENSE"><img alt="License" src="https://img.shields.io/cocoapods/l/CoreStore.svg?style=flat" /></a>
 <br /><br />Dependency managers<br />
 <a href="https://cocoapods.org/pods/CoreStore"><img alt="Cocoapods compatible" src="https://img.shields.io/cocoapods/v/CoreStore.svg?style=flat&label=Cocoapods" /></a>
 <a href="https://github.com/Carthage/Carthage"><img alt="Carthage compatible" src="https://img.shields.io/badge/Carthage-compatible-16a085.svg?style=flat" /></a>
-<a href="https://swiftpkgs.ng.bluemix.net/package/JohnEstropia/CoreStore"><img alt="Swift Package Manager compatible" src="https://img.shields.io/badge/Swift_Package_Manager-compatible-orange.svg?style=flat" /></a>
+<a href="https://swift.org/source-compatibility/#current-list-of-projects"><img alt="Swift Package Manager compatible" src="https://img.shields.io/badge/Swift_Package_Manager-compatible-orange.svg?style=flat" /></a>
 <br /><br />Contact<br />
-<a href="http://swift-corestore-slack.herokuapp.com/"><img alt="Join us on Slack!" src="http://swift-corestore-slack.herokuapp.com/badge.svg" /></a>
-<a href="https://twitter.com/JohnEstropia"><img alt="Reach me on Twitter!" src="https://img.shields.io/badge/twitter-%40JohnEstropia-3498db.svg" /></a>
+<a href="http://swift-corestore-slack.herokuapp.com/"><img alt="Join us on Slack!" src="http://swift-corestore-slack.herokuapp.com/badge.svg?logo=slack" /></a>
+<a href="https://twitter.com/JohnEstropia"><img alt="Reach me on Twitter!" src="https://img.shields.io/badge/twitter-%40JohnEstropia-3498db.svg?logo=twitter" /></a>
 <br />
 </p>
 
-* **Swift 3.1:** iOS 8+ / macOS 10.10+ / watchOS 2.0+ / tvOS 9.0+
+* **Swift 5.2:** iOS 10+ / macOS 10.12+ / watchOS 3.0+ / tvOS 10.0+
+* Previously supported Swift versions: [Swift 3.2](https://github.com/JohnEstropia/CoreStore/tree/4.2.3), [Swift 4.2](https://github.com/JohnEstropia/CoreStore/tree/6.2.1), [Swift 5.0](https://github.com/JohnEstropia/CoreStore/tree/6.3.2), [Swift 5.1](https://github.com/JohnEstropia/CoreStore/tree/7.0.4)
 
-Upgrading from CoreStore 3.x to 4.x? Check out the [new features](#features) and make sure to read the [Migration guide](#upgrading-from-3xx-to-4xx).
+Upgrading from CoreStore 6.x (swift 5.0) to 7.x (Swift 5.1)? Check out the [🆕 features](#features) and make sure to read the [Change logs](https://github.com/JohnEstropia/CoreStore/releases).
 
 CoreStore is now part of the [Swift Source Compatibility projects](https://swift.org/source-compatibility/#current-list-of-projects).
 
 
 ## Why use CoreStore?
-CoreStore is the answer to the [challenges](http://inessential.com/2010/02/26/on_switching_away_from_core_data) [of](http://bsktapp.com/blog/why-is-realm-great-and-why-are-we-not-using-it/) [using](https://www.quora.com/Why-would-you-use-Realm-over-Core-Data) [Core](http://sebastiandobrincu.com/blog/5-reasons-why-you-should-choose-realm-over-coredata) [Data](https://medium.com/the-way-north/ditching-core-data-865c1bb5564c#.a5h8ou6ri). 
 
 CoreStore was (and is) heavily shaped by real-world needs of developing data-dependent apps. It enforces safe and convenient Core Data usage while letting you take advantage of the industry's encouraged best practices.
 
 ### Features
 
-- **Tight design around Swift’s code elegance and type safety.** CoreStore fully utilizes Swift's community-driven language features.
-- **Safer concurrency architecture.** CoreStore makes it hard to fall into common concurrency mistakes. The main `NSManagedObjectContext` is strictly read-only, while all updates are done through serial *transactions*. *(See [Saving and processing transactions](#saving-and-processing-transactions))*
-- **Clean fetching and querying API.** Fetching objects is easy, but querying for raw aggregates (`min`, `max`, etc.) and raw property values is now just as convenient. *(See [Fetching and querying](#fetching-and-querying))*
-- **Type-safe, easy to configure observers.** You don't have to deal with the burden of setting up `NSFetchedResultsController`s and KVO. As an added bonus, `ListMonitor`s and `ObjectMonitor`s can have multiple observers. This means you can have multiple view controllers efficiently share a single resource! *(See [Observing changes and notifications](#observing-changes-and-notifications))*
-- **Efficient importing utilities.** Map your entities once with their corresponding import source (JSON for example), and importing from *transactions* becomes elegant. Uniquing is also done with an efficient find-and-replace algorithm. *(See [Importing data](#importing-data))*
-- ⭐️ **New in 4.0: Say goodbye to *.xcdatamodeld* files!** The new `CoreStoreObject` is *the* replacement to `NSManagedObject`. `CoreStoreObject` subclasses can declare type-safe properties all in Swift code, no need to maintain separate resource files for the models. As bonus, these special properties support custom types, and can be used to create type-safe keypaths and queries. *(See [Type-safe `CoreStoreObject`s](#type-safe-corestoreobjects))*
-- **Progressive migrations.** No need to think how to migrate from all previous model versions to your latest model. Just tell the `DataStack` the sequence of version strings (`MigrationChain`s) and CoreStore will automatically use progressive migrations when needed. *(See [Migrations](#migrations))*
-- ⭐️ **New in 4.0: Easier custom migrations.** Say goodbye to *.xcmappingmodel* files; CoreStore can now infer entity mappings when possible, while still allowing an easy way to write custom mappings. *(See [Migrations](#migrations))*
-- **Plug-in your own logging framework.** Although a default logger is built-in, all logging, asserting, and error reporting can be funneled to `CoreStoreLogger` protocol implementations. *(See [Logging and error reporting](#logging-and-error-reporting))*
-- **Heavy support for multiple persistent stores per data stack.** CoreStore lets you manage separate stores in a single `DataStack`, just the way *.xcdatamodeld* configurations are designed to. CoreStore will also manage one stack by default, but you can create and manage as many as you need. *(See [Setting up](#setting-up))*
-- **Free to name entities and their class names independently.** CoreStore gets around a restriction with other Core Data wrappers where the entity name should be the same as the `NSManagedObject` subclass name. CoreStore loads entity-to-class mappings from the managed object model file, so you can assign different names for the entities and their class names.
-- **Full Documentation.** No magic here; all public classes, functions, properties, etc. have detailed *Apple Docs*. This *README* also introduces a lot of concepts and explains a lot of CoreStore's behavior.
-- **Informative (and pretty) logs.** All CoreStore and Core Data-related types now have very informative and pretty print outputs! *(See [Logging and error reporting](#logging-and-error-reporting))*
-- **Objective-C support!** Is your project transitioning from Objective-C to Swift but still can't quite fully convert some huge classes to Swift yet? CoreStore adjusts to the ever-increasing Swift adoption. While still written in pure Swift, all CoreStore types have their corresponding Objective-C-visible "bridging classes". *(See [Objective-C support](#objective-c-support))*
-- **More extensive Unit Tests.** Extending CoreStore is safe without having to worry about breaking old behavior.
+- **Backwards-portable DiffableDataSources implementation!** `UITableViews` and `UICollectionViews` now have a new ally: `ListPublisher`s provide diffable snapshots that make reloading animations very easy and very safe. Say goodbye to `UITableViews` and `UICollectionViews` reload errors!
+- **💎Tight design around Swift’s code elegance and type safety.** CoreStore fully utilizes Swift's community-driven language features.
+- **🚦Safer concurrency architecture.** CoreStore makes it hard to fall into common concurrency mistakes. The main `NSManagedObjectContext` is strictly read-only, while all updates are done through serial *transactions*. *(See [Saving and processing transactions](#saving-and-processing-transactions))*
+- **🔍Clean fetching and querying API.** Fetching objects is easy, but querying for raw aggregates (`min`, `max`, etc.) and raw property values is now just as convenient. *(See [Fetching and querying](#fetching-and-querying))*
+- **🔭Type-safe, easy to configure observers.** You don't have to deal with the burden of setting up `NSFetchedResultsController`s and KVO. As an added bonus, list and object observable types all support multiple observers. This means you can have multiple view controllers efficiently share a single resource! *(See [Observing changes and notifications](#observing-changes-and-notifications))*
+- **📥Efficient importing utilities.** Map your entities once with their corresponding import source (JSON for example), and importing from *transactions* becomes elegant. Uniquing is also done with an efficient find-and-replace algorithm. *(See [Importing data](#importing-data))*
+- **🗑Say goodbye to *.xcdatamodeld* files!** While CoreStore supports `NSManagedObject`s, it offers `CoreStoreObject` whose subclasses can declare type-safe properties all in Swift code without the need to maintain separate resource files for the models. As bonus, these special properties support custom types, and can be used to create type-safe keypaths and queries. *(See [Type-safe `CoreStoreObject`s](#type-safe-corestoreobjects))*
+- **🔗Progressive migrations.** No need to think how to migrate from all previous model versions to your latest model. Just tell the `DataStack` the sequence of version strings (`MigrationChain`s) and CoreStore will automatically use progressive migrations when needed. *(See [Migrations](#migrations))*
+- **Easier custom migrations.** Say goodbye to *.xcmappingmodel* files; CoreStore can now infer entity mappings when possible, while still allowing an easy way to write custom mappings. *(See [Migrations](#migrations))*
+- **📝Plug-in your own logging framework.** Although a default logger is built-in, all logging, asserting, and error reporting can be funneled to `CoreStoreLogger` protocol implementations. *(See [Logging and error reporting](#logging-and-error-reporting))*
+- **⛓Heavy support for multiple persistent stores per data stack.** CoreStore lets you manage separate stores in a single `DataStack`, just the way *.xcdatamodeld* configurations are designed to. CoreStore will also manage one stack by default, but you can create and manage as many as you need. *(See [Setting up](#setting-up))*
+- **🎯Free to name entities and their class names independently.** CoreStore gets around a restriction with other Core Data wrappers where the entity name should be the same as the `NSManagedObject` subclass name. CoreStore loads entity-to-class mappings from the managed object model file, so you can assign independent names for the entities and their class names.
+- **📙Full Documentation.** No magic here; all public classes, functions, properties, etc. have detailed *Apple Docs*. This *README* also introduces a lot of concepts and explains a lot of CoreStore's behavior.
+- **ℹ️Informative (and pretty) logs.** All CoreStore and Core Data-related types now have very informative and pretty print outputs! *(See [Logging and error reporting](#logging-and-error-reporting))*
+- **🎗Objective-C support!** Is your project transitioning from Objective-C to Swift but still can't quite fully convert some huge classes to Swift yet? CoreStore adjusts to the ever-increasing Swift adoption. While still written in pure Swift, all CoreStore types have their corresponding Objective-C-visible "bridging classes". *(See [Objective-C support](#objective-c-support))*
+- **🛡More extensive Unit Tests.** Extending CoreStore is safe without having to worry about breaking old behavior.
 
 *Have ideas that may benefit other Core Data users? [Feature Request](https://github.com/JohnEstropia/CoreStore/issues)s are welcome!*
 
@@ -58,13 +60,12 @@ CoreStore was (and is) heavily shaped by real-world needs of developing data-dep
     - [Setting up](#setting-up)
         - [In-memory store](#in-memory-store)
         - [Local store](#local-store)
-        - [iCloud store](#icloud-store)
     - [Migrations](#migrations)
         - [Declaring model versions](#declaring-model-versions)
         - [Starting migrations](#starting-migrations)
         - [Progressive migrations](#progressive-migrations)
         - [Forecasting migrations](#forecasting-migrations)
-        - [Custom migratoins](#custom-migrations)
+        - [Custom migrations](#custom-migrations)
     - [Saving and processing transactions](#saving-and-processing-transactions)
         - [Transaction types](#transaction-types)
             - [Asynchronous transactions](#asynchronous-transactions)
@@ -85,17 +86,24 @@ CoreStore was (and is) heavily shaped by real-world needs of developing data-dep
             - [`Select<T>` clause](#selectt-clause)
             - [`GroupBy` clause](#groupby-clause)
     - [Logging and error reporting](#logging-and-error-reporting)
-    - [Observing changes and notifications](#observing-changes-and-notifications) (unavailable on macOS)
-        - [Observe a single object](#observe-a-single-object)
-        - [Observe a list of objects](#observe-a-list-of-objects)
+    - [Observing changes and notifications](#observing-changes-and-notifications)
+        - [Observe a single property](#observe-a-single-property)
+        - [Observe a single object's updates](#observe-a-single-objects-updates)
+        - [Observe a single object's per-property updates](#observe-a-single-objects-per-property-updates)
+        - [Observe a diffable list](#observe-a-diffable-list)
+        - [Observe detailed list changes](#observe-detailed-list-changes)
     - [Objective-C support](#objective-c-support)
     - [Type-safe `CoreStoreObject`s](#type-safe-corestoreobjects)
+        - 🆕[New `@Field` Property Wrapper syntax](#new-field-property-wrapper-syntax)
+            - 🆕[`@Field.Stored` ](#fieldstored)
+            - 🆕[`@Field.Virtual` ](#fieldvirtual)
+            - 🆕[`@Field.Coded` ](#fieldcoded)
+            - 🆕[`@Field.Relationship` ](#fieldrelationship)
+            - 🆕[`@Field` usage notes](#field-usage-notes)
         - [`VersionLock`s](#versionlocks)
 - [Roadmap](#roadmap)
 - [Installation](#installation)
 - [Changesets](#changesets)
-    - [Upgrading from 3.x.x to 4.x.x](#upgrading-from-3xx-to-4xx)
-    - [Other Releases](#other-releases)
 - [Contact](#contact)
 - [Who uses CoreStore?](#who-uses-corestore)
 - [License](#license)
@@ -106,7 +114,7 @@ CoreStore was (and is) heavily shaped by real-world needs of developing data-dep
 
 Setting-up with progressive migration support:
 ```swift
-CoreStore.defaultStack = DataStack(
+dataStack = DataStack(
     xcodeModelName: "MyStore",
     migrationChain: ["MyStore", "MyStoreV2", "MyStoreV3"]
 )
@@ -114,7 +122,7 @@ CoreStore.defaultStack = DataStack(
 
 Adding a store:
 ```swift
-CoreStore.addStorage(
+dataStack.addStorage(
     SQLiteStore(fileName: "MyStore.sqlite"),
     completion: { (result) -> Void in
         // ...
@@ -124,7 +132,7 @@ CoreStore.addStorage(
 
 Starting transactions:
 ```swift
-CoreStore.perform(
+dataStack.perform(
     asynchronous: { (transaction) -> Void in
         let person = transaction.create(Into<MyPersonEntity>())
         person.name = "John Smith"
@@ -141,26 +149,24 @@ CoreStore.perform(
 
 Fetching objects (simple):
 ```swift
-let people = CoreStore.fetchAll(From<MyPersonEntity>())
+let people = try dataStack.fetchAll(From<MyPersonEntity>())
 ```
 
 Fetching objects (complex):
 ```swift
-let people = CoreStore.fetchAll(
-    From<MyPersonEntity>(),
-    Where("age > 30"),
-    OrderBy(.ascending("name"), .descending("age")),
-    Tweak { (fetchRequest) -> Void in
-        fetchRequest.includesPendingChanges = false
-    }
+let people = try dataStack.fetchAll(
+    From<MyPersonEntity>()
+        .where(\.age > 30),
+        .orderBy(.ascending(\.name), .descending(.\age)),
+        .tweak({ $0.includesPendingChanges = false })
 )
 ```
 
 Querying values:
 ```swift
-let maxAge = CoreStore.queryValue(
-    From<MyPersonEntity>(),
-    Select<Int>(.maximum("age"))
+let maxAge = try dataStack.queryValue(
+    From<MyPersonEntity>()
+        .select(Int.self, .maximum(\.age))
 )
 ```
 
@@ -177,15 +183,15 @@ If you are already familiar with the inner workings of CoreData, here is a mappi
 
 | *Core Data* | *CoreStore* |
 | --- | --- |
-| `NSManagedObjectModel` / `NSPersistentStoreCoordinator`<br />(.xcdatamodeld file) | `DataStack` |
-| `NSPersistentStore`<br />("Configuration"s in the .xcdatamodeld file) | `StorageInterface` implementations<br />(`InMemoryStore`, `SQLiteStore`, `ICloudStore`) |
+| `NSPersistentContainer`<br />(.xcdatamodeld file) | `DataStack` |
+| `NSPersistentStoreDescription`<br />("Configuration"s in the .xcdatamodeld file) | `StorageInterface` implementations<br />(`InMemoryStore`, `SQLiteStore`) |
 | `NSManagedObjectContext` | `BaseDataTransaction` subclasses<br />(`SynchronousDataTransaction`, `AsynchronousDataTransaction`, `UnsafeDataTransaction`) |
 
 A lot of Core Data wrapper libraries set up their `NSManagedObjectContext`s this way:
 
 <img src="https://cloud.githubusercontent.com/assets/3029684/16707160/984ef25c-4600-11e6-869f-8db7d2c63668.png" alt="nested contexts" height=380 />
 
-Nesting saves from child context to the root context ensures maximum data integrity between contexts without blocking the main queue. But <a href="http://floriankugler.com/2013/04/29/concurrent-core-data-stack-performance-shootout/">in reality</a>, merging contexts is still by far faster than saving contexts. CoreStore's `DataStack` takes the best of both worlds by treating the main `NSManagedObjectContext` as a read-only context, and only allows changes to be made within *transactions* on the child context:
+Nesting saves from child context to the root context ensures maximum data integrity between contexts without blocking the main queue. But <a href="http://floriankugler.com/2013/04/29/concurrent-core-data-stack-performance-shootout/">in reality</a>, merging contexts is still by far faster than saving contexts. CoreStore's `DataStack` takes the best of both worlds by treating the main `NSManagedObjectContext` as a read-only context (or "viewContext"), and only allows changes to be made within *transactions* on the child context:
 
 <img src="https://cloud.githubusercontent.com/assets/3029684/16707161/9adeb962-4600-11e6-8bc8-4ec85764dba4.png" alt="nested contexts and merge hybrid" height=292 />
 
@@ -196,10 +202,10 @@ This allows for a butter-smooth main thread, while still taking advantage of saf
 ## Setting up
 The simplest way to initialize CoreStore is to add a default store to the default stack:
 ```swift
-try CoreStore.addStorageAndWait()
+try CoreStoreDefaults.dataStack.addStorageAndWait()
 ```
 This one-liner does the following:
-- Triggers the lazy-initialization of `CoreStore.defaultStack` with a default `DataStack`
+- Triggers the lazy-initialization of `CoreStoreDefaults.dataStack` with a default `DataStack`
 - Sets up the stack's `NSPersistentStoreCoordinator`, the root saving `NSManagedObjectContext`, and the read-only main `NSManagedObjectContext`
 - Adds an `SQLiteStore` in the *"Application Support/<bundle id>"* directory (or the *"Caches/<bundle id>"* directory on tvOS) with the file name *"[App bundle name].sqlite"*
 - Creates and returns the `NSPersistentStore` instance on success, or an `NSError` on failure
@@ -219,20 +225,20 @@ let migrationProgress = dataStack.addStorage(
     completion: { (result) -> Void in
         switch result {
         case .success(let storage):
-            print("Successfully added sqlite store: \(storage)"
+            print("Successfully added sqlite store: \(storage)")
         case .failure(let error):
-            print("Failed adding sqlite store with error: \(error)"
+            print("Failed adding sqlite store with error: \(error)")
         }
     }
 )
 
-CoreStore.defaultStack = dataStack // pass the dataStack to CoreStore for easier access later on
+CoreStoreDefaults.dataStack = dataStack // pass the dataStack to CoreStore for easier access later on
 ```
 
-(If you have never heard of "Configurations", you'll find them in your *.xcdatamodeld* file)
-<img src="https://cloud.githubusercontent.com/assets/3029684/8333192/e52cfaac-1acc-11e5-9902-08724f9f1324.png" alt="xcode configurations screenshot" height=212 />
+> 💡If you have never heard of "Configurations", you'll find them in your *.xcdatamodeld* file
+> <img src="https://cloud.githubusercontent.com/assets/3029684/8333192/e52cfaac-1acc-11e5-9902-08724f9f1324.png" alt="xcode configurations screenshot" height=212 />
 
-In our sample code above, note that you don't need to do the `CoreStore.defaultStack = dataStack` line. You can just as well hold a reference to the `DataStack` like below and call all its instance methods directly:
+In our sample code above, note that you don't need to do the `CoreStoreDefaults.dataStack = dataStack` line. You can just as well hold a reference to the `DataStack` like below and call all its instance methods directly:
 ```swift
 class MyViewController: UIViewController {
     let dataStack = DataStack(xcodeModelName: "MyModel") // keep reference to the stack
@@ -245,36 +251,20 @@ class MyViewController: UIViewController {
         }
     }
     func methodToBeCalledLaterOn() {
-        let objects = self.dataStack.fetchAll(From(MyEntity))
-        print(objects)
-    }
-}
-```
-The difference is when you set the stack as the `CoreStore.defaultStack`, you can call the stack's methods directly from `CoreStore` itself:
-```swift
-class MyViewController: UIViewController {
-    // elsewhere: CoreStore.defaultStack = DataStack(modelName: "MyModel")
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        do {
-            try CoreStore.addStorageAndWait(SQLiteStore.self)
-        }
-        catch { // ...
-        }
-    }
-    func methodToBeCalledLaterOn() {
-        let objects = CoreStore.fetchAll(From(MyEntity))
+        let objects = self.dataStack.fetchAll(From<MyEntity>())
         print(objects)
     }
 }
 ```
 
-Notice that in our previous examples, `addStorageAndWait(_:)` and `addStorage(_:completion:)` both accept either `InMemoryStore`, `SQLiteStore`, or `ICloudStore`. These implement the `StorageInterface` protocol.
+> 💡By default, CoreStore will initialize `NSManagedObject`s from *.xcdatamodeld* files, but you can create models completely from source code using `CoreStoreObject`s and `CoreStoreSchema`.  To use this feature, refer to [Type-safe `CoreStoreObject`s](#type-safe-corestoreobjects).
+
+Notice that in our previous examples, `addStorageAndWait(_:)` and `addStorage(_:completion:)` both accept either `InMemoryStore`, or `SQLiteStore`. These implement the `StorageInterface` protocol.
 
 ### In-memory store
 The most basic `StorageInterface` concrete type is the `InMemoryStore`, which just stores objects in memory. Since `InMemoryStore`s always start with a fresh empty data, they do not need any migration information.
 ```swift
-try CoreStore.addStorageAndWait(
+try dataStack.addStorageAndWait(
     InMemoryStore(
         configuration: "Config2" // optional. Use entities from the "Config2" configuration in the .xcdatamodeld file
     )
@@ -284,7 +274,7 @@ try CoreStore.addStorageAndWait(
 ### Local Store
 The most common `StorageInterface` you will probably use is the `SQLiteStore`, which saves data in a local SQLite file.
 ```swift
-let migrationProgress = CoreStore.addStorage(
+let migrationProgress = dataStack.addStorage(
     SQLiteStore(
         fileName: "MyStore.sqlite",
         configuration: "Config2", // optional. Use entities from the "Config2" configuration in the .xcdatamodeld file
@@ -298,7 +288,7 @@ Refer to the *SQLiteStore.swift* source documentation for detailed explanations 
 
 CoreStore can decide the default values for these properties, so `SQLiteStore`s can be initialized with no arguments:
 ```swift
-try CoreStore.addStorageAndWait(SQLiteStore())
+try dataStack.addStorageAndWait(SQLiteStore())
 ```
 
 The file-related properties above are actually requirements of another protocol that `SQLiteStore` implements, the `LocalStorage` protocol:
@@ -313,80 +303,11 @@ public protocol LocalStorage: StorageInterface {
 ```
 If you have custom `NSIncrementalStore` or `NSAtomicStore` subclasses, you can implement this protocol and use it similarly to `SQLiteStore`.
 
-### iCloud Store
-> **Important:** The iCloud Store is currently in beta. Please use with caution. If you have any concerns please do send me a message on [Twitter](https://twitter.com/JohnEstropia) or on the [CoreStore Slack Team](http://swift-corestore-slack.herokuapp.com/)
-
-As a counterpart to `LocalStorage`, the `CloudStorage` protocol abstracts stores managed in the cloud. CoreStore currently provides the concrete class `ICloudStore`. Unlike `InMemoryStore` and `SQLiteStore` though, the `ICloudStore`'s initializer may return `nil` if the iCloud container could not be located or if iCloud is not available on the device:
-```swift
-guard let storage = ICloudStore(
-    ubiquitousContentName: "MyAppCloudData", // the name of the store in iCloud
-    ubiquitousContentTransactionLogsSubdirectory: "logs/config1", // optional. Subdirectory path for the transaction logs
-    ubiquitousContainerID: "iCloud.com.mycompany.myapp.containername", // optional. The container if your app has multiple ubiquity container identifiers in its entitlements
-    ubiquitousPeerToken: "9614d658014f4151a95d8048fb717cf0", // optional. A per-application salt to allow multiple apps on the same device to share a Core Data store integrated with iCloud
-    configuration: "Config1", // optional. Use entities from the "Config1" configuration in the .xcdatamodeld file
-    cloudStorageOptions: .recreateLocalStoreOnModelMismatch // optional. Provides settings that tells the DataStack how to setup the persistent store
-) else {
-    // The iCloud container could not be located or if iCloud is not available on the device.
-    // Handle appropriately
-    return    
-}
-CoreStore.addStorage(,
-    storage,
-    completion: { result in
-        switch result {
-        case .success(let storage): // ...
-        case .failure(let error): // ...
-        }
-    }
-)
-```
-
-If your app is using iCloud stores, you may want to be notified of particular iCloud events. The `ICloudStoreObserver` functions are all optional, so you may implement only the ones your app is interested in:
-```swift
-public protocol ICloudStoreObserver: class {
-    func iCloudStoreWillFinishUbiquitousStoreInitialImport(storage storage: ICloudStore, dataStack: DataStack)
-    func iCloudStoreDidFinishUbiquitousStoreInitialImport(storage storage: ICloudStore, dataStack: DataStack)
-    func iCloudStoreWillAddAccount(storage storage: ICloudStore, dataStack: DataStack)
-    func iCloudStoreDidAddAccount(storage storage: ICloudStore, dataStack: DataStack)
-    func iCloudStoreWillRemoveAccount(storage storage: ICloudStore, dataStack: DataStack)
-    func iCloudStoreDidRemoveAccount(storage storage: ICloudStore, dataStack: DataStack)
-    func iCloudStoreWillRemoveContent(storage storage: ICloudStore, dataStack: DataStack)
-    func iCloudStoreDidRemoveContent(storage storage: ICloudStore, dataStack: DataStack)
-}
-```
-To register your `ICloudStoreObserver`, call `addObserver(_:)` on the `ICloudStore` instance:
-
-```swift
-guard let storage = ICloudStore(/* ... */) else {
-    return    
-}
-storage.addObserver(self) // assuming self implements ICloudStoreObserver
-CoreStore.addStorage(,
-    storage,
-    completion: { result in
-        switch result {
-        case .success(let storage): // ... You may also call storage.addObserver(_:) here
-        case .failure(let error): // ...
-        }
-    }
-)
-```
-The `ICloudStore` only keeps weak references of the registered observers. You may call `removeObserver(_:)` for precise deregistration, but `ICloudStore` automatically removes deallocated observers.
-
 
 ## Migrations
 
 ### Declaring model versions
-Until CoreStore 4.0, model versions were always assumed to be declared in *.xcdatamodeld* files. The `DataStack` loads these for us by accepting the *.xcdatamodeld* file name and the `Bundle` where the files can be found:
-```swift
-CoreStore.defaultStack = DataStack(
-    xcodeModelName: "MyModel",
-    bundle: Bundle.main,
-    migrationChain: ["MyAppModel", "MyAppModelV2", "MyAppModelV3", "MyAppModelV4"]
-)
-```
-
-Starting CoreStore 4.0, model versions are now expressed as a first-class protocol, `DynamicSchema`. CoreStore currently supports the following schema classes:
+Model versions are now expressed as a first-class protocol, `DynamicSchema`. CoreStore currently supports the following schema classes:
 - **`XcodeDataModelSchema`**: a model version with entities loaded from a *.xcdatamodeld* file.
 - **`CoreStoreSchema`**: a model version created with `CoreStoreObject` entities. *(See [Type-safe `CoreStoreObject`s](#type-safe-corestore-objects))*
 - **`UnsafeDataModelSchema`**: a model version created with an existing `NSManagedObjectModel` instance.
@@ -395,7 +316,7 @@ All the `DynamicSchema` for all model versions are then collected within a singl
 
 **Multiple model versions grouped in a *.xcdatamodeld* file (Core Data standard method)**
 ```swift
-CoreStore.defaultStack = DataStack(
+CoreStoreDefaults.dataStack = DataStack(
     xcodeModelName: "MyModel",
     bundle: Bundle.main,
     migrationChain: ["MyAppModel", "MyAppModelV2", "MyAppModelV3", "MyAppModelV4"]
@@ -415,7 +336,7 @@ class Person: CoreStoreObject {
     // ...
 }
 
-CoreStore.defaultStack = DataStack(
+CoreStoreDefaults.dataStack = DataStack(
     CoreStoreSchema(
         modelVersion: "V1",
         entities: [
@@ -452,7 +373,7 @@ let newSchema = CoreStoreSchema(
         Entity<Person>("Person")
     ]
 )
-CoreStore.defaultStack = DataStack(
+CoreStoreDefaults.dataStack = DataStack(
     schemaHistory: SchemaHistory(
         legacySchema + [newSchema],
         migrationChain: ["MyAppModel", "MyAppModelV2", "MyAppModelV3", "MyAppModelV4", "V1"] 
@@ -460,9 +381,58 @@ CoreStore.defaultStack = DataStack(
 )   
 ```
 
+**`CoreStoreSchema`-based model versions with progressive migration**
+```swift
+typealias Animal = V2.Animal
+typealias Dog = V2.Dog
+typealias Person = V2.Person
+enum V2 {
+    class Animal: CoreStoreObject {
+        // ...
+    }
+    class Dog: Animal {
+        // ...
+    }
+    class Person: CoreStoreObject {
+        // ...
+    }
+}
+enum V1 {
+    class Animal: CoreStoreObject {
+        // ...
+    }
+    class Dog: Animal {
+        // ...
+    }
+    class Person: CoreStoreObject {
+        // ...
+    }
+}
+
+CoreStoreDefaults.dataStack = DataStack(
+    CoreStoreSchema(
+        modelVersion: "V1",
+        entities: [
+            Entity<V1.Animal>("Animal", isAbstract: true),
+            Entity<V1.Dog>("Dog"),
+            Entity<V1.Person>("Person")
+        ]
+    ),
+    CoreStoreSchema(
+        modelVersion: "V2",
+        entities: [
+            Entity<V2.Animal>("Animal", isAbstract: true),
+            Entity<V2.Dog>("Dog"),
+            Entity<V2.Person>("Person")
+        ]
+    ),
+    migrationChain: ["V1", "V2"]
+)
+```
+
 
 ### Starting migrations
-We have seen `addStorageAndWait(...)` used to initialize our persistent store. As the method name's *~AndWait* suffix suggests though, this method blocks so it should not do long tasks such as store migrations. In fact CoreStore will only attempt a synchronous **lightweight** migration if you explicitly provide the `.allowSynchronousLightweightMigration` option:
+We have seen `addStorageAndWait(...)` used to initialize our persistent store. As the method name's *~AndWait* suffix suggests though, this method blocks so it should not do long tasks such as data migrations. In fact CoreStore will only attempt a synchronous **lightweight** migration if you explicitly provide the `.allowSynchronousLightweightMigration` option:
 ```swift
 try dataStack.addStorageAndWait(
     SQLiteStore(
@@ -504,14 +474,14 @@ This closure is executed on the main thread so UIKit and AppKit calls can be don
 
 
 ### Progressive migrations
-By default, CoreStore uses Core Data's default automatic migration mechanism. In other words, CoreStore will try to migrate the existing persistent store to the *.xcdatamodeld* file's current model version. If no mapping model is found from the store's version to the data model's version, CoreStore gives up and reports an error.
+By default, CoreStore uses Core Data's default automatic migration mechanism. In other words, CoreStore will try to migrate the existing persistent store until it matches the `SchemaHistory`'s `currentModelVersion`. If no mapping model path is found from the store's version to the data model's version, CoreStore gives up and reports an error.
 
 The `DataStack` lets you specify hints on how to break a migration into several sub-migrations using a `MigrationChain`. This is typically passed to the `DataStack` initializer and will be applied to all stores added to the `DataStack` with `addSQLiteStore(...)` and its variants:
 ```swift
 let dataStack = DataStack(migrationChain: 
     ["MyAppModel", "MyAppModelV2", "MyAppModelV3", "MyAppModelV4"])
 ```
-The most common usage is to pass in the *.xcdatamodeld* version names in increasing order as above.
+The most common usage is to pass in the model version (*.xcdatamodeld* version names for `NSManagedObject`s, or the `modelName` for `CoreStoreSchema`s) in increasing order as above.
 
 For more complex, non-linear migration paths, you can also pass in a version tree that maps the key-values to the source-destination versions:
 ```swift
@@ -536,7 +506,7 @@ The `MigrationChain` is validated when passed to the `DataStack` and unless it i
 - a version appears twice as a key in a dictionary literal
 - a loop is found in any of the paths
 
-One important thing to remember is that **if a `MigrationChain` is specified, the *.xcdatamodeld*'s "Current Version" will be bypassed** and the `MigrationChain`'s leafmost version will be the `DataStack`'s base model version.
+> ⚠️**Important: If a `MigrationChain` is specified, the *.xcdatamodeld*'s "Current Version" will be bypassed** and the `MigrationChain`'s leafmost version will be the `DataStack`'s base model version.
 
 
 ### Forecasting migrations
@@ -545,7 +515,7 @@ Sometimes migrations are huge and you may want prior information so your app cou
 ```swift
 do {
     let storage = SQLiteStorage(fileName: "MyStore.sqlite")
-    let migrationTypes: [MigrationType] = try CoreStore.requiredMigrationsForStorage(storage)
+    let migrationTypes: [MigrationType] = try dataStack.requiredMigrationsForStorage(storage)
     if migrationTypes.count > 1
         || (migrationTypes.filter { $0.isHeavyweightMigration }.count) > 0 {
         // ... will migrate more than once. Show special waiting screen
@@ -556,7 +526,7 @@ do {
     else {
         // ... Do nothing
     }
-    CoreStore.addStorage(storage, completion: { /* ... */ })
+    dataStack.addStorage(storage, completion: { /* ... */ })
 }
 catch {
     // ... either inspection of the store failed, or if no mapping model was found/inferred
@@ -572,11 +542,11 @@ Each `MigrationType` indicates the migration type for each step in the `Migratio
 
 ### Custom migrations
 
-Before CoreStore 4.0, the only way to implement custom migrations is to use Core Data's standard method: declaring entity mappings through *.xcmappingmodel* files. Starting CoreStore 4.0, new ways to declare migration mappings have been added:
+CoreStore offers several ways to declare migration mappings:
 
-- `InferredSchemaMappingProvider`: The default mapping provider which tries to infer model migration between two `DynamicSchema` versions either by searching all *.xcmappingmodel* files from `Bundle.allBundles`, or by relying on lightweight migration if possible.
-- `XcodeSchemaMappingProvider`: A mapping provider which loads entity mappings from *.xcmappingmodel* files in a specified `Bundle`.
 - `CustomSchemaMappingProvider`: A mapping provider that infers mapping initially, but also accepts custom mappings for specified entities. This was added to support custom migrations with `CoreStoreObject`s as well, but may also be used with `NSManagedObject`s.
+- `XcodeSchemaMappingProvider`: A mapping provider which loads entity mappings from *.xcmappingmodel* files in a specified `Bundle`.
+- `InferredSchemaMappingProvider`: The default mapping provider which tries to infer model migration between two `DynamicSchema` versions either by searching all *.xcmappingmodel* files from `Bundle.allBundles`, or by relying on lightweight migration if possible.
 
 These mapping providers conform to `SchemaMappingProvider` and can be passed to `SQLiteStore`'s initializer:
 ```swift
@@ -643,18 +613,7 @@ dataStack.perform(
     }
 )
 ```
-or for the default stack, directly from `CoreStore`:
-```swift
-CoreStore.perform(
-    asynchronous: { (transaction) -> Void in
-        // make changes
-    },
-    completion: { (result) -> Void in
-        // ...
-    }
-)
-```
-Transaction blocks automatically save changes once the block completes. To cancel and rollback a transaction, throw a `CoreStoreError.userCancelled` from inside the closure by calling `try transaction.cancel()`:
+Transaction closures automatically save changes once the closures completes. To cancel and rollback a transaction, throw a `CoreStoreError.userCancelled` from inside the closure by calling `try transaction.cancel()`:
 ```swift
 dataStack.perform(
     asynchronous: { (transaction) -> Void in
@@ -671,7 +630,7 @@ dataStack.perform(
     }
 )
 ```
-Never use `try?` or `try!` on a `transaction.cancel()` call. Always use `try`. Using `try?` will swallow the cancellation and the transaction will proceed to save as normal. Using `try!` will crash the app as `transaction.cancel()` will *always* throw an error.
+> ⚠️**Important:** Never use `try?` or `try!` on a `transaction.cancel()` call. Always use `try`. Using `try?` will swallow the cancellation and the transaction will proceed to save as normal. Using `try!` will crash the app as `transaction.cancel()` will *always* throw an error.
 
 The examples above use `perform(asynchronous:...)`, but there are actually 3 types of transactions at your disposal: *asynchronous*, *synchronous*, and *unsafe*.
 
@@ -680,7 +639,7 @@ The examples above use `perform(asynchronous:...)`, but there are actually 3 typ
 #### Asynchronous transactions
 are spawned from `perform(asynchronous:...)`. This method returns immediately and executes its closure from a background serial queue. The return value for the closure is declared as a generic type, so any value returned from the closure can be passed to the completion result:
 ```swift
-CoreStore.perform(
+dataStack.perform(
     asynchronous: { (transaction) -> Bool in
         // make changes
         return transaction.hasChanges
@@ -695,7 +654,7 @@ CoreStore.perform(
 ```
 The success and failure can also be declared as separate handlers:
 ```swift
-CoreStore.perform(
+dataStack.perform(
     asynchronous: { (transaction) -> Int in
         // make changes
         return transaction.delete(objects)
@@ -708,12 +667,15 @@ CoreStore.perform(
     }
 )
 ```
+
+> ⚠️Be careful when returning `NSManagedObject`s or `CoreStoreObject`s from the transaction closure. Those instances are for the transaction's use only. See [Passing objects safely](#passing-objects-safely).
+
 Transactions created from `perform(asynchronous:...)` are instances of `AsynchronousDataTransaction`.
 
 #### Synchronous transactions
 are created from `perform(synchronous:...)`. While the syntax is similar to its asynchronous counterpart, `perform(synchronous:...)` waits for its transaction block to complete before returning:
 ```swift
-let hasChanges = CoreStore.perform(
+let hasChanges = dataStack.perform(
     synchronous: { (transaction) -> Bool in
         // make changes
         return transaction.hasChanges
@@ -724,10 +686,25 @@ let hasChanges = CoreStore.perform(
 
 Since `perform(synchronous:...)` technically blocks two queues (the caller's queue and the transaction's background queue), it is considered less safe as it's more prone to deadlock. Take special care that the closure does not block on any other external queues.
 
+By default, `perform(synchronous:...)` will wait for observers such as `ListMonitor`s to be notified before the method returns. This may cause deadlocks, especially if you are calling this from the main thread. To reduce this risk, you may try to set the `waitForAllObservers:` parameter to `false`. Doing so tells the `SynchronousDataTransaction` to block only until it completes saving. It will not wait for other context's to receive those changes. This reduces deadlock risk but may have surprising side-effects:
+```swift
+dataStack.perform(
+    synchronous: { (transaction) in
+        let person = transaction.create(Into<Person>())
+        person.name = "John"
+    },
+    waitForAllObservers: false
+)
+let newPerson = dataStack.fetchOne(From<Person>.where(\.name == "John"))
+// newPerson may be nil!
+// The DataStack may have not yet received the update notification.
+```
+Due to this complicated nature of synchronous transactions, if your app has very heavy transaction throughput it is highly recommended to use [asynchronous transactions](#asynchronous-transactions) instead.
+
 #### Unsafe transactions
 are special in that they do not enclose updates within a closure:
 ```swift
-let transaction = CoreStore.beginUnsafe()
+let transaction = dataStack.beginUnsafe()
 // make changes
 downloadJSONWithCompletion({ (json) -> Void in
 
@@ -756,24 +733,24 @@ let person = transaction.create(Into<MyPersonEntity>())
 While the syntax is straightforward, CoreStore does not just naively insert a new object. This single line does the following:
 - Checks that the entity type exists in any of the transaction's parent persistent store
 - If the entity belongs to only one persistent store, a new object is inserted into that store and returned from `create(...)`
-- If the entity does not belong to any store, an assert will be triggered. **This is a programmer error and should never occur in production code.**
-- If the entity belongs to multiple stores, an assert will be triggered. **This is also a programmer error and should never occur in production code.** Normally, with Core Data you can insert an object in this state but saving the `NSManagedObjectContext` will always fail. CoreStore checks this for you at creation time when it makes sense (not during save).
+- If the entity does not belong to any store, an assertion failure will be raised. **This is a programmer error and should never occur in production code.**
+- If the entity belongs to multiple stores, an assertion failure will be raised. **This is also a programmer error and should never occur in production code.** Normally, with Core Data you can insert an object in this state but saving the `NSManagedObjectContext` will always fail. CoreStore checks this for you at creation time when it makes sense (not during save).
 
 If the entity exists in multiple configurations, you need to provide the configuration name for the destination persistent store:
-
-    let person = transaction.create(Into<MyPersonEntity>("Config1"))
-
+```swift
+let person = transaction.create(Into<MyPersonEntity>("Config1"))
+```
 or if the persistent store is the auto-generated "Default" configuration, specify `nil`:
-
-    let person = transaction.create(Into<MyPersonEntity>(nil))
-
+```swift
+let person = transaction.create(Into<MyPersonEntity>(nil))
+```
 Note that if you do explicitly specify the configuration name, CoreStore will only try to insert the created object to that particular store and will fail if that store is not found; it will not fall back to any other configuration that the entity belongs to. 
 
 ### Updating objects
 
 After creating an object from the transaction, you can simply update its properties as normal:
 ```swift
-CoreStore.perform(
+dataStack.perform(
     asynchronous: { (transaction) -> Void in
         let person = transaction.create(Into<MyPersonEntity>())
         person.name = "John Smith"
@@ -784,11 +761,11 @@ CoreStore.perform(
 ```
 To update an existing object, fetch the object's instance from the transaction:
 ```swift
-CoreStore.perform(
+dataStack.perform(
     asynchronous: { (transaction) -> Void in
-        let person = transaction.fetchOne(
-            From<MyPersonEntity>(),
-            Where("name", isEqualTo: "Jane Smith")
+        let person = try transaction.fetchOne(
+            From<MyPersonEntity>()
+                .where(\.name == "Jane Smith")
         )
         person.age = person.age + 1
     },
@@ -801,7 +778,7 @@ CoreStore.perform(
 ```swift
 let jane: MyPersonEntity = // ...
 
-CoreStore.perform(
+dataStack.perform(
     asynchronous: { (transaction) -> Void in
         // WRONG: jane.age = jane.age + 1
         // RIGHT:
@@ -816,7 +793,7 @@ This is also true when updating an object's relationships. Make sure that the ob
 let jane: MyPersonEntity = // ...
 let john: MyPersonEntity = // ...
 
-CoreStore.perform(
+dataStack.perform(
     asynchronous: { (transaction) -> Void in
         // WRONG: jane.friends = [john]
         // RIGHT:
@@ -834,7 +811,7 @@ Deleting an object is simpler because you can tell a transaction to delete an ob
 ```swift
 let john: MyPersonEntity = // ...
 
-CoreStore.perform(
+dataStack.perform(
     asynchronous: { (transaction) -> Void in
         transaction.delete(john)
     },
@@ -846,21 +823,21 @@ or several objects at once:
 let john: MyPersonEntity = // ...
 let jane: MyPersonEntity = // ...
 
-CoreStore.perform(
+dataStack.perform(
     asynchronous: { (transaction) -> Void in
-        transaction.delete(john, jane)
-        // transaction.delete([john, jane]) is also allowed
+        try transaction.delete(john, jane)
+        // try transaction.delete([john, jane]) is also allowed
     },
     completion: { _ in }
 )
 ```
 If you do not have references yet to the objects to be deleted, transactions have a `deleteAll(...)` method you can pass a query to:
 ```swift
-CoreStore.perform(
+dataStack.perform(
     asynchronous: { (transaction) -> Void in
-        transaction.deleteAll(
-            From<MyPersonEntity>(),
-            Where("age > 30")
+        try transaction.deleteAll(
+            From<MyPersonEntity>()
+                .where(\.age > 30)
         )
     },
     completion: { _ in }
@@ -873,7 +850,7 @@ Always remember that the `DataStack` and individual transactions manage differen
 ```swift
 let jane: MyPersonEntity = // ...
 
-CoreStore.perform(
+dataStack.perform(
     asynchronous: { (transaction) -> Void in
         let jane = transaction.edit(jane)!
         jane.age = jane.age + 1
@@ -885,14 +862,14 @@ But `CoreStore`, `DataStack` and `BaseDataTransaction` have a very flexible `fet
 ```swift
 let jane: MyPersonEntity = // ...
 
-CoreStore.perform(
+dataStack.perform(
     asynchronous: { (transaction) -> MyPersonEntity in
         let jane = transaction.fetchExisting(jane)! // instance for transaction
         jane.age = jane.age + 1
         return jane
     },
     success: { (transactionJane) in
-        let jane = CoreStore.fetchExisting(transactionJane)! // instance for DataStack
+        let jane = dataStack.fetchExisting(transactionJane)! // instance for DataStack
         print(jane.age)
     },
     failure: { (error) in
@@ -904,11 +881,11 @@ CoreStore.perform(
 ```swift
 var peopleIDs: [NSManagedObjectID] = // ...
 
-CoreStore.perform(
+dataStack.perform(
     asynchronous: { (transaction) -> Void in
-        let jane = transaction.fetchOne(
-            From<MyPersonEntity>(),
-            Where("name", isEqualTo: "Jane Smith")
+        let jane = try transaction.fetchOne(
+            From<MyPersonEntity>()
+                .where(\.name == "Jane Smith")
         )
         jane.friends = NSSet(array: transaction.fetchExisting(peopleIDs)!)
         // ...
@@ -919,7 +896,7 @@ CoreStore.perform(
 
 
 ## Importing data
-Some times, if not most of the time, the data that we save to Core Data comes from external sources such as web servers or external files. If you have for example a JSON dictionary, you may be extracting values as such:
+Some times, if not most of the time, the data that we save to Core Data comes from external sources such as web servers or external files. If you have a JSON dictionary for example, you may be extracting values as such:
 ```swift
 let json: [String: Any] = // ...
 person.name = json["name"] as? NSString
@@ -928,7 +905,7 @@ person.age = json["age"] as? NSNumber
 ```
 If you have many attributes, you don't want to keep repeating this mapping everytime you want to import data. CoreStore lets you write the data mapping code just once, and all you have to do is call `importObject(...)` or `importUniqueObject(...)` through `BaseDataTransaction` subclasses:
 ```swift
-CoreStore.perform(
+dataStack.perform(
     asynchronous: { (transaction) -> Void in
         let json: [String: Any] = // ...
         try! transaction.importObject(
@@ -953,12 +930,12 @@ typealias ImportSource = [String: Any]
 ```swift
 typealias ImportSource = NSData
 ```
-You can even use external types from popular 3rd-party JSON libraries ([SwiftyJSON](https://github.com/SwiftyJSON/SwiftyJSON)'s `JSON` type is a personal favorite), or just simple tuples or primitives.
+You can even use external types from popular 3rd-party JSON libraries, or just simple tuples or primitives.
 
 #### `ImportableObject`
 `ImportableObject` is a very simple protocol:
 ```swift
-public protocol ImportableObject: class {
+public protocol ImportableObject: AnyObject {
     typealias ImportSource
     static func shouldInsert(from source: ImportSource, in transaction: BaseDataTransaction) -> Bool
     func didInsert(from source: ImportSource, in transaction: BaseDataTransaction) throws
@@ -970,7 +947,7 @@ typealias ImportSource = [String: Any]
 ```
 This lets us call `importObject(_:source:)` with any `[String: Any]` type as the argument to `source`:
 ```swift
-CoreStore.perform(
+dataStack.perform(
     asynchronous: { (transaction) -> Void in
         let json: [String: Any] = // ...
         try! transaction.importObject(
@@ -992,7 +969,7 @@ func didInsert(from source: ImportSource, in transaction: BaseDataTransaction) t
 ```
 Transactions also let you import multiple objects at once using the `importObjects(_:sourceArray:)` method:
 ```swift
-CoreStore.perform(
+dataStack.perform(
     asynchronous: { (transaction) -> Void in
         let jsonArray: [[String: Any]] = // ...
         try! transaction.importObjects(
@@ -1019,7 +996,7 @@ func didInsert(from source: ImportSource, in transaction: BaseDataTransaction) t
 ```
 Doing so can let you abandon an invalid transaction immediately:
 ```swift
-CoreStore.perform(
+dataStack.perform(
     asynchronous: { (transaction) -> Void in
         let jsonArray: [[String: Any]] = // ...
 
@@ -1074,7 +1051,7 @@ For `ImportableUniqueObject`, the extraction and assignment of values should be 
 
 You can then create/update an object by calling a transaction's `importUniqueObject(...)` method:
 ```swift
-CoreStore.perform(
+dataStack.perform(
     asynchronous: { (transaction) -> Void in
         let json: [String: Any] = // ...
         try! transaction.importUniqueObject(
@@ -1089,7 +1066,7 @@ CoreStore.perform(
 or multiple objects at once with the `importUniqueObjects(...)` method:
 
 ```swift
-CoreStore.perform(
+dataStack.perform(
     asynchronous: { (transaction) -> Void in
         let jsonArray: [[String: AnyObject]] = // ...
         try! transaction.importUniqueObjects(
@@ -1101,7 +1078,7 @@ CoreStore.perform(
     completion: { _ in }
 )
 ```
-As with `ImportableObject`, you can control wether to skip importing an object by implementing 
+As with `ImportableObject`, you can control whether to skip importing an object by implementing 
 `shouldInsert(from:in:)` and `shouldUpdate(from:in:)`, or to cancel all objects by `throw`ing an error from the `uniqueID(from:in:)`, `didInsert(from:in:)` or `update(from:in:)` methods.
 
 
@@ -1119,17 +1096,17 @@ Before we dive in, be aware that CoreStore distinguishes between *fetching* and 
 #### `From` clause
 The search conditions for fetches and queries are specified using *clauses*. All fetches and queries require a `From` clause that indicates the target entity type:
 ```swift
-let people = CoreStore.fetchAll(From<MyPersonEntity>())
+let people = try dataStack.fetchAll(From<MyPersonEntity>())
 ```
 `people` in the example above will be of type `[MyPersonEntity]`. The `From<MyPersonEntity>()` clause indicates a fetch to all persistent stores that `MyPersonEntity` belong to.
 
 If the entity exists in multiple configurations and you need to only search from a particular configuration, indicate in the `From` clause the configuration name for the destination persistent store:
 ```swift
-let people = CoreStore.fetchAll(From<MyPersonEntity>("Config1")) // ignore objects in persistent stores other than the "Config1" configuration
+let people = try dataStack.fetchAll(From<MyPersonEntity>("Config1")) // ignore objects in persistent stores other than the "Config1" configuration
 ```
 or if the persistent store is the auto-generated "Default" configuration, specify `nil`:
 ```swift
-let person = CoreStore.fetchAll(From<MyPersonEntity>(nil))
+let person = try dataStack.fetchAll(From<MyPersonEntity>(nil))
 ```
 Now we know how to use a `From` clause, let's move on to fetching and querying.
 
@@ -1149,28 +1126,35 @@ Each method's purpose is straightforward, but we need to understand how to set t
 
 The `Where` clause is CoreStore's `NSPredicate` wrapper. It specifies the search filter to use when fetching (or querying). It implements all initializers that `NSPredicate` does (except for `-predicateWithBlock:`, which Core Data does not support):
 ```swift
-var people = CoreStore.fetchAll(
+var people = try dataStack.fetchAll(
     From<MyPersonEntity>(),
-    Where("%K > %d", "age", 30) // string format initializer
+    Where<MyPersonEntity>("%K > %d", "age", 30) // string format initializer
 )
-people = CoreStore.fetchAll(
+people = try dataStack.fetchAll(
     From<MyPersonEntity>(),
-    Where(true) // boolean initializer
+    Where<MyPersonEntity>(true) // boolean initializer
 )
 ```
 If you do have an existing `NSPredicate` instance already, you can pass that to `Where` as well:
 ```swift
 let predicate = NSPredicate(...)
-var people = CoreStore.fetchAll(
+var people = dataStack.fetchAll(
     From<MyPersonEntity>(),
-    Where(predicate) // predicate initializer
+    Where<MyPersonEntity>(predicate) // predicate initializer
+)
+```
+ `Where` clauses are generic types. To avoid verbose repetition of the generic object type, fetch methods support **Fetch Chain builders**. We can also use Swift's Smart KeyPaths as the `Where` clause expression:
+```swift
+var people = try dataStack.fetchAll(
+    From<MyPersonEntity>()
+        .where(\.age > 30) // Type-safe!
 )
 ```
 `Where` clauses also implement the `&&`, `||`, and `!` logic operators, so you can provide logical conditions without writing too much `AND`, `OR`, and `NOT` strings:
 ```swift
-var people = CoreStore.fetchAll(
-    From<MyPersonEntity>(),
-    Where("age > %d", 30) && Where("gender == %@", "M")
+var people = try dataStack.fetchAll(
+    From<MyPersonEntity>()
+        .where(\.age > 30 && \.gender == "M")
 )
 ```
 If you do not provide a `Where` clause, all objects that belong to the specified `From` will be returned.
@@ -1179,20 +1163,27 @@ If you do not provide a `Where` clause, all objects that belong to the specified
 
 The `OrderBy` clause is CoreStore's `NSSortDescriptor` wrapper. Use it to specify attribute keys in which to sort the fetch (or query) results with.
 ```swift
-var mostValuablePeople = CoreStore.fetchAll(
+var mostValuablePeople = try dataStack.fetchAll(
     From<MyPersonEntity>(),
-    OrderBy(.descending("rating"), .ascending("surname"))
+    OrderBy<MyPersonEntity>(.descending("rating"), .ascending("surname"))
 )
 ```
 As seen above, `OrderBy` accepts a list of `SortKey` enumeration values, which can be either `.ascending` or `.descending`.
+As with `Where` clauses, `OrderBy` clauses are also generic types. To avoid verbose repetition of the generic object type, fetch methods support **Fetch Chain builders**. We can also use Swift's Smart KeyPaths as the `OrderBy` clause expression:
+```swift
+var people = try dataStack.fetchAll(
+    From<MyPersonEntity>()
+        .orderBy(.descending(\.rating), .ascending(\.surname)) // Type-safe!
+)
+```
 
 You can use the `+` and `+=` operator to append `OrderBy`s together. This is useful when sorting conditionally:
 ```swift
-var orderBy = OrderBy(.descending("rating"))
+var orderBy = OrderBy<MyPersonEntity>(.descending(\.rating))
 if sortFromYoungest {
-    orderBy += OrderBy(.ascending("age"))
+    orderBy += OrderBy(.ascending(\.age))
 }
-var mostValuablePeople = CoreStore.fetchAll(
+var mostValuablePeople = try dataStack.fetchAll(
     From<MyPersonEntity>(),
     orderBy
 )
@@ -1202,15 +1193,28 @@ var mostValuablePeople = CoreStore.fetchAll(
 
 The `Tweak` clause lets you, uh, *tweak* the fetch (or query). `Tweak` exposes the `NSFetchRequest` in a closure where you can make changes to its properties:
 ```swift
-var people = CoreStore.fetchAll(
+var people = try dataStack.fetchAll(
     From<MyPersonEntity>(),
-    Where("age > %d", 30),
-    OrderBy(.ascending("surname")),
+    Where<MyPersonEntity>("age > %d", 30),
+    OrderBy<MyPersonEntity>(.ascending("surname")),
     Tweak { (fetchRequest) -> Void in
         fetchRequest.includesPendingChanges = false
         fetchRequest.returnsObjectsAsFaults = false
         fetchRequest.includesSubentities = false
     }
+)
+```
+`Tweak` also supports **Fetch Chain builders**:
+```swift
+var people = try dataStack.fetchAll(
+    From<MyPersonEntity>(),
+        .where(\.age > 30)
+        .orderBy(.ascending(\.surname))
+        .tweak {
+            $0.includesPendingChanges = false
+            $0.returnsObjectsAsFaults = false
+            $0.includesSubentities = false
+        }
 )
 ```
 The clauses are evaluated the order they appear in the fetch/query, so you typically need to set `Tweak` as the last clause.
@@ -1233,19 +1237,27 @@ Setting up the `From`, `Where`, `OrderBy`, and `Tweak` clauses is similar to how
 
 The `Select<T>` clause specifies the target attribute/aggregate key, as well as the expected return type: 
 ```swift
-let johnsAge = CoreStore.queryValue(
+let johnsAge = try dataStack.queryValue(
     From<MyPersonEntity>(),
     Select<Int>("age"),
-    Where("name == %@", "John Smith")
+    Where<MyPersonEntity>("name == %@", "John Smith")
 )
 ```
 The example above queries the "age" property for the first object that matches the `Where` condition. `johnsAge` will be bound to type `Int?`, as indicated by the `Select<Int>` generic type. For `queryValue(...)`, types that conform to `QueryableAttributeType` are allowed as the return type (and therefore as the generic type for `Select<T>`).
 
 For `queryAttributes(...)`, only `NSDictionary` is valid for `Select`, thus you are allowed to omit the generic type:
 ```swift
-let allAges = CoreStore.queryAttributes(
+let allAges = try dataStack.queryAttributes(
     From<MyPersonEntity>(),
     Select("age")
+)
+```
+query methods also support **Query Chain builders**. We can also use Swift's Smart KeyPaths to use in the expressions:
+```swift
+let johnsAge = try dataStack.queryValue(
+    From<MyPersonEntity>()
+        .select(\.age) // binds the result to Int
+        .where(\.name == "John Smith")
 )
 ```
 
@@ -1257,7 +1269,7 @@ If you only need a value for a particular attribute, you can just specify the ke
 - `.sum(...)`
 
 ```swift
-let oldestAge = CoreStore.queryValue(
+let oldestAge = try dataStack.queryValue(
     From<MyPersonEntity>(),
     Select<Int>(.maximum("age"))
 )
@@ -1265,7 +1277,7 @@ let oldestAge = CoreStore.queryValue(
 
 For `queryAttributes(...)` which returns an array of dictionaries, you can specify multiple attributes/aggregates to `Select`:
 ```swift
-let personJSON = CoreStore.queryAttributes(
+let personJSON = try dataStack.queryAttributes(
     From<MyPersonEntity>(),
     Select("name", "age")
 )
@@ -1285,7 +1297,7 @@ let personJSON = CoreStore.queryAttributes(
 ```
 You can also include an aggregate as well:
 ```swift
-let personJSON = CoreStore.queryAttributes(
+let personJSON = try dataStack.queryAttributes(
     From<MyPersonEntity>(),
     Select("name", .count("friends"))
 )
@@ -1305,7 +1317,7 @@ which returns:
 ```
 The `"count(friends)"` key name was automatically used by CoreStore, but you can specify your own key alias if you need:
 ```swift
-let personJSON = CoreStore.queryAttributes(
+let personJSON = try dataStack.queryAttributes(
     From<MyPersonEntity>(),
     Select("name", .count("friends", as: "friendsCount"))
 )
@@ -1328,10 +1340,18 @@ which now returns:
 
 The `GroupBy` clause lets you group results by a specified attribute/aggregate. This is useful only for `queryAttributes(...)` since `queryValue(...)` just returns the first value.
 ```swift
-let personJSON = CoreStore.queryAttributes(
+let personJSON = try dataStack.queryAttributes(
     From<MyPersonEntity>(),
     Select("age", .count("age", as: "count")),
     GroupBy("age")
+)
+```
+`GroupBy` clauses are also generic types and support **Query Chain builders**. We can also use Swift's Smart KeyPaths to use in the expressions:
+```swift
+let personJSON = try dataStack.queryAttributes(
+    From<MyPersonEntity>()
+        .select(.attribute(\.age), .count(\.age, as: "count"))
+        .groupBy(\.age)
 )
 ```
 this returns dictionaries that shows the count for each `"age"`:
@@ -1358,9 +1378,9 @@ public protocol CoreStoreLogger {
     func abort(message: String, fileName: StaticString, lineNumber: Int, functionName: StaticString)
 }
 ```
-Implement this protocol with your custom class then pass the instance to `CoreStore.logger`:
+Implement this protocol with your custom class then pass the instance to `CoreStoreDefaults.logger`:
 ```swift
-CoreStore.logger = MyLogger()
+CoreStoreDefaults.logger = MyLogger()
 ```
 Doing so channels all logging calls to your logger.
 
@@ -1370,8 +1390,7 @@ Take special care when implementing `CoreStoreLogger`'s `assert(...)` and `abort
 - `assert(...)`: The behavior between `DEBUG` and release builds, or `-O` and `-Onone`, are all left to the implementers' responsibility. CoreStore calls `CoreStoreLogger.assert(...)` only for invalid but usually recoverable errors (for example, early validation failures that may cause an error thrown and handled somewhere else)
 - `abort(...)`: This method is *the* last-chance for your app to *synchronously* log a fatal error within CoreStore. The app will be terminated right after this function is called (CoreStore calls `fatalError()` internally)
 
-Starting CoreStore 2.0, all CoreStore types now have very useful (and pretty formatted!) `print(...)` outputs. 
-
+All CoreStore types have very useful (and pretty formatted!) `print(...)` outputs. 
 A couple of examples, `ListMonitor`:
 
 <img width="369" alt="screen shot 2016-07-10 at 22 56 44" src="https://cloud.githubusercontent.com/assets/3029684/16713994/ae06e702-46f1-11e6-83a8-dee48b480bab.png" />
@@ -1382,22 +1401,75 @@ A couple of examples, `ListMonitor`:
 
 These are all implemented with `CustomDebugStringConvertible.debugDescription`, so they work with lldb's `po` command as well.
 
-## Observing changes and notifications (unavailable on macOS)
+## Observing changes and notifications
+
 CoreStore provides type-safe wrappers for observing managed objects:
 
-- `ObjectMonitor`: use to monitor changes to a single `NSManagedObject` or `CoreStoreObject` instance (instead of Key-Value Observing)
-- `ListMonitor`: use to monitor changes to a list of `NSManagedObject` or `CoreStoreObject` instances (instead of `NSFetchedResultsController`)
+| | 🆕[*ObjectPublisher*](#observe-a-single-objects-updates) | [*ObjectMonitor*](#observe-a-single-objects-per-property-updates) | 🆕[*ListPublisher*](#observe-a-diffable-list) | [*ListMonitor*](#observe-detailed-list-changes) |
+| --- | --- | --- | --- | --- |
+| *Number of objects* | 1 | 1 | N | N |
+| *Allows multiple observers* | ✅ | ✅ | ✅ | ✅ |
+| *Emits fine-grained changes* | ❌ | ✅ | ❌ | ✅ |
+| *Emits DiffableDataSource snapshots* | ✅ | ❌ | ✅ | ❌ |
+| *Delegate methods* | ❌ | ✅ | ❌ | ✅ |
+| *Closure callback* | ✅ | ❌ | ✅ | ❌ |
+| *SwiftUI support* | ✅ | ❌ | ✅ | ❌ |
 
-### Observe a single object
+### Observe a single property
+To get notifications for single property changes in an object, there are two methods depending on the object's base class.
 
-To observe an object, implement the `ObjectObserver` protocol and specify the `EntityType`:
+- For `NSManagedObject` subclasses: Use the standard KVO method:
+```swift
+let observer = person.observe(\.age, options: [.new]) { (person, change)
+    print("Happy \(change.newValue)th birthday!")
+}
+```
+
+- For `CoreStoreObject` subclasses: Call the `observe(...)` method directly on the property. You'll notice that the API itself is a bit similar to the KVO method:
+```swift
+let observer = person.age.observe(options: [.new]) { (person, change)
+    print("Happy \(change.newValue)th birthday!")
+}
+```
+
+For both methods, you will need to keep a reference to the returned `observer` for the duration of the observation.  
+
+### Observe a single object's updates
+
+Observers of an  `ObjectPublisher` can receive notifications if any of the object's property changes. You can  create an `ObjectPublisher` from the object directly:
+```swift
+let objectPublisher: ObjectPublisher<Person> = person.asPublisher(in: dataStack)
+```
+or by indexing a `ListPublisher`'s `ListSnapshot`:
+```swift
+let listPublisher: ListPublisher<Person> = // ...
+// ...
+let objectPublisher = listPublisher.snapshot[indexPath]
+```
+(See [`ListPublisher` examples](#observe-a-diffable-list) below)
+
+To receive notifications, call the  `ObjectPublisher`'s `addObserve(...)` method passing the owner of the callback closure:
+```swift
+objectPublisher.addObserver(self) { [weak self] (objectPublisher) in
+    let snapshot: ObjectSnapshot<Person> = objectPublisher.snapshot
+    // handle changes
+}
+```
+Note that the owner instance will not be retained. You may call `ObjectPublisher.removeObserver(...)` explicitly to stop receiving notifications, but the `ObjectPublisher` also discontinues sending events to deallocated observers.
+
+The `ObjectSnapshot` returned from the `ObjectPublisher.snapshot` property returns a full-copy `struct` of all properties of the object. This is ideal for managing states as they are thread-safe and are not affected by further changes to the actual object.  `ObjectPublisher` automatically updates its `snapshot` value to the latest state of the object. 
+
+
+### Observe a single object's per-property updates
+
+If you need to track specifically which properties change in an object, implement the `ObjectObserver` protocol and specify the `EntityType`:
 ```swift
 class MyViewController: UIViewController, ObjectObserver {
     func objectMonitor(monitor: ObjectMonitor<MyPersonEntity>, willUpdateObject object: MyPersonEntity) {
         // ...
     }
     
-    func objectMonitor(monitor: ObjectMonitor<MyPersonEntity>, didUpdateObject object: MyPersonEntity, changedPersistentKeys: Set<KeyPath>) {
+    func objectMonitor(monitor: ObjectMonitor<MyPersonEntity>, didUpdateObject object: MyPersonEntity, changedPersistentKeys: Set<KeyPathString>) {
         // ...
     }
     
@@ -1406,10 +1478,10 @@ class MyViewController: UIViewController, ObjectObserver {
     }
 }
 ```
-We then need to keep a `ObjectMonitor` instance and register our `ObjectObserver` as an observer:
+We then need to keep an `ObjectMonitor` instance and register our `ObjectObserver` as an observer:
 ```swift
 let person: MyPersonEntity = // ...
-self.monitor = CoreStore.monitorObject(person)
+self.monitor = dataStack.monitorObject(person)
 self.monitor.addObserver(self)
 ```
 The controller will then notify our observer whenever the object's attributes change. You can add multiple `ObjectObserver`s to a single `ObjectMonitor` without any problem. This means you can just share around the `ObjectMonitor` instance to different screens without problem.
@@ -1418,8 +1490,51 @@ You can get `ObjectMonitor`'s object through its `object` property. If the objec
 
 While `ObjectMonitor` exposes `removeObserver(...)` as well, it only stores `weak` references of the observers and will safely unregister deallocated observers. 
 
-### Observe a list of objects
-To observe a list of objects, implement one of the `ListObserver` protocols and specify the `EntityType`:
+### Observe a diffable list
+
+Observers of a  `ListPublisher` can receive notifications whenever its fetched result set changes. You can  create a `ListPublisher` by fetching from the `DataStack`:
+```swift
+let listPublisher = dataStack.listPublisher(
+    From<Person>()
+        .sectionBy(\.age") { "Age \($0)" } // sections are optional
+        .where(\.title == "Engineer")
+        .orderBy(.ascending(\.lastName))
+)
+```
+To receive notifications, call the  `ListPublisher`'s `addObserve(...)` method passing the owner of the callback closure:
+```swift
+listPublisher.addObserver(self) { [weak self] (listPublisher) in
+    let snapshot: ListSnapshot<Person> = listPublisher.snapshot
+    // handle changes
+}
+```
+Note that the owner instance will not be retained. You may call `ListPublisher.removeObserver(...)` explicitly to stop receiving notifications, but the `ListPublisher` also discontinues sending events to deallocated observers.
+
+The `ListSnapshot` returned from the `ListPublisher.snapshot` property returns a full-copy `struct` of all sections and `NSManagedObject` items in the list. This is ideal for managing states as they are thread-safe and are not affected by further changes to the result set.  `ListPublisher` automatically updates its `snapshot` value to the latest state of the fetch. 
+
+Unlike  `ListMonitor`s (See [`ListMonitor` examples](#observe-detailed-list-changes) below), a `ListPublisher` does not track detailed inserts, deletes, and moves. In return, a `ListPublisher` is a lot more lightweight and are designed to work well with `DiffableDataSource.TableViewAdapter`s and `DiffableDataSource.CollectionViewAdapter`s:
+```swift
+self.dataSource = DiffableDataSource.CollectionViewAdapter<Person>(
+    collectionView: self.collectionView,
+    dataStack: CoreStoreDefaults.dataStack,
+    cellProvider: { (collectionView, indexPath, person) in
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PersonCell") as! PersonCell
+        cell.setPerson(person)
+        return cell
+    }
+)
+
+// ...
+
+listPublisher.addObserver(self) { [weak self] (listPublisher) in
+   self?.dataSource?.apply(
+       listPublisher.snapshot, animatingDifferences: true
+   )
+}
+```
+
+### Observe detailed list changes
+If you need to track each object's inserts, deletes, moves, and updates, implement one of the `ListObserver` protocols and specify the `EntityType`:
 ```swift
 class MyViewController: UIViewController, ListObserver {
     func listMonitorDidChange(monitor: ListMonitor<MyPersonEntity>) {
@@ -1443,10 +1558,10 @@ Including `ListObserver`, there are 3 observer protocols you can implement depen
 
 - `ListObjectObserver`: in addition to `ListObserver` methods, also lets you handle object inserts, updates, and deletes:
 ```swift
-    func listMonitor(_ monitor: ListMonitor<MyPersonEntity>, didInsertObject object: MyPersonEntity, toIndexPath indexPath: NSIndexPath)
-    func listMonitor(_ monitor: ListMonitor<MyPersonEntity>, didDeleteObject object: MyPersonEntity, fromIndexPath indexPath: NSIndexPath)
-    func listMonitor(_ monitor: ListMonitor<MyPersonEntity>, didUpdateObject object: MyPersonEntity, atIndexPath indexPath: NSIndexPath)
-    func listMonitor(_ monitor: ListMonitor<MyPersonEntity>, didMoveObject object: MyPersonEntity, fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath)
+    func listMonitor(_ monitor: ListMonitor<MyPersonEntity>, didInsertObject object: MyPersonEntity, toIndexPath indexPath: IndexPath)
+    func listMonitor(_ monitor: ListMonitor<MyPersonEntity>, didDeleteObject object: MyPersonEntity, fromIndexPath indexPath: IndexPath)
+    func listMonitor(_ monitor: ListMonitor<MyPersonEntity>, didUpdateObject object: MyPersonEntity, atIndexPath indexPath: IndexPath)
+    func listMonitor(_ monitor: ListMonitor<MyPersonEntity>, didMoveObject object: MyPersonEntity, fromIndexPath: IndexPath, toIndexPath: IndexPath)
 ```
 - `ListSectionObserver`: in addition to `ListObjectObserver` methods, also lets you handle section inserts and deletes:
 ```swift
@@ -1456,13 +1571,11 @@ Including `ListObserver`, there are 3 observer protocols you can implement depen
 
 We then need to create a `ListMonitor` instance and register our `ListObserver` as an observer:
 ```swift
-self.monitor = CoreStore.monitorList(
-    From<MyPersonEntity>(),
-    Where("age > 30"),
-    OrderBy(.ascending("name")),
-    Tweak { (fetchRequest) -> Void in
-        fetchRequest.fetchBatchSize = 20
-    }
+self.monitor = dataStack.monitorList(
+    From<MyPersonEntity>()
+        .where(\.age > 30)
+        .orderBy(.ascending(\.name))
+        .tweak { $0.fetchBatchSize = 20 }
 )
 self.monitor.addObserver(self)
 ```
@@ -1477,26 +1590,24 @@ let firstPerson = self.monitor[0]
 
 If the list needs to be grouped into sections, create the `ListMonitor` instance with the `monitorSectionedList(...)` method and a `SectionBy` clause:
 ```swift
-self.monitor = CoreStore.monitorSectionedList(
-    From<MyPersonEntity>(),
-    SectionBy("age"),
-    Where("gender", isEqualTo: "M"),
-    OrderBy(.ascending("age"), .ascending("name")),
-    Tweak { (fetchRequest) -> Void in
-        fetchRequest.fetchBatchSize = 20
-    }
+self.monitor = dataStack.monitorSectionedList(
+    From<MyPersonEntity>()
+        .sectionBy(\.age)
+        .where(\.gender == "M")
+        .orderBy(.ascending(\.age), .ascending(\.name))
+        .tweak { $0.fetchBatchSize = 20 }
 )
 ```
 A list controller created this way will group the objects by the attribute key indicated by the `SectionBy` clause. One more thing to remember is that the `OrderBy` clause should sort the list in such a way that the `SectionBy` attribute would be sorted together (a requirement shared by `NSFetchedResultsController`.)
 
 The `SectionBy` clause can also be passed a closure to transform the section name into a displayable string:
 ```swift
-self.monitor = CoreStore.monitorSectionedList(
-    From<MyPersonEntity>(),
-    SectionBy("age") { (sectionName) -> String? in
-        "\(sectionName) years old"
-    },
-    OrderBy(.ascending("age"), .ascending("name"))
+self.monitor = dataStack.monitorSectionedList(
+    From<MyPersonEntity>()
+        .sectionBy(\.age) { (sectionName) -> String? in
+            "\(sectionName) years old"
+        }
+        .orderBy(.ascending(\.age), .ascending(\.name))
 )
 ```
 This is useful when implementing a `UITableViewDelegate`'s section header:
@@ -1507,24 +1618,24 @@ func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -
 }
 ```
 
-To access the objects of a sectioned list, use an `NSIndexPath` or a tuple:
+To access the objects of a sectioned list, use an `IndexPath` or a tuple:
 ```swift
-let indexPath = NSIndexPath(forRow: 2, inSection: 1)
+let indexPath = IndexPath(row: 2, section: 1)
 let person1 = self.monitor[indexPath]
 let person2 = self.monitor[1, 2]
 // person1 and person2 are the same object
 ```
 
 ## Objective-C support
-CoreStore 2.0 was a big move to address the large number of apps starting to convert from Objective-C to Swift. The basic problem is this: The cost of converting all code base to Swift is very big, so most apps are forced to do undergo a *transitional* ObjC-Swift hybrid phase. This used to mean that these apps could not use the Swifty-est libraries out there yet, or that they may have to write their own bridging methods just to make new code usable in their old Objective-C code.
+> ⚠️Objective-C support is planned to be deprecated in a future CoreStore version.
 
-With 2.0, all CoreStore types are still written in pure Swift, but they now have Objective-C "bridging classes" that are visible to Objective-C code. To show a couple of usage examples:
+All CoreStore types are still written in pure Swift, but most core types have Objective-C "bridging classes" that are visible to Objective-C code. To show a couple of usage examples:
 
 <table>
 <tr><th>Swift</th><th>Objective-C</th></tr>
 <tr>
 <td><pre lang=swift>
-try CoreStore.addStorageAndWait(SQLiteStore.self)
+try dataStack.addStorageAndWait(SQLiteStore.self)
 </pre></td>
 <td><pre lang=objc>
 NSError *error
@@ -1533,7 +1644,7 @@ NSError *error
 </tr>
 <tr>
 <td><pre lang=swift>
-CoreStore.perform(
+dataStack.perform(
     asynchronous: { (transaction) in
         // ...
     },
@@ -1548,14 +1659,13 @@ CoreStore.perform(
 <td><pre lang=objc>
 [CSCoreStore beginAsynchronous:^(CSAsynchronousDataTransaction *transaction) {
     // ...
-    [transaction commitWithCompletion:^(CSSaveResult *result) {
-        if (result.isSuccess) {
-            NSLog(@"Done");
-        }
-        else if (result.isFailure) {
-            NSLog(@"error: %@", result.error);
-        }
-    }];
+    [transaction 
+     commitWithSuccess:^{
+        NSLog(@"Done");
+     }
+     failure: ^(CSError *error) {
+        NSLog(@"error: %@", result.error);
+     }];
 }];
 </pre></td>
 </tr>
@@ -1566,7 +1676,7 @@ All of these `CS`-prefixed bridging classes have very similar usage to the exist
 For example, you may have a new, modern Swift class that holds a `ListMonitor`:
 ```swift
 class MyViewController: UIViewController {
-    let monitor = CoreStore.monitorList(From(MyEntity), ...)
+    let monitor = dataStack.monitorList(From<MyEntity>(), ...)
     // ...
 }
 ```
@@ -1580,7 +1690,7 @@ Now let's say you have a legacy Objective-C class that previously uses `NSFetche
 When you need to instantiate this class from Swift, you just call `bridgeToObjectiveC`:
 ```swift
 class MyViewController: UIViewController {
-    let monitor = CoreStore.monitorList(From(MyEntity), ...)
+    let monitor = dataStack.monitorList(From<MyEntity>(), ...)
     func showOldController() {
         let controller = MYOldViewController(monitor: self.monitor.bridgeToObjectiveC)
         self.presentViewController(controller, animated: true, completion: nil)
@@ -1625,36 +1735,40 @@ To use these syntax sugars, include *CoreStoreBridge.h* in your Objective-C sour
 Starting CoreStore 4.0, we can now create persisted objects without depending on *.xcdatamodeld* Core Data files. The new `CoreStoreObject` subclass replaces `NSManagedObject`, and specially-typed properties declared on these classes will be synthesized as Core Data attributes.
 ```swift
 class Animal: CoreStoreObject {
-    let species = Value.Required<String>("species")
+    @Field.Stored("species")
+    var species: String = ""
 }
 
 class Dog: Animal {
-    let nickname = Value.Optional<String>("nickname")
-    let master = Relationship.ToOne<Person>("master")
+    @Field.Stored("nickname")
+    var nickname: String?
+    
+    @Field.Relationship("master")
+    var master: Person?
 }
 
 class Person: CoreStoreObject {
-    let name = Value.Required<String>("name")
-    let pets = Relationship.ToManyUnordered<Dog>("pets", inverse: { $0.master })
+    @Field.Stored("name")
+    var name: String = ""
+    
+    @Field.Relationship("pets", inverse: \Dog.$master)
+    var pets: Set<Dog>
 }
 ```
 The property names to be saved to Core Data is specified as the `keyPath` argument. This lets us refactor our Swift code without affecting the underlying database. For example:
 ```swift
 class Person: CoreStoreObject {
-    private let _name = Value.Required<String>("name")
-    // ...
+    @Field.Stored("name")
+    private var internalName: String = ""
+    // note property name is independent of the storage key name
 }
 ```
-Here we added an underscore to the property name and made it `private`, but the underlying key-path `"name"` was unchanged so our model will not trigger a data migration.
-
-> **Important:** As a rule, CoreStore can only process *stored properties*. Computed, `static`, `weak`, or `lazy` properties will not be added to the store. It is also strictly advised use `let` instead of `var` to declare these properties, as any changes to the schema after declaration is not allowed.
-
-Also note how `Relationship`s are linked statically with the `inverse:` argument. All relationships are required to have an "inverse" relationship. Unfortunately, due to Swift compiler limitation we can only declare the `inverse:` on one end of the relationship-pair.
+Here we used the property name `internalName` and made it `private`, but the underlying key-path `"name"` was unchanged so our model will not trigger a data migration.
 
 To tell the `DataStack` about these types, add all `CoreStoreObject`s' entities to a `CoreStoreSchema`:
 ```swift
 
-CoreStore.defaultStack = DataStack(
+CoreStoreDefaults.dataStack = DataStack(
     CoreStoreSchema(
         modelVersion: "V1",
         entities: [
@@ -1664,46 +1778,259 @@ CoreStore.defaultStack = DataStack(
         ]
     )
 )
-CoreStore.addStorage(/* ... */)
+CoreStoreDefaults.dataStack.addStorage(/* ... */)
 ```
 And that's all CoreStore needs to build the model; **we don't need *.xcdatamodeld* files anymore.**
 
-These special properties' values can be accessed or mutated using `.value`:
+In addition, `@Field` properties can be used to create type-safe key-path strings
 ```swift
-CoreStore.perform(
-    asynchronous: { (transaction) in
-        let dog: Dog = CoreStore.fetchOne(From<Dog>())!
-        // ...
-        let nickname = dog.nickname.value // String?
-        let species = dog.species.value // String
-        let age = dog.age.value // Int
-        // ...
-        dog.age.value = age + 1
-    },
-    completion: { /* ... */ }
-)
-```
-
-In addition, `Value` and `Relationship` properties can be used to create type-safe key-paths
-```swift
-let keyPath: String = Dog.keyPath { $0.nickname }
+let keyPath = String(keyPath: \Dog.$nickname)
 ```
 as well as `Where` and `OrderBy` clauses
 ```swift
-let puppies = CoreStore.fetchAll(
-    From<Dog>(),
-    Dog.where { $0.age < 1 },
-    Dog.ascending { $0.age }
+let puppies = try dataStack.fetchAll(
+    From<Dog>()
+        .where(\.$age < 5)
+        .orderBy(.ascending(\.$age))
 )
 ```
 
 All CoreStore APIs that are usable with `NSManagedObject`s are also available for `CoreStoreObject`s. These include `ListMonitor`s, `ImportableObject`s, fetching, etc.
 
+### New `@Field` Property Wrapper syntax
+
+> ⚠️**Important:** `@Field` properties are only supported for `CoreStoreObject` subclasses. If you are using `NSManagedObject`s, you need to keep using `@NSManaged` for your attributes.
+
+Starting CoreStore 7.1.0, `CoreStoreObject` properties may be converted to `@Field` Property Wrappers.
+
+> ‼️ Please take note of the warnings below before converting or else the model's hash might change.
+
+**If conversion is too risky, the current `Value.Required`, `Value.Optional`, `Transformable.Required`, `Transformable.Optional`, `Relationship.ToOne`, `Relationship.ToManyOrdered`, and `Relationship.ToManyUnordered` will all be supported for while so you can opt to use them as is for now.**
+
+> ‼️ This cannot be stressed enough, but please make sure to set your schema's [`VersionLock`](#versionlocks) before converting!
+
+#### `@Field.Stored`
+
+The `@Field.Stored` property wrapper is used for persisted value types. This is the replacement for "non-transient" `Value.Required` and `Value.Optional` properties.
+
+<table>
+<tr><th>Before</th><th>`@Field.Stored`</th></tr>
+<tr>
+<td><pre lang=swift>
+class Person: CoreStoreObject {
+    <br />
+    let title = Value.Required<String>("title", initial: "Mr.")
+    let nickname = Value.Optional<String>("nickname")
+}
+</pre></td>
+<td><pre lang=swift>
+class Person: CoreStoreObject {
+    <br />
+    @Field.Stored("title")
+    var title: String = "Mr."
+    <br />
+    @Field.Stored("nickname")
+    var nickname: String?
+}
+</pre></td>
+</tr>
+</table>
+
+> ⚠️ Only `Value.Required` and `Value.Optional` that are NOT transient values can be converted to `Field.Stored`. For transient/computed properties, refer to [`@Field.Virtual`](#fieldvirtual) properties in the next section.
+> ⚠️ When converting, make sure that all parameters, including the default values, are exactly the same or else the model's hash might change.
+
+
+#### `@Field.Virtual`
+
+The `@Field.Virtual` property wrapper is used for unsaved, computed value types. This is the replacement for "transient" `Value.Required` and `Value.Optional` properties.
+
+<table>
+<tr><th>Before</th><th>`@Field.Virtual`</th></tr>
+<tr>
+<td><pre lang=swift>
+class Animal: CoreStoreObject {
+    <br />
+    let speciesPlural = Value.Required<String>(
+        "speciesPlural",
+        transient: true,
+        customGetter: Animal.getSpeciesPlural(_:)
+    )
+    <br />
+    let species = Value.Required<String>("species", initial: "")
+    <br />
+    static func getSpeciesPlural(_ partialObject: PartialObject<Animal>) -> String? {
+        let species = partialObject.value(for: { $0.species })
+        return species + "s"
+    }
+}
+</pre></td>
+<td><pre lang=swift>
+class Animal: CoreStoreObject {
+    <br />
+    @Field.Virtual(
+        "speciesPlural",
+        customGetter: { (object, field) in
+            return object.$species.value + "s"
+        }
+    )
+    var speciesPlural: String
+    <br />
+    @Field.Stored("species")
+    var species: String = ""
+}
+</pre></td>
+</tr>
+</table>
+
+> ⚠️ Only `Value.Required` and `Value.Optional` that ARE transient values can be converted to `Field.Virtual`. For non-transient properties, refer to [`@Field.Stored`](#fieldstored) properties in the previous section.
+> ⚠️ When converting, make sure that all parameters, including the default values, are exactly the same or else the model's hash might change.
+
+
+#### `@Field.Coded`
+
+The `@Field.Coded` property wrapper is used for binary-codable values. This is the new counterpart, **not replacement**, for `Transformable.Required` and `Transformable.Optional` properties. `@Field.Coded` also supports other encodings such as JSON and custom binary converters.
+
+> ‼️ The current `Transformable.Required` and `Transformable.Optional` mechanism have no safe one-to-one conversion to `@Field.Coded`. Please use `@Field.Coded` only for newly added attributes.
+
+<table>
+<tr><th>Before</th><th>`@Field.Coded`</th></tr>
+<tr>
+<td><pre lang=swift>
+class Vehicle: CoreStoreObject {
+    <br />
+    let color = Transformable.Optional<UIColor>("color", initial: .white)
+}
+</pre></td>
+<td><pre lang=swift>
+class Vehicle: CoreStoreObject {
+    <br />
+    @Field.Coded("color", coder: FieldCoders.NSCoding.self)
+    var color: UIColor? = .white
+}
+</pre></td>
+</tr>
+</table>
+
+Built-in encoders such as `FieldCoders.NSCoding`, `FieldCoders.Json`, and `FieldCoders.Plist` are available, and custom encoding/decoding is also supported:
+```swift
+class Person: CoreStoreObject {
+    <br />
+    struct CustomInfo: Codable {
+        // ...
+    }
+    <br />
+    @Field.Coded("otherInfo", coder: FieldCoders.Json.self)
+    var otherInfo: CustomInfo?
+    <br />
+    @Field.Coded(
+        "photo",
+        coder: {
+            encode: { $0.toData() },
+            decode: { Photo(fromData: $0) }
+        }
+    )
+    var photo: Photo?
+}
+```
+
+> ‼️**Important:** Any changes in the encoders/decoders are not reflected in the `VersionLock`, so make sure that the encoder and decoder logic is compatible for all versions of your persistent store.
+
+#### `@Field.Relationship`
+
+The `@Field.Relationship` property wrapper is used for link relationships with other `CoreStoreObject`s. This is the replacement for `Relationship.ToOne`, `Relationship.ToManyOrdered`, and `Relationship.ToManyUnordered` properties.
+
+The type of relationship is determined by the `@Field.Relationship`  generic type:
+
+- `Optional<T>` : To-one relationship
+- `Array<T>` : To-many ordered relationship
+- `Set<T>` : To-many unordered relationship
+
+<table>
+<tr><th>Before</th><th>`@Field.Stored`</th></tr>
+<tr>
+<td><pre lang=swift>
+class Pet: CoreStoreObject {
+    <br />
+    let master = Relationship.ToOne<Person>("master")
+}
+class Person: CoreStoreObject {
+    <br />
+    let pets: Relationship.ToManyUnordered<Pet>("pets", inverse: \.$master)
+}
+</pre></td>
+<td><pre lang=swift>
+class Pet: CoreStoreObject {
+    <br />
+    @Field.Relationship("master")
+    var master: Person?
+}
+class Person: CoreStoreObject {
+    <br />
+    @Field.Relationship("pets", inverse: \.$master)
+    var pets: Set<Pet>
+}
+</pre></td>
+</tr>
+</table>
+
+> ⚠️ When converting, make sure that all parameters, including the default values, are exactly the same or else the model's hash might change.
+
+Also note how `Relationship`s are linked statically with the `inverse:` argument. **All relationships are required to have an "inverse" relationship**. Unfortunately, due to Swift compiler limitation we can declare the `inverse:` on only one of the relationship-pair.
+
+#### `@Field` usage notes 
+
+**Accessor syntax**
+
+When using key-path utilities, properties using `@Field` property wrappers need to use the `$` syntax:
+
+- Before: `From<Person>.where(\.title == "Mr.")`
+- After: `From<Person>.where(\.$title == "Mr.")`
+
+This applies to property access using `ObjectPublisher`s and `ObjectSnapshot`s.
+
+- Before: `let name = personSnapshot.name`
+- After: `let name = personSnapshot.$name`
+
+
+**Default values vs. Initial values**
+
+One common mistake when assigning default values to `CoreStoreObject` properties is to assign it a value and expect it to be evaluated whenever an object is created:
+
+```swift
+// ❌
+class Person: CoreStoreObject {
+
+    @Field.Stored("identifier")
+    var identifier: UUID = UUID() // Wrong!
+    
+    @Field.Stored("createdDate")
+    var createdDate: Date = Date() // Wrong!
+}
+```
+
+This default value will be evaluated only when the `DataStack` sets up the schema, and all instances will end up having the same values. This syntax for "default values" are usually used only for actual reasonable constant values, or sentinel values such as `""` or `0`.
+
+For actual "initial values", `@Field.Stored` and `@Field.Coded` now supports dynamic evaluation during object creation via the `dynamicInitialValue:` argument:
+
+```swift
+// ✅
+class Person: CoreStoreObject {
+
+    @Field.Stored("identifier", dynamicInitialValue: { UUID() })
+    var identifier: UUID
+    
+    @Field.Stored("createdDate", dynamicInitialValue: { Date() })
+    var createdDate: Date
+}
+```
+When using this feature, a "default value" should not be assigned (i.e. no `=` expression). 
+
+
 ### `VersionLock`s
 
 While it is convenient to be able to declare entities only in code, it is worrying that we might accidentally change the `CoreStoreObject`'s properties and break our users' model version history. For this, the `CoreStoreSchema` allows us to "lock" our properties to a particular configuration. Any changes to that `VersionLock` will raise an assertion failure during the `CoreStoreSchema` initialization, so you can then look for the commit which changed the `VersionLock` hash.
 
-To use `VersionLock`s, create the `CoreStoreSchema`, run the app, and look for this particular log message that is automatically printed to the console:
+To use `VersionLock`s, create the `CoreStoreSchema`, run the app, and look for a similar log message that is automatically printed to the console:
 
 <img width="700" alt="VersionLock" src="https://cloud.githubusercontent.com/assets/3029684/26525632/757f1bd0-4398-11e7-9795-4132a2df0538.png" />
 
@@ -1725,7 +2052,7 @@ CoreStoreSchema(
 ```
 You can also get this hash after the `DataStack` has been fully set up by printing to the console:
 ```swift
-print(CoreStore.defaultStack.modelSchema.printCoreStoreSchema())
+print(CoreStoreDefaults.dataStack.modelSchema.printCoreStoreSchema())
 ```
 
 Once the version lock is set, any changes in the properties or to the model will trigger an assertion failure similar to this:
@@ -1735,8 +2062,9 @@ Once the version lock is set, any changes in the properties or to the model will
 
 # Installation
 - Requires:
-    - iOS 8 SDK and above
-    - Swift 3.1 (Xcode 8.3.2+)
+    - iOS 10 SDK and above
+    - Swift 5.2 (Xcode 11.4+)
+    - For previous Swift versions: [Swift 3.2](https://github.com/JohnEstropia/CoreStore/tree/4.2.3), [Swift 4.2](https://github.com/JohnEstropia/CoreStore/tree/6.2.1), [Swift 5.0](https://github.com/JohnEstropia/CoreStore/tree/6.3.2), [Swift 5.1](https://github.com/JohnEstropia/CoreStore/tree/7.0.4)
 - Dependencies:
     - *None*
 - Other notes:
@@ -1745,7 +2073,7 @@ Once the version lock is set, any changes in the properties or to the model will
 ### Install with CocoaPods
 In your `Podfile`, add
 ```
-pod 'CoreStore', '~> 4.0'
+pod 'CoreStore', '~> 7.2'
 ```
 and run 
 ```
@@ -1756,7 +2084,7 @@ This installs CoreStore as a framework. Declare `import CoreStore` in your swift
 ### Install with Carthage
 In your `Cartfile`, add
 ```
-github "JohnEstropia/CoreStore" >= 4.0.0
+github "JohnEstropia/CoreStore" >= 7.2.0
 ```
 and run 
 ```
@@ -1764,17 +2092,26 @@ carthage update
 ```
 This installs CoreStore as a framework. Declare `import CoreStore` in your swift file to use the library.
 
+#### Install with Swift Package Manager:
+```swift
+dependencies: [
+    .package(url: "https://github.com/JohnEstropia/CoreStore.git", from: "7.2.0"))
+]
+```
+Declare `import CoreStore` in your swift file to use the library.
+
 ### Install as Git Submodule
 ```
 git submodule add https://github.com/JohnEstropia/CoreStore.git <destination directory>
 ```
 Drag and drop **CoreStore.xcodeproj** to your project.
 
-#### To install as a framework:
-Drag and drop **CoreStore.xcodeproj** to your project.
-
-#### To include directly in your app module:
-Add all *.swift* files to your project.
+### Install through Xcode's Swift Package Manager
+From the **File** - **Swift Packages** - **Add Package Dependency…** menu, search for 
+```
+CoreStore
+```
+where `JohnEstropia` is the *Owner* (forks may appear as well). Then add to your project.
 
 
 ### Objective-C support
@@ -1782,30 +2119,12 @@ Add all *.swift* files to your project.
 To use the Objective-C syntax sugars, import *CoreStoreBridge.h* in your *.m* source files.
 
 # Changesets
-### Upgrading from 3.x.x to 4.x.x
-**Obsoleted**
-- `LegacySQLiteStore` is now finally obsoleted in favor of `SQLiteStore`. For sqlite files that were created previously with `LegacySQLiteStore`, make sure to use the `SQLiteStore.legacy(...)` factory method to create an `SQLiteStore` that can load the file from the legacy file path.
-- `SQLiteStore.init(...)`'s `mappingModelBundles` argument is now obsolete. The new initializer accepts a `migrationMappingProviders` optional argument where explicit mapping sources are declared. For reference on how to do this, read on [Custom migrations](#custom-migrations).
-
-**Deprecated**
-- `DataStack.beginAsynchronous(...)`, `DataStack.beginSynchronous(...)`, `AsynchronousDataTransaction.commit(...)`, and `SynchronousDataTransaction.commit(...)` are now deprecated in favor of `DataStack.perform(asynchronous:...)` and `DataStack.perform(synchronous:...)` family of methods. These new `perform(...)` methods are auto-commit, meaning the transaction automatically calls `commit()` internally after the transction closure completes. To roll-back and cancel a transaction, call `try transaction.cancel()`. Read [Saving and processing transactions](#saving-and-processing-transactions) for more details.
-
-**Other Changes**
-- `ListMonitor.refetch(...)` now works by recreating its internal `NSFetchedResultsController`. Previously `refetch(...)` would only apply new `FetchClause`s on top of previous fetches. Now all `FetchClauses` are required to be passed to `refetch(...)` each time it is called.
-- New important concepts on "Dynamic Models", "Schema", and "Schema Histories".
-    - **Dynamic Models** (`DynamicObject` protocol): These are Core Data object types that any `NSManagedObject` or `CoreStoreObject`s conform to. *(See [Type-safe `CoreStoreObject`s](#type-safe-corestoreobjects))*
-    - **Version Schema** (`DynamicSchema` protocol): These types contain info for a single model version, as well as entities that belong to it. Currently supports `XcodeDataModelSchema` (*.xcdatamodeld* file), `CoreStoreSchema`, or `UnsafeDataModelSchema`. *(See [Migrations](#migrations))*
-    - **Schema History** (`SchemaHistory` class): This is now the preferred way to express all models to the `DataStack`. This class contains info to all the `DynamicSchema` across multiple model versions. *(See [Migrations](#migrations))*
-
-### Other Releases
 
 For the full Changelog, refer to the [Releases](https://github.com/JohnEstropia/CoreStore/releases) page. 
 
 
 # Contact
-Questions? Suggestions?
-
-Reach me on Twitter [@JohnEstropia](https://twitter.com/JohnEstropia)
+You can reach me on Twitter [@JohnEstropia](https://twitter.com/JohnEstropia)
 
 or join our Slack team at [swift-corestore.slack.com](http://swift-corestore-slack.herokuapp.com/)
 

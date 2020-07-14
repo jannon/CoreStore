@@ -2,7 +2,7 @@
 //  CSSynchronousDataTransaction.swift
 //  CoreStore
 //
-//  Copyright © 2016 John Rommel Estropia
+//  Copyright © 2018 John Rommel Estropia
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -34,8 +34,9 @@ import CoreData
  
  - SeeAlso: `SynchronousDataTransaction`
  */
+@available(*, deprecated, message: "CoreStore Objective-C API will be removed soon.")
 @objc
-public final class CSSynchronousDataTransaction: CSBaseDataTransaction {
+public final class CSSynchronousDataTransaction: CSBaseDataTransaction, CoreStoreObjectiveCType {
     
     /**
      Saves the transaction changes and waits for completion synchronously. This method should not be used after the `-commitAndWaitWithError:` method was already called once.
@@ -60,7 +61,7 @@ public final class CSSynchronousDataTransaction: CSBaseDataTransaction {
     
     public override var description: String {
         
-        return "(\(String(reflecting: type(of: self)))) \(self.bridgeToSwift.coreStoreDumpString)"
+        return "(\(String(reflecting: Self.self))) \(self.bridgeToSwift.coreStoreDumpString)"
     }
     
     
@@ -129,9 +130,9 @@ public final class CSSynchronousDataTransaction: CSBaseDataTransaction {
     
     public typealias SwiftType = SynchronousDataTransaction
     
-    public override var bridgeToSwift: SynchronousDataTransaction {
+    public var bridgeToSwift: SynchronousDataTransaction {
         
-        return super.bridgeToSwift as! SynchronousDataTransaction
+        return super.swiftTransaction as! SynchronousDataTransaction
     }
     
     public required init(_ swiftValue: SynchronousDataTransaction) {
@@ -139,42 +140,16 @@ public final class CSSynchronousDataTransaction: CSBaseDataTransaction {
         super.init(swiftValue as BaseDataTransaction)
     }
     
-    public required init(_ swiftValue: BaseDataTransaction) {
+    public required override init(_ swiftValue: BaseDataTransaction) {
         
-        super.init(swiftValue as! SynchronousDataTransaction)
-    }
-    
-    
-    // MARK: Deprecated
-    
-    @available(*, deprecated, message: "Use the new -[CSSynchronousDataTransaction commitAndWaitWithError:] method")
-    @objc
-    public func commitAndWait() -> CSSaveResult {
-        
-        return bridge {
-            
-            self.bridgeToSwift.commitAndWait()
-        }
-    }
-    
-    @available(*, deprecated, message: "Secondary tasks spawned from CSAsynchronousDataTransactions and CSSynchronousDataTransactions are no longer supported. ")
-    @objc
-    @discardableResult
-    public func beginSynchronous(_ closure: @escaping (_ transaction: CSSynchronousDataTransaction) -> Void) -> CSSaveResult? {
-        
-        return bridge {
-            
-            self.bridgeToSwift.beginSynchronous { (transaction) in
-                
-                closure(transaction.bridgeToObjectiveC)
-            }
-        }
+        super.init(swiftValue)
     }
 }
 
 
 // MARK: - SynchronousDataTransaction
 
+@available(*, deprecated, message: "CoreStore Objective-C API will be removed soon.")
 extension SynchronousDataTransaction: CoreStoreSwiftType {
     
     // MARK: CoreStoreSwiftType

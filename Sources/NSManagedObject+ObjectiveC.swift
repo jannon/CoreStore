@@ -2,7 +2,7 @@
 //  NSManagedObject+ObjectiveC.swift
 //  CoreStore
 //
-//  Copyright © 2016 John Rommel Estropia
+//  Copyright © 2018 John Rommel Estropia
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,7 @@ import CoreData
 
 // MARK: - NSManagedObject
 
-public extension NSManagedObject {
+extension NSManagedObject {
     
     /**
      Provides a convenience wrapper for accessing `-primitiveValueForKey:` with proper calls to `-willAccessValueForKey:` and `-didAccessValueForKey:`. This is useful when implementing accessor methods for transient attributes.
@@ -38,7 +38,7 @@ public extension NSManagedObject {
      - returns: the primitive value for the KVC key
      */
     @objc
-    public func cs_accessValueForKVCKey(_ KVCKey: KeyPath) -> Any? {
+    public func cs_accessValueForKVCKey(_ KVCKey: KeyPathString) -> Any? {
         
         return self.getValue(forKvcKey: KVCKey)
     }
@@ -50,7 +50,7 @@ public extension NSManagedObject {
      - parameter KVCKey: the KVC key
      */
     @objc
-    public func cs_setValue(_ value: Any?, forKVCKey KVCKey: KeyPath) {
+    public func cs_setValue(_ value: Any?, forKVCKey KVCKey: KeyPathString) {
         
         self.setValue(value, forKvcKey: KVCKey)
     }

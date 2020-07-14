@@ -2,7 +2,7 @@
 //  CSGroupBy.swift
 //  CoreStore
 //
-//  Copyright © 2016 John Rommel Estropia
+//  Copyright © 2018 John Rommel Estropia
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -35,13 +35,13 @@ import CoreData
  - SeeAlso: `GroupBy`
  */
 @objc
-public final class CSGroupBy: NSObject, CSQueryClause, CoreStoreObjectiveCType {
+public final class CSGroupBy: NSObject, CSQueryClause {
     
     /**
      The list of key path strings to group results with
      */
     @objc
-    public var keyPaths: [KeyPath] {
+    public var keyPaths: [KeyPathString] {
         
         return self.bridgeToSwift.keyPaths
     }
@@ -52,7 +52,7 @@ public final class CSGroupBy: NSObject, CSQueryClause, CoreStoreObjectiveCType {
      - parameter keyPath: a key path string to group results with
      */
     @objc
-    public convenience init(keyPath: KeyPath) {
+    public convenience init(keyPath: KeyPathString) {
         
         self.init(GroupBy(keyPath))
     }
@@ -63,7 +63,7 @@ public final class CSGroupBy: NSObject, CSQueryClause, CoreStoreObjectiveCType {
      - parameter keyPaths: a list of key path strings to group results with
      */
     @objc
-    public convenience init(keyPaths: [KeyPath]) {
+    public convenience init(keyPaths: [KeyPathString]) {
         
         self.init(GroupBy(keyPaths))
     }
@@ -87,7 +87,7 @@ public final class CSGroupBy: NSObject, CSQueryClause, CoreStoreObjectiveCType {
     
     public override var description: String {
         
-        return "(\(String(reflecting: type(of: self)))) \(self.bridgeToSwift.coreStoreDumpString)"
+        return "(\(String(reflecting: Self.self))) \(self.bridgeToSwift.coreStoreDumpString)"
     }
     
     
@@ -102,11 +102,11 @@ public final class CSGroupBy: NSObject, CSQueryClause, CoreStoreObjectiveCType {
     
     // MARK: CoreStoreObjectiveCType
     
-    public let bridgeToSwift: GroupBy
+    public let bridgeToSwift: GroupBy<NSManagedObject>
     
-    public init(_ swiftValue: GroupBy) {
+    public init<O: NSManagedObject>(_ swiftValue: GroupBy<O>) {
         
-        self.bridgeToSwift = swiftValue
+        self.bridgeToSwift = swiftValue.downcast()
         super.init()
     }
 }
@@ -114,12 +114,20 @@ public final class CSGroupBy: NSObject, CSQueryClause, CoreStoreObjectiveCType {
 
 // MARK: - GroupBy
 
-extension GroupBy: CoreStoreSwiftType {
+extension GroupBy where O: NSManagedObject {
     
     // MARK: CoreStoreSwiftType
     
     public var bridgeToObjectiveC: CSGroupBy {
         
         return CSGroupBy(self)
+    }
+    
+    
+    // MARK: FilePrivate
+    
+    fileprivate func downcast() -> GroupBy<NSManagedObject> {
+        
+        return GroupBy<NSManagedObject>(self.keyPaths)
     }
 }

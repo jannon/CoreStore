@@ -2,7 +2,7 @@
 //  CSUnsafeDataTransaction.swift
 //  CoreStore
 //
-//  Copyright © 2016 John Rommel Estropia
+//  Copyright © 2018 John Rommel Estropia
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -34,8 +34,9 @@ import CoreData
  
  - SeeAlso: `UnsafeDataTransaction`
  */
+@available(*, deprecated, message: "CoreStore Objective-C API will be removed soon.")
 @objc
-public final class CSUnsafeDataTransaction: CSBaseDataTransaction {
+public final class CSUnsafeDataTransaction: CSBaseDataTransaction, CoreStoreObjectiveCType {
     /**
      Saves the transaction changes asynchronously. For a `CSUnsafeDataTransaction`, multiple commits are allowed, although it is the developer's responsibility to ensure a reasonable leeway to prevent blocking the main thread.
      
@@ -181,7 +182,7 @@ public final class CSUnsafeDataTransaction: CSBaseDataTransaction {
     
     public override var description: String {
         
-        return "(\(String(reflecting: type(of: self)))) \(self.bridgeToSwift.coreStoreDumpString)"
+        return "(\(String(reflecting: Self.self))) \(self.bridgeToSwift.coreStoreDumpString)"
     }
     
     
@@ -189,9 +190,9 @@ public final class CSUnsafeDataTransaction: CSBaseDataTransaction {
     
     public typealias SwiftType = UnsafeDataTransaction
     
-    public override var bridgeToSwift: UnsafeDataTransaction {
+    public var bridgeToSwift: UnsafeDataTransaction {
         
-        return super.bridgeToSwift as! UnsafeDataTransaction
+        return super.swiftTransaction as! UnsafeDataTransaction
     }
     
     public required init(_ swiftValue: UnsafeDataTransaction) {
@@ -199,60 +200,16 @@ public final class CSUnsafeDataTransaction: CSBaseDataTransaction {
         super.init(swiftValue as BaseDataTransaction)
     }
     
-    public required init(_ swiftValue: BaseDataTransaction) {
+    public required override init(_ swiftValue: BaseDataTransaction) {
         
-        super.init(swiftValue as! UnsafeDataTransaction)
-    }
-    
-    
-    // MARK: Deprecated
-    
-    @available(*, deprecated, renamed: "unsafeContext()")
-    @objc
-    public var internalContext: NSManagedObjectContext {
-        
-        return self.bridgeToSwift.context
-    }
-    
-    @available(*, deprecated, message: "Use the new -[CSUnsafeDataTransaction commitWithSuccess:failure:] method")
-    @objc
-    public func commit(_ completion: ((_ result: CSSaveResult) -> Void)?) {
-        
-        self.bridgeToSwift.context.saveAsynchronouslyWithCompletion { (hasChanges, error) in
-            
-            defer {
-                
-                withExtendedLifetime(self, {})
-            }
-            if let error = error {
-                
-                completion?(SaveResult(error).bridgeToObjectiveC)
-            }
-            else {
-                
-                completion?(SaveResult(hasChanges: hasChanges).bridgeToObjectiveC)
-            }
-        }
-    }
-    
-    @available(*, deprecated, message: "Use the new -[CSUnsafeDataTransaction commitAndWaitWithError:] method")
-    @objc
-    public func commitAndWait() -> CSSaveResult {
-        
-        return bridge { () -> SaveResult in
-            
-            switch self.bridgeToSwift.context.saveSynchronously(waitForMerge: true) {
-                
-            case (let hasChanges, nil): return SaveResult(hasChanges: hasChanges)
-            case (_, let error?):       return SaveResult(error)
-            }
-        }
+        super.init(swiftValue)
     }
 }
 
 
 // MARK: - UnsafeDataTransaction
 
+@available(*, deprecated, message: "CoreStore Objective-C API will be removed soon.")
 extension UnsafeDataTransaction: CoreStoreSwiftType {
     
     // MARK: CoreStoreSwiftType

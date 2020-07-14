@@ -2,7 +2,7 @@
 //  CoreStoreObject+Querying.swift
 //  CoreStore
 //
-//  Copyright © 2017 John Rommel Estropia
+//  Copyright © 2018 John Rommel Estropia
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -26,171 +26,316 @@
 import CoreData
 import Foundation
 
+// MARK: - FieldContainer.Value
 
-// MARK: - DynamicObject
+extension FieldContainer.Stored {
 
-public extension DynamicObject where Self: CoreStoreObject {
-    
     /**
-     Extracts the keyPath string from a `CoreStoreObject.Value` property.
+     Creates a `Where` clause by comparing if a property is equal to a value
      ```
-     let keyPath: String = Person.keyPath { $0.nickname }
+     let person = dataStack.fetchOne(From<Person>().where({ $0.nickname == "John" }))
      ```
      */
-    public static func keyPath<O: CoreStoreObject, V: ImportableAttributeType>(_ attribute: (Self) -> ValueContainer<O>.Required<V>) -> String  {
-        
-        return attribute(self.meta).keyPath
+    public static func == (_ attribute: Self, _ value: V) -> Where<O> {
+
+        return Where(attribute.keyPath, isEqualTo: value)
     }
-    
+
     /**
-     Extracts the keyPath string from a `CoreStoreObject.Value` property.
+     Creates a `Where` clause by comparing if a property is not equal to a value
      ```
-     let keyPath: String = Person.keyPath { $0.nickname }
+     let person = dataStack.fetchOne(From<Person>().where({ $0.nickname != "John" }))
      ```
      */
-    public static func keyPath<O: CoreStoreObject, V: ImportableAttributeType>(_ attribute: (Self) -> ValueContainer<O>.Optional<V>) -> String  {
-        
-        return attribute(self.meta).keyPath
+    public static func != (_ attribute: Self, _ value: V) -> Where<O> {
+
+        return !Where(attribute.keyPath, isEqualTo: value)
     }
-    
+
     /**
-     Creates a `Where` clause from a `CoreStoreObject.Value` property.
+     Creates a `Where` clause by comparing if a property is less than a value
      ```
-     let person = CoreStore.fetchOne(From<Person>(), Person.where { $0.nickname == "John" })
+     let person = dataStack.fetchOne(From<Person>().where({ $0.age < 20 }))
      ```
      */
-    public static func `where`(_ condition: (Self) -> Where) -> Where  {
-        
-        return condition(self.meta)
+    public static func < (_ attribute: Self, _ value: V) -> Where<O> {
+
+        return Where("%K < %@", attribute.keyPath, value.cs_toFieldStoredNativeType() as Any)
     }
-    
+
     /**
-     Creates an `OrderBy` clause from a `CoreStoreObject.Value` property.
+     Creates a `Where` clause by comparing if a property is greater than a value
      ```
-     let person = CoreStore.fetchAll(From<Person>(), Person.ascending { $0.age })
+     let person = dataStack.fetchOne(From<Person>().where({ $0.age > 20 }))
      ```
      */
-    public static func ascending<O: CoreStoreObject, V: ImportableAttributeType>(_ attribute: (Self) -> ValueContainer<O>.Optional<V>) -> OrderBy  {
-        
-        return OrderBy(.ascending(attribute(self.meta).keyPath))
+    public static func > (_ attribute: Self, _ value: V) -> Where<O> {
+
+        return Where("%K > %@", attribute.keyPath, value.cs_toFieldStoredNativeType() as Any)
     }
-    
+
     /**
-     Creates an `OrderBy` clause from a `CoreStoreObject.Value` property.
+     Creates a `Where` clause by comparing if a property is less than or equal to a value
      ```
-     let person = CoreStore.fetchAll(From<Person>(), Person.descending { $0.age })
+     let person = dataStack.fetchOne(From<Person>().where({ $0.age <= 20 }))
      ```
      */
-    public static func descending<O: CoreStoreObject, V: ImportableAttributeType>(_ attribute: (Self) -> ValueContainer<O>.Optional<V>) -> OrderBy  {
-        
-        return OrderBy(.descending(attribute(self.meta).keyPath))
+    public static func <= (_ attribute: Self, _ value: V) -> Where<O> {
+
+        return Where("%K <= %@", attribute.keyPath, value.cs_toFieldStoredNativeType() as Any)
+    }
+
+    /**
+     Creates a `Where` clause by comparing if a property is greater than or equal to a value
+     ```
+     let person = dataStack.fetchOne(From<Person>().where({ $0.age >= 20 }))
+     ```
+     */
+    public static func >= (_ attribute: Self, _ value: V) -> Where<O> {
+
+        return Where("%K >= %@", attribute.keyPath, value.cs_toFieldStoredNativeType() as Any)
+    }
+
+    /**
+     Creates a `Where` clause by checking if a sequence contains the value of a property
+     ```
+     let dog = dataStack.fetchOne(From<Dog>().where({ ["Pluto", "Snoopy", "Scooby"] ~= $0.nickname }))
+     ```
+     */
+    public static func ~= <S: Sequence>(_ sequence: S, _ attribute: Self) -> Where<O> where S.Iterator.Element == V {
+
+        return Where(attribute.keyPath, isMemberOf: sequence)
     }
 }
 
-
 // MARK: - ValueContainer.Required
 
-public extension ValueContainer.Required {
+extension ValueContainer.Required {
     
     /**
-     Creates a `Where` clause from a `CoreStoreObject.Value` property.
+     Creates a `Where` clause by comparing if a property is equal to a value
      ```
-     let person = CoreStore.fetchOne(From<Person>(), Person.where { $0.nickname == "John" })
+     let person = dataStack.fetchOne(From<Person>().where({ $0.nickname == "John" }))
      ```
      */
-    @inline(__always)
-    public static func == (_ attribute: ValueContainer<O>.Required<V>, _ value: V) -> Where {
+    public static func == (_ attribute: ValueContainer<O>.Required<V>, _ value: V) -> Where<O> {
         
         return Where(attribute.keyPath, isEqualTo: value)
     }
     
     /**
-     Creates a `Where` clause from a `CoreStoreObject.Value` property.
+     Creates a `Where` clause by comparing if a property is not equal to a value
      ```
-     let person = CoreStore.fetchOne(From<Person>(), Person.where { $0.nickname != "John" })
+     let person = dataStack.fetchOne(From<Person>().where({ $0.nickname != "John" }))
      ```
      */
-    @inline(__always)
-    public static func != (_ attribute: ValueContainer<O>.Required<V>, _ value: V) -> Where {
+    public static func != (_ attribute: ValueContainer<O>.Required<V>, _ value: V) -> Where<O> {
         
         return !Where(attribute.keyPath, isEqualTo: value)
     }
     
     /**
-     Creates a `Where` clause from a `CoreStoreObject.Value` property.
+     Creates a `Where` clause by comparing if a property is less than a value
      ```
-     let person = CoreStore.fetchOne(From<Person>(), Person.where { $0.age < 20 })
+     let person = dataStack.fetchOne(From<Person>().where({ $0.age < 20 }))
      ```
      */
-    @inline(__always)
-    public static func < (_ attribute: ValueContainer<O>.Required<V>, _ value: V) -> Where {
+    public static func < (_ attribute: ValueContainer<O>.Required<V>, _ value: V) -> Where<O> {
         
-        return Where("%K < %@", attribute.keyPath, value)
+        return Where("%K < %@", attribute.keyPath, value.cs_toQueryableNativeType())
     }
     
     /**
-     Creates a `Where` clause from a `CoreStoreObject.Value` property.
+     Creates a `Where` clause by comparing if a property is greater than a value
      ```
-     let person = CoreStore.fetchOne(From<Person>(), Person.where { $0.age > 20 })
+     let person = dataStack.fetchOne(From<Person>().where({ $0.age > 20 }))
      ```
      */
-    @inline(__always)
-    public static func > (_ attribute: ValueContainer<O>.Required<V>, _ value: V) -> Where {
+    public static func > (_ attribute: ValueContainer<O>.Required<V>, _ value: V) -> Where<O> {
         
-        return Where("%K > %@", attribute.keyPath, value)
+        return Where("%K > %@", attribute.keyPath, value.cs_toQueryableNativeType())
     }
     
     /**
-     Creates a `Where` clause from a `CoreStoreObject.Value` property.
+     Creates a `Where` clause by comparing if a property is less than or equal to a value
      ```
-     let person = CoreStore.fetchOne(From<Person>(), Person.where { $0.age <= 20 })
+     let person = dataStack.fetchOne(From<Person>().where({ $0.age <= 20 }))
      ```
      */
-    @inline(__always)
-    public static func <= (_ attribute: ValueContainer<O>.Required<V>, _ value: V) -> Where {
+    public static func <= (_ attribute: ValueContainer<O>.Required<V>, _ value: V) -> Where<O> {
         
-        return Where("%K <= %@", attribute.keyPath, value)
+        return Where("%K <= %@", attribute.keyPath, value.cs_toQueryableNativeType())
     }
     
     /**
-     Creates a `Where` clause from a `CoreStoreObject.Value` property.
+     Creates a `Where` clause by comparing if a property is greater than or equal to a value
      ```
-     let person = CoreStore.fetchOne(From<Person>(), Person.where { $0.age >= 20 })
+     let person = dataStack.fetchOne(From<Person>().where({ $0.age >= 20 }))
      ```
      */
-    @inline(__always)
-    public static func >= (_ attribute: ValueContainer<O>.Required<V>, _ value: V) -> Where {
+    public static func >= (_ attribute: ValueContainer<O>.Required<V>, _ value: V) -> Where<O> {
         
-        return Where("%K >= %@", attribute.keyPath, value)
+        return Where("%K >= %@", attribute.keyPath, value.cs_toQueryableNativeType())
+    }
+    
+    /**
+     Creates a `Where` clause by checking if a sequence contains the value of a property
+     ```
+     let dog = dataStack.fetchOne(From<Dog>().where({ ["Pluto", "Snoopy", "Scooby"] ~= $0.nickname }))
+     ```
+     */
+    public static func ~= <S: Sequence>(_ sequence: S, _ attribute: ValueContainer<O>.Required<V>) -> Where<O> where S.Iterator.Element == V {
+        
+        return Where(attribute.keyPath, isMemberOf: sequence)
     }
 }
 
 
 // MARK: - ValueContainer.Optional
 
-public extension ValueContainer.Optional {
+extension ValueContainer.Optional {
     
     /**
-     Creates a `Where` clause from a `CoreStoreObject.Value` property.
+     Creates a `Where` clause by comparing if a property is equal to a value
      ```
-     let person = CoreStore.fetchOne(From<Person>(), Person.where { $0.nickname == "John" })
+     let person = dataStack.fetchOne(From<Person>().where({ $0.nickname == "John" }))
      ```
      */
-    @inline(__always)
-    public static func == (_ attribute: ValueContainer<O>.Optional<V>, _ value: V?) -> Where {
+    public static func == (_ attribute: ValueContainer<O>.Optional<V>, _ value: V?) -> Where<O> {
         
         return Where(attribute.keyPath, isEqualTo: value)
     }
     
     /**
-     Creates a `Where` clause from a `CoreStoreObject.Value` property.
+     Creates a `Where` clause by comparing if a property is not equal to a value
      ```
-     let person = CoreStore.fetchOne(From<Person>(), Person.where { $0.nickname != "John" })
+     let person = dataStack.fetchOne(From<Person>().where({ $0.nickname != "John" }))
      ```
      */
-    @inline(__always)
-    public static func != (_ attribute: ValueContainer<O>.Optional<V>, _ value: V?) -> Where {
+    public static func != (_ attribute: ValueContainer<O>.Optional<V>, _ value: V?) -> Where<O> {
         
         return !Where(attribute.keyPath, isEqualTo: value)
+    }
+    
+    /**
+     Creates a `Where` clause by comparing if a property is less than a value
+     ```
+     let person = dataStack.fetchOne(From<Person>().where({ $0.age < 20 }))
+     ```
+     */
+    public static func < (_ attribute: ValueContainer<O>.Optional<V>, _ value: V?) -> Where<O> {
+        
+        if let value = value {
+            
+            return Where("%K < %@", attribute.keyPath, value.cs_toQueryableNativeType())
+        }
+        else {
+            
+            return Where("%K < nil", attribute.keyPath)
+        }
+    }
+    
+    /**
+     Creates a `Where` clause by comparing if a property is greater than a value
+     ```
+     let person = dataStack.fetchOne(From<Person>().where({ $0.age > 20 }))
+     ```
+     */
+    public static func > (_ attribute: ValueContainer<O>.Optional<V>, _ value: V?) -> Where<O> {
+        
+        if let value = value {
+            
+            return Where("%K > %@", attribute.keyPath, value.cs_toQueryableNativeType())
+        }
+        else {
+            
+            return Where("%K > nil", attribute.keyPath)
+        }
+    }
+    
+    /**
+     Creates a `Where` clause by comparing if a property is less than or equal to a value
+     ```
+     let person = dataStack.fetchOne(From<Person>().where({ $0.age <= 20 }))
+     ```
+     */
+    public static func <= (_ attribute: ValueContainer<O>.Optional<V>, _ value: V?) -> Where<O> {
+        
+        if let value = value {
+            
+            return Where("%K <= %@", attribute.keyPath, value.cs_toQueryableNativeType())
+        }
+        else {
+            
+            return Where("%K <= nil", attribute.keyPath)
+        }
+    }
+    
+    /**
+     Creates a `Where` clause by comparing if a property is greater than or equal to a value
+     ```
+     let person = dataStack.fetchOne(From<Person>().where({ $0.age >= 20 }))
+     ```
+     */
+    public static func >= (_ attribute: ValueContainer<O>.Optional<V>, _ value: V?) -> Where<O> {
+        
+        if let value = value {
+            
+            return Where("%K >= %@", attribute.keyPath, value.cs_toQueryableNativeType())
+        }
+        else {
+            
+            return Where("%K >= nil", attribute.keyPath)
+        }
+    }
+    
+    /**
+     Creates a `Where` clause by checking if a sequence contains the value of a property
+     ```
+     let dog = dataStack.fetchOne(From<Dog>().where({ ["Pluto", "Snoopy", "Scooby"] ~= $0.nickname }))
+     ```
+     */
+    public static func ~= <S: Sequence>(_ sequence: S, _ attribute: ValueContainer<O>.Optional<V>) -> Where<O> where S.Iterator.Element == V {
+        
+        return Where(attribute.keyPath, isMemberOf: sequence)
+    }
+}
+
+
+// MARK: - RelationshipContainer.ToOne
+
+extension RelationshipContainer.ToOne {
+    
+    /**
+     Creates a `Where` clause by comparing if a property is equal to a value
+     ```
+     let dog = dataStack.fetchOne(From<Dog>().where({ $0.master == me }))
+     ```
+     */
+    public static func == (_ relationship: RelationshipContainer<O>.ToOne<D>, _ object: D?) -> Where<O> {
+        
+        return Where(relationship.keyPath, isEqualTo: object)
+    }
+    
+    /**
+     Creates a `Where` clause by comparing if a property is not equal to a value
+     ```
+     let dog = dataStack.fetchOne(From<Dog>().where({ $0.master != me }))
+     ```
+     */
+    public static func != (_ relationship: RelationshipContainer<O>.ToOne<D>, _ object: D?) -> Where<O> {
+        
+        return !Where(relationship.keyPath, isEqualTo: object)
+    }
+    
+    /**
+     Creates a `Where` clause by checking if a sequence contains the value of a property
+     ```
+     let dog = dataStack.fetchOne(From<Dog>().where({ [john, joe, bob] ~= $0.master }))
+     ```
+     */
+    public static func ~= <S: Sequence>(_ sequence: S, _ relationship: RelationshipContainer<O>.ToOne<D>) -> Where<O> where S.Iterator.Element == D {
+        
+        return Where(relationship.keyPath, isMemberOf: sequence)
     }
 }

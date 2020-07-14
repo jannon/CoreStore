@@ -2,7 +2,7 @@
 //  FetchableSource.swift
 //  CoreStore
 //
-//  Copyright © 2016 John Rommel Estropia
+//  Copyright © 2018 John Rommel Estropia
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@ import CoreData
 /**
  Encapsulates containers which manages an internal `NSManagedObjectContext`, such as `DataStack`s and transactions, that can be used for fetching objects. CoreStore provides implementations for this protocol and should be used as a read-only abstraction.
  */
-public protocol FetchableSource: class {
+public protocol FetchableSource: AnyObject {
     
     /**
      Fetches the `DynamicObject` instance in the `FetchableSource`'s context from a reference created from another managed object context.
@@ -40,7 +40,7 @@ public protocol FetchableSource: class {
      - parameter object: a reference to the object created/fetched outside the `FetchableSource`'s context
      - returns: the `DynamicObject` instance if the object exists in the `FetchableSource`'s context, or `nil` if not found.
      */
-    func fetchExisting<T: DynamicObject>(_ object: T) -> T?
+    func fetchExisting<O: DynamicObject>(_ object: O) -> O?
     
     /**
      Fetches the `DynamicObject` instance in the `FetchableSource`'s context from an `NSManagedObjectID`.
@@ -48,7 +48,7 @@ public protocol FetchableSource: class {
      - parameter objectID: the `NSManagedObjectID` for the object
      - returns: the `DynamicObject` instance if the object exists in the `FetchableSource`, or `nil` if not found.
      */
-    func fetchExisting<T: DynamicObject>(_ objectID: NSManagedObjectID) -> T?
+    func fetchExisting<O: DynamicObject>(_ objectID: NSManagedObjectID) -> O?
     
     /**
      Fetches the `DynamicObject` instances in the `FetchableSource`'s context from references created from another managed object context.
@@ -56,7 +56,7 @@ public protocol FetchableSource: class {
      - parameter objects: an array of `DynamicObject`s created/fetched outside the `FetchableSource`'s context
      - returns: the `DynamicObject` array for objects that exists in the `FetchableSource`
      */
-    func fetchExisting<T: DynamicObject, S: Sequence>(_ objects: S) -> [T] where S.Iterator.Element == T
+    func fetchExisting<O: DynamicObject, S: Sequence>(_ objects: S) -> [O] where S.Iterator.Element == O
 
     /**
      Fetches the `DynamicObject` instances in the `FetchableSource`'s context from a list of `NSManagedObjectID`.
@@ -64,97 +64,182 @@ public protocol FetchableSource: class {
      - parameter objectIDs: the `NSManagedObjectID` array for the objects
      - returns: the `DynamicObject` array for objects that exists in the `FetchableSource`'s context
      */
-    func fetchExisting<T: DynamicObject, S: Sequence>(_ objectIDs: S) -> [T] where S.Iterator.Element == NSManagedObjectID
+    func fetchExisting<O: DynamicObject, S: Sequence>(_ objectIDs: S) -> [O] where S.Iterator.Element == NSManagedObjectID
 
     /**
      Fetches the first `DynamicObject` instance that satisfies the specified `FetchClause`s. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
 
      - parameter from: a `From` clause indicating the entity type
      - parameter fetchClauses: a series of `FetchClause` instances for the fetch request. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
-     - returns: the first `DynamicObject` instance that satisfies the specified `FetchClause`s
+     - returns: the first `DynamicObject` instance that satisfies the specified `FetchClause`s, or `nil` if no match was found
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
      */
-    func fetchOne<T: DynamicObject>(_ from: From<T>, _ fetchClauses: FetchClause...) -> T?
+    func fetchOne<O>(_ from: From<O>, _ fetchClauses: FetchClause...) throws -> O?
 
     /**
      Fetches the first `DynamicObject` instance that satisfies the specified `FetchClause`s. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
 
      - parameter from: a `From` clause indicating the entity type
      - parameter fetchClauses: a series of `FetchClause` instances for the fetch request. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
-     - returns: the first `DynamicObject` instance that satisfies the specified `FetchClause`s
+     - returns: the first `DynamicObject` instance that satisfies the specified `FetchClause`s, or `nil` if no match was found
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
      */
-    func fetchOne<T: DynamicObject>(_ from: From<T>, _ fetchClauses: [FetchClause]) -> T?
+    func fetchOne<O>(_ from: From<O>, _ fetchClauses: [FetchClause]) throws -> O?
+    
+    /**
+     Fetches the first `DynamicObject` instance that satisfies the specified `FetchChainableBuilderType` built from a chain of clauses.
+     ```
+     let youngestTeen = source.fetchOne(
+         From<MyPersonEntity>()
+             .where(\.age > 18)
+             .orderBy(.ascending(\.age))
+     )
+     ```
+     - parameter clauseChain: a `FetchChainableBuilderType` built from a chain of clauses
+     - returns: the first `DynamicObject` instance that satisfies the specified `FetchChainableBuilderType`, or `nil` if no match was found
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
+     */
+    func fetchOne<B: FetchChainableBuilderType>(_ clauseChain: B) throws -> B.ObjectType?
 
     /**
      Fetches all `DynamicObject` instances that satisfy the specified `FetchClause`s. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
 
      - parameter from: a `From` clause indicating the entity type
      - parameter fetchClauses: a series of `FetchClause` instances for the fetch request. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
-     - returns: all `DynamicObject` instances that satisfy the specified `FetchClause`s
+     - returns: all `DynamicObject` instances that satisfy the specified `FetchClause`s, or an empty array if no match was found
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
      */
-    func fetchAll<T: DynamicObject>(_ from: From<T>, _ fetchClauses: FetchClause...) -> [T]?
+    func fetchAll<O>(_ from: From<O>, _ fetchClauses: FetchClause...) throws -> [O]
 
     /**
      Fetches all `DynamicObject` instances that satisfy the specified `FetchClause`s. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
 
      - parameter from: a `From` clause indicating the entity type
      - parameter fetchClauses: a series of `FetchClause` instances for the fetch request. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
-     - returns: all `DynamicObject` instances that satisfy the specified `FetchClause`s
+     - returns: all `DynamicObject` instances that satisfy the specified `FetchClause`s, or an empty array if no match was found
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
      */
-    func fetchAll<T: DynamicObject>(_ from: From<T>, _ fetchClauses: [FetchClause]) -> [T]?
+    func fetchAll<O>(_ from: From<O>, _ fetchClauses: [FetchClause]) throws -> [O]
+    
+    /**
+     Fetches all `DynamicObject` instances that satisfy the specified `FetchChainableBuilderType` built from a chain of clauses.
+     ```
+     let people = source.fetchAll(
+         From<MyPersonEntity>()
+             .where(\.age > 18)
+             .orderBy(.ascending(\.age))
+     )
+     ```
+     - parameter clauseChain: a `FetchChainableBuilderType` built from a chain of clauses
+     - returns: all `DynamicObject` instances that satisfy the specified `FetchChainableBuilderType`, or an empty array if no match was found
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
+     */
+    func fetchAll<B: FetchChainableBuilderType>(_ clauseChain: B) throws -> [B.ObjectType]
 
     /**
      Fetches the number of `DynamicObject`s that satisfy the specified `FetchClause`s. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
 
      - parameter from: a `From` clause indicating the entity type
      - parameter fetchClauses: a series of `FetchClause` instances for the fetch request. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
-     - returns: the number `DynamicObject`s that satisfy the specified `FetchClause`s
+     - returns: the number of `DynamicObject`s that satisfy the specified `FetchClause`s
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
      */
-    func fetchCount<T: DynamicObject>(_ from: From<T>, _ fetchClauses: FetchClause...) -> Int?
+    func fetchCount<O>(_ from: From<O>, _ fetchClauses: FetchClause...) throws -> Int
 
     /**
      Fetches the number of `DynamicObject`s that satisfy the specified `FetchClause`s. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
 
      - parameter from: a `From` clause indicating the entity type
      - parameter fetchClauses: a series of `FetchClause` instances for the fetch request. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
-     - returns: the number `DynamicObject`s that satisfy the specified `FetchClause`s
+     - returns: the number of `DynamicObject`s that satisfy the specified `FetchClause`s
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
      */
-    func fetchCount<T: DynamicObject>(_ from: From<T>, _ fetchClauses: [FetchClause]) -> Int?
+    func fetchCount<O>(_ from: From<O>, _ fetchClauses: [FetchClause]) throws -> Int
+    
+    /**
+     Fetches the number of `DynamicObject`s that satisfy the specified `FetchChainableBuilderType` built from a chain of clauses.
+     ```
+     let numberOfAdults = source.fetchCount(
+         From<MyPersonEntity>()
+             .where(\.age > 18)
+             .orderBy(.ascending(\.age))
+     )
+     ```
+     - parameter clauseChain: a `FetchChainableBuilderType` built from a chain of clauses
+     - returns: the number of `DynamicObject`s that satisfy the specified `FetchChainableBuilderType`
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
+     */
+    func fetchCount<B: FetchChainableBuilderType>(_ clauseChain: B) throws -> Int
 
     /**
      Fetches the `NSManagedObjectID` for the first `DynamicObject` that satisfies the specified `FetchClause`s. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
 
      - parameter from: a `From` clause indicating the entity type
      - parameter fetchClauses: a series of `FetchClause` instances for the fetch request. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
-     - returns: the `NSManagedObjectID` for the first `DynamicObject` that satisfies the specified `FetchClause`s
+     - returns: the `NSManagedObjectID` for the first `DynamicObject` that satisfies the specified `FetchClause`s, or `nil` if no match was found
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
      */
-    func fetchObjectID<T: DynamicObject>(_ from: From<T>, _ fetchClauses: FetchClause...) -> NSManagedObjectID?
+    func fetchObjectID<O>(_ from: From<O>, _ fetchClauses: FetchClause...) throws -> NSManagedObjectID?
 
     /**
      Fetches the `NSManagedObjectID` for the first `DynamicObject` that satisfies the specified `FetchClause`s. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
 
      - parameter from: a `From` clause indicating the entity type
      - parameter fetchClauses: a series of `FetchClause` instances for the fetch request. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
-     - returns: the `NSManagedObjectID` for the first `DynamicObject` that satisfies the specified `FetchClause`s
+     - returns: the `NSManagedObjectID` for the first `DynamicObject` that satisfies the specified `FetchClause`s, or `nil` if no match was found
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
      */
-    func fetchObjectID<T: DynamicObject>(_ from: From<T>, _ fetchClauses: [FetchClause]) -> NSManagedObjectID?
+    func fetchObjectID<O>(_ from: From<O>, _ fetchClauses: [FetchClause]) throws -> NSManagedObjectID?
+    
+    /**
+     Fetches the `NSManagedObjectID` for the first `DynamicObject` that satisfies the specified `FetchChainableBuilderType` built from a chain of clauses.
+     ```
+     let youngestTeenID = source.fetchObjectID(
+         From<MyPersonEntity>()
+             .where(\.age > 18)
+             .orderBy(.ascending(\.age))
+     )
+     ```
+     - parameter clauseChain: a `FetchChainableBuilderType` built from a chain of clauses
+     - returns: the `NSManagedObjectID` for the first `DynamicObject` that satisfies the specified `FetchChainableBuilderType`, or `nil` if no match was found
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
+     */
+    func fetchObjectID<B: FetchChainableBuilderType>(_ clauseChain: B) throws -> NSManagedObjectID?
 
     /**
      Fetches the `NSManagedObjectID` for all `DynamicObject`s that satisfy the specified `FetchClause`s. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
 
      - parameter from: a `From` clause indicating the entity type
      - parameter fetchClauses: a series of `FetchClause` instances for the fetch request. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
-     - returns: the `NSManagedObjectID` for all `DynamicObject`s that satisfy the specified `FetchClause`s
+     - returns: the `NSManagedObjectID` for all `DynamicObject`s that satisfy the specified `FetchClause`s, or an empty array if no match was found
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
      */
-    func fetchObjectIDs<T: DynamicObject>(_ from: From<T>, _ fetchClauses: FetchClause...) -> [NSManagedObjectID]?
+    func fetchObjectIDs<O>(_ from: From<O>, _ fetchClauses: FetchClause...) throws -> [NSManagedObjectID]
 
     /**
      Fetches the `NSManagedObjectID` for all `DynamicObject`s that satisfy the specified `FetchClause`s. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
 
      - parameter from: a `From` clause indicating the entity type
      - parameter fetchClauses: a series of `FetchClause` instances for the fetch request. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
-     - returns: the `NSManagedObjectID` for all `DynamicObject`s that satisfy the specified `FetchClause`s
+     - returns: the `NSManagedObjectID` for all `DynamicObject`s that satisfy the specified `FetchClause`s, or an empty array if no match was found
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
      */
-    func fetchObjectIDs<T: DynamicObject>(_ from: From<T>, _ fetchClauses: [FetchClause]) -> [NSManagedObjectID]?
+    func fetchObjectIDs<O>(_ from: From<O>, _ fetchClauses: [FetchClause]) throws -> [NSManagedObjectID]
+    
+    /**
+     Fetches the `NSManagedObjectID` for all `DynamicObject`s that satisfy the specified `FetchChainableBuilderType` built from a chain of clauses.
+     ```
+     let idsOfAdults = source.fetchObjectIDs(
+         From<MyPersonEntity>()
+             .where(\.age > 18)
+             .orderBy(.ascending(\.age))
+     )
+     ```
+     - parameter clauseChain: a `FetchChainableBuilderType` built from a chain of clauses
+     - returns: the `NSManagedObjectID` for all `DynamicObject`s that satisfy the specified `FetchChainableBuilderType`, or an empty array if no match was found
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
+     */
+    func fetchObjectIDs<B: FetchChainableBuilderType>(_ clauseChain: B) throws -> [NSManagedObjectID]
     
     /**
      The internal `NSManagedObjectContext` managed by this `FetchableSource`. Using this context directly should typically be avoided, and is provided by CoreStore only for extremely specialized cases.

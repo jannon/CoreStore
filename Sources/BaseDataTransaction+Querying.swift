@@ -2,7 +2,7 @@
 //  BaseDataTransaction+Querying.swift
 //  CoreStore
 //
-//  Copyright © 2015 John Rommel Estropia
+//  Copyright © 2018 John Rommel Estropia
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -39,14 +39,13 @@ extension BaseDataTransaction: FetchableSource, QueryableSource {
      - returns: the number of `DynamicObject`s deleted
      */
     @discardableResult
-    public func deleteAll<T: DynamicObject>(_ from: From<T>, _ deleteClauses: DeleteClause...) -> Int? {
+    public func deleteAll<O>(_ from: From<O>, _ deleteClauses: DeleteClause...) throws -> Int {
         
-        CoreStore.assert(
+        Internals.assert(
             self.isRunningInAllowedQueue(),
-            "Attempted to delete from a \(cs_typeName(self)) outside its designated queue."
+            "Attempted to delete from a \(Internals.typeName(self)) outside its designated queue."
         )
-        
-        return self.context.deleteAll(from, deleteClauses)
+        return try self.context.deleteAll(from, deleteClauses)
     }
     
     /**
@@ -57,14 +56,32 @@ extension BaseDataTransaction: FetchableSource, QueryableSource {
      - returns: the number of `DynamicObject`s deleted
      */
     @discardableResult
-    public func deleteAll<T: DynamicObject>(_ from: From<T>, _ deleteClauses: [DeleteClause]) -> Int? {
+    public func deleteAll<O>(_ from: From<O>, _ deleteClauses: [DeleteClause]) throws -> Int {
         
-        CoreStore.assert(
+        Internals.assert(
             self.isRunningInAllowedQueue(),
-            "Attempted to delete from a \(cs_typeName(self)) outside its designated queue."
+            "Attempted to delete from a \(Internals.typeName(self)) outside its designated queue."
+        )
+        return try self.context.deleteAll(from, deleteClauses)
+    }
+    
+    /**
+     Deletes all `DynamicObject`s that satisfy the specified conditions.
+     ```
+     transaction.deleteAll(From<Person>().where(\.age > 50))
+     ```
+     - parameter clauseChain: a `FetchChainableBuilderType` clause chain created from a `From` clause
+     - returns: the number of `DynamicObject`s deleted
+     */
+    @discardableResult
+    public func deleteAll<B: FetchChainableBuilderType>(_ clauseChain: B) throws -> Int {
+        
+        Internals.assert(
+            self.isRunningInAllowedQueue(),
+            "Attempted to delete from a \(Internals.typeName(self)) outside its designated queue."
         )
         
-        return self.context.deleteAll(from, deleteClauses)
+        return try self.context.deleteAll(clauseChain.from, clauseChain.fetchClauses)
     }
     
     
@@ -76,7 +93,7 @@ extension BaseDataTransaction: FetchableSource, QueryableSource {
      - parameter object: a reference to the object created/fetched outside the transaction
      - returns: the `DynamicObject` instance if the object exists in the transaction, or `nil` if not found.
      */
-    public func fetchExisting<T: DynamicObject>(_ object: T) -> T? {
+    public func fetchExisting<O: DynamicObject>(_ object: O) -> O? {
         
         return self.context.fetchExisting(object)
     }
@@ -87,7 +104,7 @@ extension BaseDataTransaction: FetchableSource, QueryableSource {
      - parameter objectID: the `NSManagedObjectID` for the object
      - returns: the `DynamicObject` instance if the object exists in the transaction, or `nil` if not found.
      */
-    public func fetchExisting<T: DynamicObject>(_ objectID: NSManagedObjectID) -> T? {
+    public func fetchExisting<O: DynamicObject>(_ objectID: NSManagedObjectID) -> O? {
         
         return self.context.fetchExisting(objectID)
     }
@@ -98,7 +115,7 @@ extension BaseDataTransaction: FetchableSource, QueryableSource {
      - parameter objects: an array of `DynamicObject`s created/fetched outside the transaction
      - returns: the `DynamicObject` array for objects that exists in the transaction
      */
-    public func fetchExisting<T: DynamicObject, S: Sequence>(_ objects: S) -> [T] where S.Iterator.Element == T {
+    public func fetchExisting<O: DynamicObject, S: Sequence>(_ objects: S) -> [O] where S.Iterator.Element == O {
         
         return self.context.fetchExisting(objects)
     }
@@ -109,7 +126,7 @@ extension BaseDataTransaction: FetchableSource, QueryableSource {
      - parameter objectIDs: the `NSManagedObjectID` array for the objects
      - returns: the `DynamicObject` array for objects that exists in the transaction
      */
-    public func fetchExisting<T: DynamicObject, S: Sequence>(_ objectIDs: S) -> [T] where S.Iterator.Element == NSManagedObjectID {
+    public func fetchExisting<O: DynamicObject, S: Sequence>(_ objectIDs: S) -> [O] where S.Iterator.Element == NSManagedObjectID {
         
         return self.context.fetchExisting(objectIDs)
     }
@@ -119,15 +136,16 @@ extension BaseDataTransaction: FetchableSource, QueryableSource {
      
      - parameter from: a `From` clause indicating the entity type
      - parameter fetchClauses: a series of `FetchClause` instances for the fetch request. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
-     - returns: the first `DynamicObject` instance that satisfies the specified `FetchClause`s
+     - returns: the first `DynamicObject` instance that satisfies the specified `FetchClause`s, or `nil` if no match was found
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
      */
-    public func fetchOne<T: DynamicObject>(_ from: From<T>, _ fetchClauses: FetchClause...) -> T? {
+    public func fetchOne<O>(_ from: From<O>, _ fetchClauses: FetchClause...) throws -> O? {
         
-        CoreStore.assert(
+        Internals.assert(
             self.isRunningInAllowedQueue(),
-            "Attempted to fetch from a \(cs_typeName(self)) outside its designated queue."
+            "Attempted to fetch from a \(Internals.typeName(self)) outside its designated queue."
         )
-        return self.context.fetchOne(from, fetchClauses)
+        return try self.context.fetchOne(from, fetchClauses)
     }
     
     /**
@@ -135,15 +153,38 @@ extension BaseDataTransaction: FetchableSource, QueryableSource {
      
      - parameter from: a `From` clause indicating the entity type
      - parameter fetchClauses: a series of `FetchClause` instances for the fetch request. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
-     - returns: the first `DynamicObject` instance that satisfies the specified `FetchClause`s
+     - returns: the first `DynamicObject` instance that satisfies the specified `FetchClause`s, or `nil` if no match was found
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
      */
-    public func fetchOne<T: DynamicObject>(_ from: From<T>, _ fetchClauses: [FetchClause]) -> T? {
+    public func fetchOne<O>(_ from: From<O>, _ fetchClauses: [FetchClause]) throws -> O? {
         
-        CoreStore.assert(
+        Internals.assert(
             self.isRunningInAllowedQueue(),
-            "Attempted to fetch from a \(cs_typeName(self)) outside its designated queue."
+            "Attempted to fetch from a \(Internals.typeName(self)) outside its designated queue."
         )
-        return self.context.fetchOne(from, fetchClauses)
+        return try self.context.fetchOne(from, fetchClauses)
+    }
+    
+    /**
+     Fetches the first `DynamicObject` instance that satisfies the specified `FetchChainableBuilderType` built from a chain of clauses.
+     ```
+     let youngestTeen = transaction.fetchOne(
+         From<MyPersonEntity>()
+             .where(\.age > 18)
+             .orderBy(.ascending(\.age))
+     )
+     ```
+     - parameter clauseChain: a `FetchChainableBuilderType` built from a chain of clauses
+     - returns: the first `DynamicObject` instance that satisfies the specified `FetchChainableBuilderType`, or `nil` if no match was found
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
+     */
+    public func fetchOne<B: FetchChainableBuilderType>(_ clauseChain: B) throws -> B.ObjectType? {
+        
+        Internals.assert(
+            self.isRunningInAllowedQueue(),
+            "Attempted to fetch from a \(Internals.typeName(self)) outside its designated queue."
+        )
+        return try self.context.fetchOne(clauseChain)
     }
     
     /**
@@ -151,15 +192,16 @@ extension BaseDataTransaction: FetchableSource, QueryableSource {
      
      - parameter from: a `From` clause indicating the entity type
      - parameter fetchClauses: a series of `FetchClause` instances for the fetch request. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
-     - returns: all `DynamicObject` instances that satisfy the specified `FetchClause`s
+     - returns: all `DynamicObject` instances that satisfy the specified `FetchClause`s, or an empty array if no match was found
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
      */
-    public func fetchAll<T: DynamicObject>(_ from: From<T>, _ fetchClauses: FetchClause...) -> [T]? {
+    public func fetchAll<O>(_ from: From<O>, _ fetchClauses: FetchClause...) throws -> [O] {
         
-        CoreStore.assert(
+        Internals.assert(
             self.isRunningInAllowedQueue(),
-            "Attempted to fetch from a \(cs_typeName(self)) outside its designated queue."
+            "Attempted to fetch from a \(Internals.typeName(self)) outside its designated queue."
         )
-        return self.context.fetchAll(from, fetchClauses)
+        return try self.context.fetchAll(from, fetchClauses)
     }
     
     /**
@@ -167,15 +209,38 @@ extension BaseDataTransaction: FetchableSource, QueryableSource {
      
      - parameter from: a `From` clause indicating the entity type
      - parameter fetchClauses: a series of `FetchClause` instances for the fetch request. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
-     - returns: all `DynamicObject` instances that satisfy the specified `FetchClause`s
+     - returns: all `DynamicObject` instances that satisfy the specified `FetchClause`s, or an empty array if no match was found
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
      */
-    public func fetchAll<T: DynamicObject>(_ from: From<T>, _ fetchClauses: [FetchClause]) -> [T]? {
+    public func fetchAll<O>(_ from: From<O>, _ fetchClauses: [FetchClause]) throws -> [O] {
         
-        CoreStore.assert(
+        Internals.assert(
             self.isRunningInAllowedQueue(),
-            "Attempted to fetch from a \(cs_typeName(self)) outside its designated queue."
+            "Attempted to fetch from a \(Internals.typeName(self)) outside its designated queue."
         )
-        return self.context.fetchAll(from, fetchClauses)
+        return try self.context.fetchAll(from, fetchClauses)
+    }
+    
+    /**
+     Fetches all `DynamicObject` instances that satisfy the specified `FetchChainableBuilderType` built from a chain of clauses.
+     ```
+     let people = transaction.fetchAll(
+         From<MyPersonEntity>()
+             .where(\.age > 18)
+             .orderBy(.ascending(\.age))
+     )
+     ```
+     - parameter clauseChain: a `FetchChainableBuilderType` built from a chain of clauses
+     - returns: all `DynamicObject` instances that satisfy the specified `FetchChainableBuilderType`, or an empty array if no match was found
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
+     */
+    public func fetchAll<B: FetchChainableBuilderType>(_ clauseChain: B) throws -> [B.ObjectType] {
+        
+        Internals.assert(
+            self.isRunningInAllowedQueue(),
+            "Attempted to fetch from a \(Internals.typeName(self)) outside its designated queue."
+        )
+        return try self.context.fetchAll(clauseChain)
     }
     
     /**
@@ -183,15 +248,16 @@ extension BaseDataTransaction: FetchableSource, QueryableSource {
      
      - parameter from: a `From` clause indicating the entity type
      - parameter fetchClauses: a series of `FetchClause` instances for the fetch request. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
-     - returns: the number `DynamicObject`s that satisfy the specified `FetchClause`s
+     - returns: the number of `DynamicObject`s that satisfy the specified `FetchClause`s
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
      */
-    public func fetchCount<T: DynamicObject>(_ from: From<T>, _ fetchClauses: FetchClause...) -> Int? {
+    public func fetchCount<O>(_ from: From<O>, _ fetchClauses: FetchClause...) throws -> Int {
         
-        CoreStore.assert(
+        Internals.assert(
             self.isRunningInAllowedQueue(),
-            "Attempted to fetch from a \(cs_typeName(self)) outside its designated queue."
+            "Attempted to fetch from a \(Internals.typeName(self)) outside its designated queue."
         )
-        return self.context.fetchCount(from, fetchClauses)
+        return try self.context.fetchCount(from, fetchClauses)
     }
     
     /**
@@ -199,15 +265,38 @@ extension BaseDataTransaction: FetchableSource, QueryableSource {
      
      - parameter from: a `From` clause indicating the entity type
      - parameter fetchClauses: a series of `FetchClause` instances for the fetch request. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
-     - returns: the number `DynamicObject`s that satisfy the specified `FetchClause`s
+     - returns: the number of `DynamicObject`s that satisfy the specified `FetchClause`s
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
      */
-    public func fetchCount<T: DynamicObject>(_ from: From<T>, _ fetchClauses: [FetchClause]) -> Int? {
+    public func fetchCount<O>(_ from: From<O>, _ fetchClauses: [FetchClause]) throws -> Int {
         
-        CoreStore.assert(
+        Internals.assert(
             self.isRunningInAllowedQueue(),
-            "Attempted to fetch from a \(cs_typeName(self)) outside its designated queue."
+            "Attempted to fetch from a \(Internals.typeName(self)) outside its designated queue."
         )
-        return self.context.fetchCount(from, fetchClauses)
+        return try self.context.fetchCount(from, fetchClauses)
+    }
+    
+    /**
+     Fetches the number of `DynamicObject`s that satisfy the specified `FetchChainableBuilderType` built from a chain of clauses.
+     ```
+     let numberOfAdults = transaction.fetchCount(
+         From<MyPersonEntity>()
+             .where(\.age > 18)
+             .orderBy(.ascending(\.age))
+     )
+     ```
+     - parameter clauseChain: a `FetchChainableBuilderType` built from a chain of clauses
+     - returns: the number of `DynamicObject`s that satisfy the specified `FetchChainableBuilderType`
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
+     */
+    public func fetchCount<B: FetchChainableBuilderType>(_ clauseChain: B) throws -> Int {
+        
+        Internals.assert(
+            self.isRunningInAllowedQueue(),
+            "Attempted to fetch from a \(Internals.typeName(self)) outside its designated queue."
+        )
+        return try self.context.fetchCount(clauseChain)
     }
     
     /**
@@ -215,15 +304,16 @@ extension BaseDataTransaction: FetchableSource, QueryableSource {
      
      - parameter from: a `From` clause indicating the entity type
      - parameter fetchClauses: a series of `FetchClause` instances for the fetch request. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
-     - returns: the `NSManagedObjectID` for the first `DynamicObject` that satisfies the specified `FetchClause`s
+     - returns: the `NSManagedObjectID` for the first `DynamicObject` that satisfies the specified `FetchClause`s, or `nil` if no match was found
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
      */
-    public func fetchObjectID<T: DynamicObject>(_ from: From<T>, _ fetchClauses: FetchClause...) -> NSManagedObjectID? {
+    public func fetchObjectID<O>(_ from: From<O>, _ fetchClauses: FetchClause...) throws -> NSManagedObjectID? {
         
-        CoreStore.assert(
+        Internals.assert(
             self.isRunningInAllowedQueue(),
-            "Attempted to fetch from a \(cs_typeName(self)) outside its designated queue."
+            "Attempted to fetch from a \(Internals.typeName(self)) outside its designated queue."
         )
-        return self.context.fetchObjectID(from, fetchClauses)
+        return try self.context.fetchObjectID(from, fetchClauses)
     }
     
     /**
@@ -231,15 +321,38 @@ extension BaseDataTransaction: FetchableSource, QueryableSource {
      
      - parameter from: a `From` clause indicating the entity type
      - parameter fetchClauses: a series of `FetchClause` instances for the fetch request. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
-     - returns: the `NSManagedObjectID` for the first `DynamicObject` that satisfies the specified `FetchClause`s
+     - returns: the `NSManagedObjectID` for the first `DynamicObject` that satisfies the specified `FetchClause`s, or `nil` if no match was found
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
      */
-    public func fetchObjectID<T: DynamicObject>(_ from: From<T>, _ fetchClauses: [FetchClause]) -> NSManagedObjectID? {
+    public func fetchObjectID<O>(_ from: From<O>, _ fetchClauses: [FetchClause]) throws -> NSManagedObjectID? {
         
-        CoreStore.assert(
+        Internals.assert(
             self.isRunningInAllowedQueue(),
-            "Attempted to fetch from a \(cs_typeName(self)) outside its designated queue."
+            "Attempted to fetch from a \(Internals.typeName(self)) outside its designated queue."
         )
-        return self.context.fetchObjectID(from, fetchClauses)
+        return try self.context.fetchObjectID(from, fetchClauses)
+    }
+    
+    /**
+     Fetches the `NSManagedObjectID` for the first `DynamicObject` that satisfies the specified `FetchChainableBuilderType` built from a chain of clauses.
+     ```
+     let youngestTeenID = transaction.fetchObjectID(
+         From<MyPersonEntity>()
+             .where(\.age > 18)
+             .orderBy(.ascending(\.age))
+     )
+     ```
+     - parameter clauseChain: a `FetchChainableBuilderType` built from a chain of clauses
+     - returns: the `NSManagedObjectID` for the first `DynamicObject` that satisfies the specified `FetchChainableBuilderType`, or `nil` if no match was found
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
+     */
+    public func fetchObjectID<B: FetchChainableBuilderType>(_ clauseChain: B) throws -> NSManagedObjectID? {
+        
+        Internals.assert(
+            self.isRunningInAllowedQueue(),
+            "Attempted to fetch from a \(Internals.typeName(self)) outside its designated queue."
+        )
+        return try self.context.fetchObjectID(clauseChain)
     }
     
     /**
@@ -247,15 +360,16 @@ extension BaseDataTransaction: FetchableSource, QueryableSource {
      
      - parameter from: a `From` clause indicating the entity type
      - parameter fetchClauses: a series of `FetchClause` instances for the fetch request. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
-     - returns: the `NSManagedObjectID` for all `DynamicObject`s that satisfy the specified `FetchClause`s
+     - returns: the `NSManagedObjectID` for all `DynamicObject`s that satisfy the specified `FetchClause`s, or an empty array if no match was found
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
      */
-    public func fetchObjectIDs<T: DynamicObject>(_ from: From<T>, _ fetchClauses: FetchClause...) -> [NSManagedObjectID]? {
+    public func fetchObjectIDs<O>(_ from: From<O>, _ fetchClauses: FetchClause...) throws -> [NSManagedObjectID] {
         
-        CoreStore.assert(
+        Internals.assert(
             self.isRunningInAllowedQueue(),
-            "Attempted to fetch from a \(cs_typeName(self)) outside its designated queue."
+            "Attempted to fetch from a \(Internals.typeName(self)) outside its designated queue."
         )
-        return self.context.fetchObjectIDs(from, fetchClauses)
+        return try self.context.fetchObjectIDs(from, fetchClauses)
     }
     
     /**
@@ -263,15 +377,38 @@ extension BaseDataTransaction: FetchableSource, QueryableSource {
      
      - parameter from: a `From` clause indicating the entity type
      - parameter fetchClauses: a series of `FetchClause` instances for the fetch request. Accepts `Where`, `OrderBy`, and `Tweak` clauses.
-     - returns: the `NSManagedObjectID` for all `DynamicObject`s that satisfy the specified `FetchClause`s
+     - returns: the `NSManagedObjectID` for all `DynamicObject`s that satisfy the specified `FetchClause`s, or an empty array if no match was found
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
      */
-    public func fetchObjectIDs<T: DynamicObject>(_ from: From<T>, _ fetchClauses: [FetchClause]) -> [NSManagedObjectID]? {
+    public func fetchObjectIDs<O>(_ from: From<O>, _ fetchClauses: [FetchClause]) throws -> [NSManagedObjectID] {
         
-        CoreStore.assert(
+        Internals.assert(
             self.isRunningInAllowedQueue(),
-            "Attempted to fetch from a \(cs_typeName(self)) outside its designated queue."
+            "Attempted to fetch from a \(Internals.typeName(self)) outside its designated queue."
         )
-        return self.context.fetchObjectIDs(from, fetchClauses)
+        return try self.context.fetchObjectIDs(from, fetchClauses)
+    }
+    
+    /**
+     Fetches the `NSManagedObjectID` for all `DynamicObject`s that satisfy the specified `FetchChainableBuilderType` built from a chain of clauses.
+     ```
+     let idsOfAdults = transaction.fetchObjectIDs(
+         From<MyPersonEntity>()
+             .where(\.age > 18)
+             .orderBy(.ascending(\.age))
+     )
+     ```
+     - parameter clauseChain: a `FetchChainableBuilderType` built from a chain of clauses
+     - returns: the `NSManagedObjectID` for all `DynamicObject`s that satisfy the specified `FetchChainableBuilderType`, or an empty array if no match was found
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
+     */
+    public func fetchObjectIDs<B: FetchChainableBuilderType>(_ clauseChain: B) throws -> [NSManagedObjectID] {
+        
+        Internals.assert(
+            self.isRunningInAllowedQueue(),
+            "Attempted to fetch from a \(Internals.typeName(self)) outside its designated queue."
+        )
+        return try self.context.fetchObjectIDs(clauseChain)
     }
     
     
@@ -285,15 +422,16 @@ extension BaseDataTransaction: FetchableSource, QueryableSource {
      - parameter from: a `From` clause indicating the entity type
      - parameter selectClause: a `Select<U>` clause indicating the properties to fetch, and with the generic type indicating the return type.
      - parameter queryClauses: a series of `QueryClause` instances for the query request. Accepts `Where`, `OrderBy`, `GroupBy`, and `Tweak` clauses.
-     - returns: the result of the the query. The type of the return value is specified by the generic type of the `Select<U>` parameter.
+     - returns: the result of the the query, or `nil` if no match was found. The type of the return value is specified by the generic type of the `Select<U>` parameter.
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
      */
-    public func queryValue<T: DynamicObject, U: QueryableAttributeType>(_ from: From<T>, _ selectClause: Select<U>, _ queryClauses: QueryClause...) -> U? {
+    public func queryValue<O, U: QueryableAttributeType>(_ from: From<O>, _ selectClause: Select<O, U>, _ queryClauses: QueryClause...) throws -> U? {
         
-        CoreStore.assert(
+        Internals.assert(
             self.isRunningInAllowedQueue(),
-            "Attempted to query from a \(cs_typeName(self)) outside its designated queue."
+            "Attempted to query from a \(Internals.typeName(self)) outside its designated queue."
         )
-        return self.context.queryValue(from, selectClause, queryClauses)
+        return try self.context.queryValue(from, selectClause, queryClauses)
     }
     
     /**
@@ -304,15 +442,40 @@ extension BaseDataTransaction: FetchableSource, QueryableSource {
      - parameter from: a `From` clause indicating the entity type
      - parameter selectClause: a `Select<U>` clause indicating the properties to fetch, and with the generic type indicating the return type.
      - parameter queryClauses: a series of `QueryClause` instances for the query request. Accepts `Where`, `OrderBy`, `GroupBy`, and `Tweak` clauses.
-     - returns: the result of the the query. The type of the return value is specified by the generic type of the `Select<U>` parameter.
+     - returns: the result of the the query, or `nil` if no match was found. The type of the return value is specified by the generic type of the `Select<U>` parameter.
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
      */
-    public func queryValue<T: DynamicObject, U: QueryableAttributeType>(_ from: From<T>, _ selectClause: Select<U>, _ queryClauses: [QueryClause]) -> U? {
+    public func queryValue<O, U: QueryableAttributeType>(_ from: From<O>, _ selectClause: Select<O, U>, _ queryClauses: [QueryClause]) throws -> U? {
         
-        CoreStore.assert(
+        Internals.assert(
             self.isRunningInAllowedQueue(),
-            "Attempted to query from a \(cs_typeName(self)) outside its designated queue."
+            "Attempted to query from a \(Internals.typeName(self)) outside its designated queue."
         )
-        return self.context.queryValue(from, selectClause, queryClauses)
+        return try self.context.queryValue(from, selectClause, queryClauses)
+    }
+    
+    /**
+     Queries a property value or aggregate as specified by the `QueryChainableBuilderType` built from a chain of clauses.
+     
+     A "query" differs from a "fetch" in that it only retrieves values already stored in the persistent store. As such, values from unsaved transactions or contexts will not be incorporated in the query result.
+     ```
+     let averageAdultAge = transaction.queryValue(
+         From<MyPersonEntity>()
+             .select(Int.self, .average(\.age))
+             .where(\.age > 18)
+     )
+     ```
+     - parameter clauseChain: a `QueryChainableBuilderType` indicating the property/aggregate to fetch and the series of queries for the request.
+     - returns: the result of the the query as specified by the `QueryChainableBuilderType`, or `nil` if no match was found.
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
+     */
+    public func queryValue<B: QueryChainableBuilderType>(_ clauseChain: B) throws -> B.ResultType? where B.ResultType: QueryableAttributeType {
+        
+        Internals.assert(
+            self.isRunningInAllowedQueue(),
+            "Attempted to query from a \(Internals.typeName(self)) outside its designated queue."
+        )
+        return try self.context.queryValue(clauseChain.from, clauseChain.select, clauseChain.queryClauses)
     }
     
     /**
@@ -324,14 +487,15 @@ extension BaseDataTransaction: FetchableSource, QueryableSource {
      - parameter selectClause: a `Select<U>` clause indicating the properties to fetch, and with the generic type indicating the return type.
      - parameter queryClauses: a series of `QueryClause` instances for the query request. Accepts `Where`, `OrderBy`, `GroupBy`, and `Tweak` clauses.
      - returns: the result of the the query. The type of the return value is specified by the generic type of the `Select<U>` parameter.
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
      */
-    public func queryAttributes<T: DynamicObject>(_ from: From<T>, _ selectClause: Select<NSDictionary>, _ queryClauses: QueryClause...) -> [[String: Any]]? {
+    public func queryAttributes<O>(_ from: From<O>, _ selectClause: Select<O, NSDictionary>, _ queryClauses: QueryClause...) throws -> [[String: Any]] {
         
-        CoreStore.assert(
+        Internals.assert(
             self.isRunningInAllowedQueue(),
-            "Attempted to query from a \(cs_typeName(self)) outside its designated queue."
+            "Attempted to query from a \(Internals.typeName(self)) outside its designated queue."
         )
-        return self.context.queryAttributes(from, selectClause, queryClauses)
+        return try self.context.queryAttributes(from, selectClause, queryClauses)
     }
     
     /**
@@ -343,14 +507,48 @@ extension BaseDataTransaction: FetchableSource, QueryableSource {
      - parameter selectClause: a `Select<U>` clause indicating the properties to fetch, and with the generic type indicating the return type.
      - parameter queryClauses: a series of `QueryClause` instances for the query request. Accepts `Where`, `OrderBy`, `GroupBy`, and `Tweak` clauses.
      - returns: the result of the the query. The type of the return value is specified by the generic type of the `Select<U>` parameter.
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
      */
-    public func queryAttributes<T: DynamicObject>(_ from: From<T>, _ selectClause: Select<NSDictionary>, _ queryClauses: [QueryClause]) -> [[String: Any]]? {
+    public func queryAttributes<O>(_ from: From<O>, _ selectClause: Select<O, NSDictionary>, _ queryClauses: [QueryClause]) throws -> [[String: Any]] {
         
-        CoreStore.assert(
+        Internals.assert(
             self.isRunningInAllowedQueue(),
-            "Attempted to query from a \(cs_typeName(self)) outside its designated queue."
+            "Attempted to query from a \(Internals.typeName(self)) outside its designated queue."
         )
-        return self.context.queryAttributes(from, selectClause, queryClauses)
+        return try self.context.queryAttributes(from, selectClause, queryClauses)
+    }
+    
+    /**
+     Queries a dictionary of attribute values or  as specified by the `QueryChainableBuilderType` built from a chain of clauses.
+     
+     A "query" differs from a "fetch" in that it only retrieves values already stored in the persistent store. As such, values from unsaved transactions or contexts will not be incorporated in the query result.
+     ```
+     let results = dataStack.queryAttributes(
+         From<MyPersonEntity>()
+             .select(
+                 NSDictionary.self,
+                 .attribute(\.age, as: "age"),
+                 .count(\.age, as: "numberOfPeople")
+              )
+             .groupBy(\.age)
+     )
+     for dictionary in results! {
+         let age = dictionary["age"] as! Int
+         let count = dictionary["numberOfPeople"] as! Int
+         print("There are \(count) people who are \(age) years old."
+     }
+     ```
+     - parameter clauseChain: a `QueryChainableBuilderType` indicating the properties to fetch and the series of queries for the request.
+     - returns: the result of the the query as specified by the `QueryChainableBuilderType`
+     - throws: `CoreStoreError.persistentStoreNotFound` if the specified entity could not be found in any store's schema.
+     */
+    public func queryAttributes<B: QueryChainableBuilderType>(_ clauseChain: B) throws -> [[String: Any]] where B.ResultType == NSDictionary {
+        
+        Internals.assert(
+            self.isRunningInAllowedQueue(),
+            "Attempted to query from a \(Internals.typeName(self)) outside its designated queue."
+        )
+        return try self.context.queryAttributes(clauseChain.from, clauseChain.select, clauseChain.queryClauses)
     }
     
     
@@ -362,14 +560,5 @@ extension BaseDataTransaction: FetchableSource, QueryableSource {
     public func unsafeContext() -> NSManagedObjectContext {
         
         return self.context
-    }
-    
-    
-    // MARK: Obsoleted
-    
-    @available(*, obsoleted: 3.1, renamed: "unsafeContext()")
-    public func internalContext() -> NSManagedObjectContext {
-        
-        fatalError()
     }
 }

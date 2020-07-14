@@ -2,7 +2,7 @@
 //  NSEntityDescription+DynamicModel.swift
 //  CoreStore
 //
-//  Copyright © 2017 John Rommel Estropia
+//  Copyright © 2018 John Rommel Estropia
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,18 @@ import Foundation
 
 // MARK: - NSEntityDescription
 
-internal extension NSEntityDescription {
+extension NSEntityDescription {
+    
+    @nonobjc
+    internal var dynamicObjectType: DynamicObject.Type? {
+        
+        guard let userInfo = self.userInfo,
+            let typeName = userInfo[UserInfoKey.CoreStoreManagedObjectTypeName] as! String? else {
+                
+                return nil
+        }
+        return (NSClassFromString(typeName) as! DynamicObject.Type)
+    }
     
     @nonobjc
     internal var coreStoreEntity: DynamicEntity? {
@@ -39,7 +50,9 @@ internal extension NSEntityDescription {
             guard let userInfo = self.userInfo,
                 let typeName = userInfo[UserInfoKey.CoreStoreManagedObjectTypeName] as! String?,
                 let entityName = userInfo[UserInfoKey.CoreStoreManagedObjectEntityName] as! String?,
-                let isAbstract = userInfo[UserInfoKey.CoreStoreManagedObjectIsAbstract] as! Bool? else {
+                let isAbstract = userInfo[UserInfoKey.CoreStoreManagedObjectIsAbstract] as! Bool?,
+                let indexes = userInfo[UserInfoKey.CoreStoreManagedObjectIndexes] as! [[KeyPathString]]?,
+                let uniqueConstraints = userInfo[UserInfoKey.CoreStoreManagedObjectUniqueConstraints] as! [[KeyPathString]]? else {
                     
                     return nil
             }
@@ -47,24 +60,57 @@ internal extension NSEntityDescription {
                 type: NSClassFromString(typeName) as! CoreStoreObject.Type,
                 entityName: entityName,
                 isAbstract: isAbstract,
-                versionHashModifier: userInfo[UserInfoKey.CoreStoreManagedObjectVersionHashModifier] as! String?
+                versionHashModifier: userInfo[UserInfoKey.CoreStoreManagedObjectVersionHashModifier] as! String?,
+                indexes: indexes,
+                uniqueConstraints: uniqueConstraints
             )
         }
         set {
             
             if let newValue = newValue {
                 
-                var userInfo: [AnyHashable : Any] = [
-                    UserInfoKey.CoreStoreManagedObjectTypeName: NSStringFromClass(newValue.type),
-                    UserInfoKey.CoreStoreManagedObjectEntityName: newValue.entityName,
-                    UserInfoKey.CoreStoreManagedObjectIsAbstract: newValue.isAbstract
-                ]
-                userInfo[UserInfoKey.CoreStoreManagedObjectVersionHashModifier] = newValue.versionHashModifier
-                self.userInfo = userInfo
+                cs_setUserInfo { (userInfo) in
+                    
+                    userInfo[UserInfoKey.CoreStoreManagedObjectTypeName] = NSStringFromClass(newValue.type)
+                    userInfo[UserInfoKey.CoreStoreManagedObjectEntityName] = newValue.entityName
+                    userInfo[UserInfoKey.CoreStoreManagedObjectIsAbstract] = newValue.isAbstract
+                    userInfo[UserInfoKey.CoreStoreManagedObjectVersionHashModifier] = newValue.versionHashModifier
+                    userInfo[UserInfoKey.CoreStoreManagedObjectIndexes] = newValue.indexes
+                    userInfo[UserInfoKey.CoreStoreManagedObjectUniqueConstraints] = newValue.uniqueConstraints
+                }
             }
             else {
                 
-                self.userInfo = [:]
+                cs_setUserInfo { (userInfo) in
+                    
+                    userInfo[UserInfoKey.CoreStoreManagedObjectTypeName] = nil
+                    userInfo[UserInfoKey.CoreStoreManagedObjectEntityName] = nil
+                    userInfo[UserInfoKey.CoreStoreManagedObjectIsAbstract] = nil
+                    userInfo[UserInfoKey.CoreStoreManagedObjectVersionHashModifier] = nil
+                    userInfo[UserInfoKey.CoreStoreManagedObjectIndexes] = nil
+                    userInfo[UserInfoKey.CoreStoreManagedObjectUniqueConstraints] = nil
+                }
+            }
+        }
+    }
+    
+    @nonobjc
+    internal var keyPathsByAffectedKeyPaths: [KeyPathString: Set<KeyPathString>] {
+        
+        get {
+            
+            if let userInfo = self.userInfo,
+                let value = userInfo[UserInfoKey.CoreStoreManagedObjectKeyPathsByAffectedKeyPaths] {
+                
+                return value as! [KeyPathString: Set<KeyPathString>]
+            }
+            return [:]
+        }
+        set {
+            
+            cs_setUserInfo { (userInfo) in
+                
+                userInfo[UserInfoKey.CoreStoreManagedObjectKeyPathsByAffectedKeyPaths] = newValue
             }
         }
     }
@@ -74,11 +120,23 @@ internal extension NSEntityDescription {
     
     // MARK: - UserInfoKey
     
-    fileprivate enum UserInfoKey {
+    private enum UserInfoKey {
         
         fileprivate static let CoreStoreManagedObjectTypeName = "CoreStoreManagedObjectTypeName"
         fileprivate static let CoreStoreManagedObjectEntityName = "CoreStoreManagedObjectEntityName"
         fileprivate static let CoreStoreManagedObjectIsAbstract = "CoreStoreManagedObjectIsAbstract"
         fileprivate static let CoreStoreManagedObjectVersionHashModifier = "CoreStoreManagedObjectVersionHashModifier"
+        fileprivate static let CoreStoreManagedObjectIndexes = "CoreStoreManagedObjectIndexes"
+        fileprivate static let CoreStoreManagedObjectUniqueConstraints = "CoreStoreManagedObjectUniqueConstraints"
+        
+        fileprivate static let CoreStoreManagedObjectKeyPathsByAffectedKeyPaths = "CoreStoreManagedObjectKeyPathsByAffectedKeyPaths"
+        
+    }
+    
+    private func cs_setUserInfo(_ closure: (_ userInfo: inout [AnyHashable: Any]) -> Void) {
+        
+        var userInfo = self.userInfo ?? [:]
+        closure(&userInfo)
+        self.userInfo = userInfo
     }
 }

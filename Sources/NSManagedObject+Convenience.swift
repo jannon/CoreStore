@@ -2,7 +2,7 @@
 //  NSManagedObject+Convenience.swift
 //  CoreStore
 //
-//  Copyright © 2015 John Rommel Estropia
+//  Copyright © 2018 John Rommel Estropia
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,7 @@ import CoreData
 
 // MARK: - NSManagedObject
 
-public extension NSManagedObject {
+extension NSManagedObject {
     
     /**
      Exposes a `FetchableSource` that can fetch sibling objects of this `NSManagedObject` instance. This may be the `DataStack`, a `BaseDataTransaction`, the `NSManagedObjectContext` itself, or `nil` if the obejct's parent is already deallocated.
@@ -84,7 +84,7 @@ public extension NSManagedObject {
      - returns: the primitive value for the KVC key
      */
     @nonobjc @inline(__always)
-    public func getValue(forKvcKey kvcKey: KeyPath) -> Any? {
+    public func getValue(forKvcKey kvcKey: KeyPathString) -> Any? {
         
         self.willAccessValue(forKey: kvcKey)
         defer {
@@ -102,7 +102,7 @@ public extension NSManagedObject {
      - returns: the primitive value transformed by the `didGetValue` closure
      */
     @nonobjc @inline(__always)
-    public func getValue<T>(forKvcKey kvcKey: KeyPath, didGetValue: (Any?) throws -> T) rethrows -> T {
+    public func getValue<T>(forKvcKey kvcKey: KeyPathString, didGetValue: (Any?) throws -> T) rethrows -> T {
         
         self.willAccessValue(forKey: kvcKey)
         defer {
@@ -121,7 +121,7 @@ public extension NSManagedObject {
      - returns: the primitive value transformed by the `didGetValue` closure
      */
     @nonobjc @inline(__always)
-    public func getValue<T>(forKvcKey kvcKey: KeyPath, willGetValue: () throws -> Void, didGetValue: (Any?) throws -> T) rethrows -> T {
+    public func getValue<T>(forKvcKey kvcKey: KeyPathString, willGetValue: () throws -> Void, didGetValue: (Any?) throws -> T) rethrows -> T {
         
         self.willAccessValue(forKey: kvcKey)
         defer {
@@ -139,7 +139,7 @@ public extension NSManagedObject {
      - parameter KVCKey: the KVC key
      */
     @nonobjc @inline(__always)
-    public func setValue(_ value: Any?, forKvcKey KVCKey: KeyPath) {
+    public func setValue(_ value: Any?, forKvcKey KVCKey: KeyPathString) {
         
         self.willChangeValue(forKey: KVCKey)
         defer {
@@ -157,7 +157,7 @@ public extension NSManagedObject {
      - parameter didSetValue: called after executing `setPrimitiveValue(forKey:)`.
      */
     @nonobjc @inline(__always)
-    public func setValue(_ value: Any?, forKvcKey KVCKey: KeyPath, didSetValue: () -> Void) {
+    public func setValue(_ value: Any?, forKvcKey KVCKey: KeyPathString, didSetValue: () -> Void) {
         
         self.willChangeValue(forKey: KVCKey)
         defer {
@@ -177,7 +177,7 @@ public extension NSManagedObject {
      - parameter didSetValue: called after executing `setPrimitiveValue(forKey:)`.
      */
     @nonobjc @inline(__always)
-    public func setValue<T>(_ value: T, forKvcKey KVCKey: KeyPath, willSetValue: (T) throws -> Any?, didSetValue: (Any?) -> Void = { _ in }) rethrows {
+    public func setValue<T>(_ value: T, forKvcKey KVCKey: KeyPathString, willSetValue: (T) throws -> Any?, didSetValue: (Any?) -> Void = { _ in }) rethrows {
         
         self.willChangeValue(forKey: KVCKey)
         defer {
@@ -205,59 +205,5 @@ public extension NSManagedObject {
     public func refreshAndMerge() {
         
         self.managedObjectContext?.refresh(self, mergeChanges: true)
-    }
-    
-    
-    // MARK: Deprecated
-    
-    @available(*, deprecated, renamed: "getValue(forKvcKey:)")
-    @nonobjc
-    public func accessValueForKVCKey(_ KVCKey: KeyPath) -> Any? {
-        
-        self.willAccessValue(forKey: KVCKey)
-        defer {
-            
-            self.didAccessValue(forKey: KVCKey)
-        }
-        return self.primitiveValue(forKey: KVCKey)
-    }
-    
-    @available(*, deprecated, renamed: "getValue(forKvcKey:didGetValue:)")
-    @discardableResult
-    @nonobjc
-    public func accessValueForKVCKey<T>(_ KVCKey: KeyPath, _ didAccessPrimitiveValue: (Any?) throws -> T) rethrows -> T {
-        
-        self.willAccessValue(forKey: KVCKey)
-        defer {
-            
-            self.didAccessValue(forKey: KVCKey)
-        }
-        return try didAccessPrimitiveValue(self.primitiveValue(forKey: KVCKey))
-    }
-    
-    @available(*, deprecated, renamed: "setValue(_:forKvcKey:)")
-    @nonobjc
-    public func setValue(_ value: Any?, forKVCKey KVCKey: KeyPath) {
-        
-        self.willChangeValue(forKey: KVCKey)
-        defer {
-            
-            self.didChangeValue(forKey: KVCKey)
-        }
-        self.setPrimitiveValue(value, forKey: KVCKey)
-    }
-    
-    @available(*, deprecated, renamed: "setValue(_:forKvcKey:didSetValue:)")
-    @discardableResult
-    @nonobjc
-    public func setValue<T>(_ value: Any?, forKVCKey KVCKey: KeyPath, _ didSetPrimitiveValue: (Any?) throws -> T) rethrows -> T {
-        
-        self.willChangeValue(forKey: KVCKey)
-        defer {
-            
-            self.didChangeValue(forKey: KVCKey)
-        }
-        self.setPrimitiveValue(value, forKey: KVCKey)
-        return try didSetPrimitiveValue(value)
     }
 }

@@ -2,7 +2,7 @@
 //  CSBaseDataTransaction+Querying.swift
 //  CoreStore
 //
-//  Copyright © 2016 John Rommel Estropia
+//  Copyright © 2018 John Rommel Estropia
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,7 @@ import CoreData
 
 // MARK: - CSBaseDataTransaction
 
-public extension CSBaseDataTransaction {
+extension CSBaseDataTransaction {
     
     /**
      Fetches the `NSManagedObject` instance in the transaction's context from a reference created from a transaction or from a different managed object context.
@@ -40,7 +40,7 @@ public extension CSBaseDataTransaction {
     @objc
     public func fetchExistingObject(_ object: NSManagedObject) -> Any? {
         
-        return self.bridgeToSwift.context.fetchExisting(object) as NSManagedObject?
+        return self.swiftTransaction.context.fetchExisting(object) as NSManagedObject?
     }
     
     /**
@@ -52,7 +52,7 @@ public extension CSBaseDataTransaction {
     @objc
     public func fetchExistingObjectWithID(_ objectID: NSManagedObjectID) -> Any? {
         
-        return self.bridgeToSwift.context.fetchExisting(objectID) as NSManagedObject?
+        return self.swiftTransaction.context.fetchExisting(objectID) as NSManagedObject?
     }
     
     /**
@@ -64,7 +64,7 @@ public extension CSBaseDataTransaction {
     @objc
     public func fetchExistingObjects(_ objects: [NSManagedObject]) -> [Any] {
         
-        return self.bridgeToSwift.context.fetchExisting(objects) as [NSManagedObject]
+        return self.swiftTransaction.context.fetchExisting(objects) as [NSManagedObject]
     }
     
     /**
@@ -76,7 +76,7 @@ public extension CSBaseDataTransaction {
     @objc
     public func fetchExistingObjectsWithIDs(_ objectIDs: [NSManagedObjectID]) -> [Any] {
         
-        return self.bridgeToSwift.context.fetchExisting(objectIDs) as [NSManagedObject]
+        return self.swiftTransaction.context.fetchExisting(objectIDs) as [NSManagedObject]
     }
     
     /**
@@ -89,11 +89,12 @@ public extension CSBaseDataTransaction {
     @objc
     public func fetchOneFrom(_ from: CSFrom, fetchClauses: [CSFetchClause]) -> Any? {
         
-        CoreStore.assert(
-            self.bridgeToSwift.isRunningInAllowedQueue(),
-            "Attempted to fetch from a \(cs_typeName(self)) outside its designated queue."
+        Internals.assert(
+            self.swiftTransaction.isRunningInAllowedQueue(),
+            "Attempted to fetch from a \(Internals.typeName(self)) outside its designated queue."
         )
-        return self.bridgeToSwift.context.fetchOne(from, fetchClauses)
+        return (try? self.swiftTransaction.context.fetchOne(from, fetchClauses))?
+            .flatMap({ $0 })
     }
     
     /**
@@ -106,11 +107,12 @@ public extension CSBaseDataTransaction {
     @objc
     public func fetchAllFrom(_ from: CSFrom, fetchClauses: [CSFetchClause]) -> [Any]? {
         
-        CoreStore.assert(
-            self.bridgeToSwift.isRunningInAllowedQueue(),
-            "Attempted to fetch from a \(cs_typeName(self)) outside its designated queue."
+        Internals.assert(
+            self.swiftTransaction.isRunningInAllowedQueue(),
+            "Attempted to fetch from a \(Internals.typeName(self)) outside its designated queue."
         )
-        return self.bridgeToSwift.context.fetchAll(from, fetchClauses)
+        return (try? self.swiftTransaction.context.fetchAll(from, fetchClauses))
+            .flatMap({ $0 })
     }
     
     /**
@@ -123,13 +125,12 @@ public extension CSBaseDataTransaction {
     @objc
     public func fetchCountFrom(_ from: CSFrom, fetchClauses: [CSFetchClause]) -> NSNumber? {
         
-        CoreStore.assert(
-            self.bridgeToSwift.isRunningInAllowedQueue(),
-            "Attempted to fetch from a \(cs_typeName(self)) outside its designated queue."
+        Internals.assert(
+            self.swiftTransaction.isRunningInAllowedQueue(),
+            "Attempted to fetch from a \(Internals.typeName(self)) outside its designated queue."
         )
-        return self.bridgeToSwift.context
-            .fetchCount(from, fetchClauses)
-            .flatMap { NSNumber(value: $0) }
+        return (try? self.swiftTransaction.context.fetchCount(from, fetchClauses))
+            .flatMap({ NSNumber(value: $0) })
     }
     
     /**
@@ -142,11 +143,12 @@ public extension CSBaseDataTransaction {
     @objc
     public func fetchObjectIDFrom(_ from: CSFrom, fetchClauses: [CSFetchClause]) -> NSManagedObjectID? {
         
-        CoreStore.assert(
-            self.bridgeToSwift.isRunningInAllowedQueue(),
-            "Attempted to fetch from a \(cs_typeName(self)) outside its designated queue."
+        Internals.assert(
+            self.swiftTransaction.isRunningInAllowedQueue(),
+            "Attempted to fetch from a \(Internals.typeName(self)) outside its designated queue."
         )
-        return self.bridgeToSwift.context.fetchObjectID(from, fetchClauses)
+        return (try? self.swiftTransaction.context.fetchObjectID(from, fetchClauses))
+            .flatMap({ $0 })
     }
     
     /**
@@ -162,11 +164,12 @@ public extension CSBaseDataTransaction {
     @objc
     public func queryValueFrom(_ from: CSFrom, selectClause: CSSelect, queryClauses: [CSQueryClause]) -> Any? {
         
-        CoreStore.assert(
-            self.bridgeToSwift.isRunningInAllowedQueue(),
-            "Attempted to query from a \(cs_typeName(self)) outside its designated queue."
+        Internals.assert(
+            self.swiftTransaction.isRunningInAllowedQueue(),
+            "Attempted to query from a \(Internals.typeName(self)) outside its designated queue."
         )
-        return self.bridgeToSwift.context.queryValue(from, selectClause, queryClauses)
+        return (try? self.swiftTransaction.context.queryValue(from, selectClause, queryClauses))
+            .flatMap({ $0 })
     }
     
     /**
@@ -182,10 +185,11 @@ public extension CSBaseDataTransaction {
     @objc
     public func queryAttributesFrom(_ from: CSFrom, selectClause: CSSelect, queryClauses: [CSQueryClause]) -> [[String: Any]]? {
         
-        CoreStore.assert(
-            self.bridgeToSwift.isRunningInAllowedQueue(),
-            "Attempted to query from a \(cs_typeName(self)) outside its designated queue."
+        Internals.assert(
+            self.swiftTransaction.isRunningInAllowedQueue(),
+            "Attempted to query from a \(Internals.typeName(self)) outside its designated queue."
         )
-        return self.bridgeToSwift.context.queryAttributes(from, selectClause, queryClauses)
+        return (try? self.swiftTransaction.context.queryAttributes(from, selectClause, queryClauses))
+            .flatMap({ $0 })
     }
 }

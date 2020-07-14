@@ -7,3 +7,8 @@ CoreStore.xcworkspace/xcuserdata
 .DS_Store
 DerivedData
 *.orig
+build
+Playground_macOS.playground/playground.xcworkspace/xcuserdata
+.swiftpm/xcode/package.xcworkspace/xcuserdata
+.swiftpm/xcode/xcuserdata
+Playground_iOS.playground/playground.xcworkspace/xcuserdata

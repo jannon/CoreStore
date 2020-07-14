@@ -2,7 +2,7 @@
 //  FetchTests.swift
 //  CoreStore
 //
-//  Copyright © 2016 John Rommel Estropia
+//  Copyright © 2018 John Rommel Estropia
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -43,9 +43,9 @@ final class FetchTests: BaseTestDataTestCase {
             
             let from = From<TestEntity1>()
             let fetchClauses: [FetchClause] = [
-                OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
             ]
-            let object = stack.fetchOne(from, fetchClauses)!
+            let object = try stack.fetchOne(from, fetchClauses)!
             do {
                 
                 let existing = stack.fetchExisting(object)
@@ -115,7 +115,7 @@ final class FetchTests: BaseTestDataTestCase {
                         
                         try transaction.cancel()
                     },
-                    success: {
+                    success: { _ in
                         
                         XCTFail()
                     },
@@ -132,8 +132,8 @@ final class FetchTests: BaseTestDataTestCase {
                     }
                 )
             }
+            self.waitAndCheckExpectations()
         }
-        self.waitAndCheckExpectations()
     }
     
     @objc
@@ -146,9 +146,9 @@ final class FetchTests: BaseTestDataTestCase {
             
             let from = From<TestEntity1>()
             let fetchClauses: [FetchClause] = [
-                OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
             ]
-            let objects = stack.fetchAll(from, fetchClauses)!
+            let objects = try stack.fetchAll(from, fetchClauses)
             do {
                 
                 let existing = stack.fetchExisting(objects)
@@ -246,7 +246,7 @@ final class FetchTests: BaseTestDataTestCase {
                         }
                         try transaction.cancel()
                     },
-                    success: {
+                    success: { _ in
                 
                         XCTFail()
                     },
@@ -267,8 +267,8 @@ final class FetchTests: BaseTestDataTestCase {
                     }
                 )
             }
+            self.waitAndCheckExpectations()
         }
-        self.waitAndCheckExpectations()
     }
     
     @objc
@@ -285,41 +285,41 @@ final class FetchTests: BaseTestDataTestCase {
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = stack.fetchOne(from, fetchClauses)
+                    let object = try stack.fetchOne(from, fetchClauses)
                     XCTAssertNotNil(object)
                     XCTAssertEqual(object?.testString, "nil:TestEntity1:2")
                     
-                    let objectID = stack.fetchObjectID(from, fetchClauses)
+                    let objectID = try stack.fetchObjectID(from, fetchClauses)
                     XCTAssertNotNil(objectID)
                     XCTAssertEqual(objectID, object?.objectID)
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 4),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 4),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = stack.fetchOne(from, fetchClauses)
+                    let object = try stack.fetchOne(from, fetchClauses)
                     XCTAssertNotNil(object)
                     XCTAssertEqual(object?.testString, "nil:TestEntity1:3")
                     
-                    let objectID = stack.fetchObjectID(from, fetchClauses)
+                    let objectID = try stack.fetchObjectID(from, fetchClauses)
                     XCTAssertNotNil(objectID)
                     XCTAssertEqual(objectID, object?.objectID)
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = stack.fetchOne(from, fetchClauses)
+                    let object = try stack.fetchOne(from, fetchClauses)
                     XCTAssertNil(object)
                     
-                    let objectID = stack.fetchObjectID(from, fetchClauses)
+                    let objectID = try stack.fetchObjectID(from, fetchClauses)
                     XCTAssertNil(objectID)
                 }
             }
@@ -329,41 +329,41 @@ final class FetchTests: BaseTestDataTestCase {
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = stack.fetchOne(from, fetchClauses)
+                    let object = try stack.fetchOne(from, fetchClauses)
                     XCTAssertNotNil(object)
                     XCTAssertEqual(object?.testString, "nil:TestEntity1:2")
                     
-                    let objectID = stack.fetchObjectID(from, fetchClauses)
+                    let objectID = try stack.fetchObjectID(from, fetchClauses)
                     XCTAssertNotNil(objectID)
                     XCTAssertEqual(objectID, object?.objectID)
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 4),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 4),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = stack.fetchOne(from, fetchClauses)
+                    let object = try stack.fetchOne(from, fetchClauses)
                     XCTAssertNotNil(object)
                     XCTAssertEqual(object?.testString, "nil:TestEntity1:3")
                     
-                    let objectID = stack.fetchObjectID(from, fetchClauses)
+                    let objectID = try stack.fetchObjectID(from, fetchClauses)
                     XCTAssertNotNil(objectID)
                     XCTAssertEqual(objectID, object?.objectID)
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = stack.fetchOne(from, fetchClauses)
+                    let object = try stack.fetchOne(from, fetchClauses)
                     XCTAssertNil(object)
                     
-                    let objectID = stack.fetchObjectID(from, fetchClauses)
+                    let objectID = try stack.fetchObjectID(from, fetchClauses)
                     XCTAssertNil(objectID)
                 }
             }
@@ -373,38 +373,32 @@ final class FetchTests: BaseTestDataTestCase {
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = self.expectLogger([.logWarning]) {
+                    self.expectError(code: .persistentStoreNotFound) {
                         
-                        stack.fetchOne(from, fetchClauses)
+                        try stack.fetchOne(from, fetchClauses)
                     }
-                    XCTAssertNil(object)
-                    
-                    let objectID = self.expectLogger([.logWarning]) {
+                    self.expectError(code: .persistentStoreNotFound) {
                         
-                        stack.fetchObjectID(from, fetchClauses)
+                        try stack.fetchObjectID(from, fetchClauses)
                     }
-                    XCTAssertNil(objectID)
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 4),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 4),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = self.expectLogger([.logWarning]) {
+                    self.expectError(code: .persistentStoreNotFound) {
                         
-                        stack.fetchOne(from, fetchClauses)
+                        try stack.fetchOne(from, fetchClauses)
                     }
-                    XCTAssertNil(object)
-                    
-                    let objectID = self.expectLogger([.logWarning]) {
+                    self.expectError(code: .persistentStoreNotFound) {
                         
-                        stack.fetchObjectID(from, fetchClauses)
+                        try stack.fetchObjectID(from, fetchClauses)
                     }
-                    XCTAssertNil(objectID)
                 }
             }
         }
@@ -424,13 +418,13 @@ final class FetchTests: BaseTestDataTestCase {
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = stack.fetchOne(from, fetchClauses)
+                    let object = try stack.fetchOne(from, fetchClauses)
                     XCTAssertNotNil(object)
                     
-                    let objectID = stack.fetchObjectID(from, fetchClauses)
+                    let objectID = try stack.fetchObjectID(from, fetchClauses)
                     XCTAssertNotNil(objectID)
                     
                     // configuration ambiguous, no other behavior should be relied on
@@ -438,13 +432,13 @@ final class FetchTests: BaseTestDataTestCase {
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 4),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 4),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = stack.fetchOne(from, fetchClauses)
+                    let object = try stack.fetchOne(from, fetchClauses)
                     XCTAssertNotNil(object)
                     
-                    let objectID = stack.fetchObjectID(from, fetchClauses)
+                    let objectID = try stack.fetchObjectID(from, fetchClauses)
                     XCTAssertNotNil(objectID)
                     
                     // configuration ambiguous, no other behavior should be relied on
@@ -452,13 +446,13 @@ final class FetchTests: BaseTestDataTestCase {
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = stack.fetchOne(from, fetchClauses)
+                    let object = try stack.fetchOne(from, fetchClauses)
                     XCTAssertNil(object)
                     
-                    let objectID = stack.fetchObjectID(from, fetchClauses)
+                    let objectID = try stack.fetchObjectID(from, fetchClauses)
                     XCTAssertNil(objectID)
                 }
             }
@@ -468,41 +462,41 @@ final class FetchTests: BaseTestDataTestCase {
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = stack.fetchOne(from, fetchClauses)
+                    let object = try stack.fetchOne(from, fetchClauses)
                     XCTAssertNotNil(object)
                     XCTAssertEqual(object?.testString, "nil:TestEntity1:2")
                     
-                    let objectID = stack.fetchObjectID(from, fetchClauses)
+                    let objectID = try stack.fetchObjectID(from, fetchClauses)
                     XCTAssertNotNil(objectID)
                     XCTAssertEqual(objectID, object?.objectID)
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 4),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 4),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = stack.fetchOne(from, fetchClauses)
+                    let object = try stack.fetchOne(from, fetchClauses)
                     XCTAssertNotNil(object)
                     XCTAssertEqual(object?.testString, "nil:TestEntity1:3")
                     
-                    let objectID = stack.fetchObjectID(from, fetchClauses)
+                    let objectID = try stack.fetchObjectID(from, fetchClauses)
                     XCTAssertNotNil(objectID)
                     XCTAssertEqual(objectID, object?.objectID)
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = stack.fetchOne(from, fetchClauses)
+                    let object = try stack.fetchOne(from, fetchClauses)
                     XCTAssertNil(object)
                     
-                    let objectID = stack.fetchObjectID(from, fetchClauses)
+                    let objectID = try stack.fetchObjectID(from, fetchClauses)
                     XCTAssertNil(objectID)
                 }
             }
@@ -512,41 +506,41 @@ final class FetchTests: BaseTestDataTestCase {
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = stack.fetchOne(from, fetchClauses)
+                    let object = try stack.fetchOne(from, fetchClauses)
                     XCTAssertNotNil(object)
                     XCTAssertEqual(object?.testString, "Config1:TestEntity1:2")
                     
-                    let objectID = stack.fetchObjectID(from, fetchClauses)
+                    let objectID = try stack.fetchObjectID(from, fetchClauses)
                     XCTAssertNotNil(objectID)
                     XCTAssertEqual(objectID, object?.objectID)
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 4),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 4),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = stack.fetchOne(from, fetchClauses)
+                    let object = try stack.fetchOne(from, fetchClauses)
                     XCTAssertNotNil(object)
                     XCTAssertEqual(object?.testString, "Config1:TestEntity1:3")
                     
-                    let objectID = stack.fetchObjectID(from, fetchClauses)
+                    let objectID = try stack.fetchObjectID(from, fetchClauses)
                     XCTAssertNotNil(objectID)
                     XCTAssertEqual(objectID, object?.objectID)
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = stack.fetchOne(from, fetchClauses)
+                    let object = try stack.fetchOne(from, fetchClauses)
                     XCTAssertNil(object)
                     
-                    let objectID = stack.fetchObjectID(from, fetchClauses)
+                    let objectID = try stack.fetchObjectID(from, fetchClauses)
                     XCTAssertNil(objectID)
                 }
             }
@@ -556,38 +550,32 @@ final class FetchTests: BaseTestDataTestCase {
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = self.expectLogger([.logWarning]) {
+                    self.expectError(code: .persistentStoreNotFound) {
                         
-                        stack.fetchOne(from, fetchClauses)
+                        try stack.fetchOne(from, fetchClauses)
                     }
-                    XCTAssertNil(object)
-                    
-                    let objectID = self.expectLogger([.logWarning]) {
+                    self.expectError(code: .persistentStoreNotFound) {
                         
-                        stack.fetchObjectID(from, fetchClauses)
+                        try stack.fetchObjectID(from, fetchClauses)
                     }
-                    XCTAssertNil(objectID)
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 4),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 4),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = self.expectLogger([.logWarning]) {
+                    self.expectError(code: .persistentStoreNotFound) {
                         
-                        stack.fetchOne(from, fetchClauses)
+                        try stack.fetchOne(from, fetchClauses)
                     }
-                    XCTAssertNil(object)
-                    
-                    let objectID = self.expectLogger([.logWarning]) {
+                    self.expectError(code: .persistentStoreNotFound) {
                         
-                        stack.fetchObjectID(from, fetchClauses)
+                        try stack.fetchObjectID(from, fetchClauses)
                     }
-                    XCTAssertNil(objectID)
                 }
             }
         }
@@ -607,13 +595,13 @@ final class FetchTests: BaseTestDataTestCase {
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = stack.fetchOne(from, fetchClauses)
+                    let object = try stack.fetchOne(from, fetchClauses)
                     XCTAssertNotNil(object)
                     
-                    let objectID = stack.fetchObjectID(from, fetchClauses)
+                    let objectID = try stack.fetchObjectID(from, fetchClauses)
                     XCTAssertNotNil(objectID)
                     
                     // configuration ambiguous, no other behavior should be relied on
@@ -621,13 +609,13 @@ final class FetchTests: BaseTestDataTestCase {
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 4),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 4),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = stack.fetchOne(from, fetchClauses)
+                    let object = try stack.fetchOne(from, fetchClauses)
                     XCTAssertNotNil(object)
                     
-                    let objectID = stack.fetchObjectID(from, fetchClauses)
+                    let objectID = try stack.fetchObjectID(from, fetchClauses)
                     XCTAssertNotNil(objectID)
                     
                     // configuration ambiguous, no other behavior should be relied on
@@ -635,13 +623,13 @@ final class FetchTests: BaseTestDataTestCase {
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = stack.fetchOne(from, fetchClauses)
+                    let object = try stack.fetchOne(from, fetchClauses)
                     XCTAssertNil(object)
                     
-                    let objectID = stack.fetchObjectID(from, fetchClauses)
+                    let objectID = try stack.fetchObjectID(from, fetchClauses)
                     XCTAssertNil(objectID)
                 }
             }
@@ -651,41 +639,41 @@ final class FetchTests: BaseTestDataTestCase {
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = stack.fetchOne(from, fetchClauses)
+                    let object = try stack.fetchOne(from, fetchClauses)
                     XCTAssertNotNil(object)
                     XCTAssertEqual(object?.testString, "nil:TestEntity1:2")
                     
-                    let objectID = stack.fetchObjectID(from, fetchClauses)
+                    let objectID = try stack.fetchObjectID(from, fetchClauses)
                     XCTAssertNotNil(objectID)
                     XCTAssertEqual(objectID, object?.objectID)
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 4),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 4),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = stack.fetchOne(from, fetchClauses)
+                    let object = try stack.fetchOne(from, fetchClauses)
                     XCTAssertNotNil(object)
                     XCTAssertEqual(object?.testString, "nil:TestEntity1:3")
                     
-                    let objectID = stack.fetchObjectID(from, fetchClauses)
+                    let objectID = try stack.fetchObjectID(from, fetchClauses)
                     XCTAssertNotNil(objectID)
                     XCTAssertEqual(objectID, object?.objectID)
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = stack.fetchOne(from, fetchClauses)
+                    let object = try stack.fetchOne(from, fetchClauses)
                     XCTAssertNil(object)
                     
-                    let objectID = stack.fetchObjectID(from, fetchClauses)
+                    let objectID = try stack.fetchObjectID(from, fetchClauses)
                     XCTAssertNil(objectID)
                 }
             }
@@ -695,41 +683,41 @@ final class FetchTests: BaseTestDataTestCase {
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = stack.fetchOne(from, fetchClauses)
+                    let object = try stack.fetchOne(from, fetchClauses)
                     XCTAssertNotNil(object)
                     XCTAssertEqual(object?.testString, "Config1:TestEntity1:2")
                     
-                    let objectID = stack.fetchObjectID(from, fetchClauses)
+                    let objectID = try stack.fetchObjectID(from, fetchClauses)
                     XCTAssertNotNil(objectID)
                     XCTAssertEqual(objectID, object?.objectID)
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 4),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 4),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = stack.fetchOne(from, fetchClauses)
+                    let object = try stack.fetchOne(from, fetchClauses)
                     XCTAssertNotNil(object)
                     XCTAssertEqual(object?.testString, "Config1:TestEntity1:3")
                     
-                    let objectID = stack.fetchObjectID(from, fetchClauses)
+                    let objectID = try stack.fetchObjectID(from, fetchClauses)
                     XCTAssertNotNil(objectID)
                     XCTAssertEqual(objectID, object?.objectID)
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let object = stack.fetchOne(from, fetchClauses)
+                    let object = try stack.fetchOne(from, fetchClauses)
                     XCTAssertNil(object)
                     
-                    let objectID = stack.fetchObjectID(from, fetchClauses)
+                    let objectID = try stack.fetchObjectID(from, fetchClauses)
                     XCTAssertNil(objectID)
                 }
             }
@@ -750,68 +738,62 @@ final class FetchTests: BaseTestDataTestCase {
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     ]
-                    let objects = stack.fetchAll(from, fetchClauses)
-                    XCTAssertNotNil(objects)
-                    XCTAssertEqual(objects?.count, 3)
+                    let objects = try stack.fetchAll(from, fetchClauses)
+                    XCTAssertEqual(objects.count, 3)
                     XCTAssertEqual(
-                        (objects ?? []).map { $0.testString ?? "" },
+                        objects.map { $0.testString ?? "" },
                         [
                             "nil:TestEntity1:2",
                             "nil:TestEntity1:3",
                             "nil:TestEntity1:4"
                         ]
                     )
-                    let objectIDs = stack.fetchObjectIDs(from, fetchClauses)
-                    XCTAssertNotNil(objectIDs)
-                    XCTAssertEqual(objectIDs?.count, 3)
+                    let objectIDs = try stack.fetchObjectIDs(from, fetchClauses)
+                    XCTAssertEqual(objectIDs.count, 3)
                     XCTAssertEqual(
-                        (objectIDs ?? []),
-                        (objects ?? []).map { $0.objectID }
+                        objectIDs,
+                        objects.map { $0.objectID }
                     )
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     ]
-                    let objects = stack.fetchAll(from, fetchClauses)
-                    XCTAssertNotNil(objects)
-                    XCTAssertEqual(objects?.count, 3)
+                    let objects = try stack.fetchAll(from, fetchClauses)
+                    XCTAssertEqual(objects.count, 3)
                     XCTAssertEqual(
-                        (objects ?? []).map { $0.testString ?? "" },
+                        objects.map { $0.testString ?? "" },
                         [
                             "nil:TestEntity1:4",
                             "nil:TestEntity1:3",
                             "nil:TestEntity1:2"
                         ]
                     )
-                    let objectIDs = stack.fetchObjectIDs(from, fetchClauses)
-                    XCTAssertNotNil(objectIDs)
-                    XCTAssertEqual(objectIDs?.count, 3)
+                    let objectIDs = try stack.fetchObjectIDs(from, fetchClauses)
+                    XCTAssertEqual(objectIDs.count, 3)
                     XCTAssertEqual(
-                        (objectIDs ?? []),
-                        (objects ?? []).map { $0.objectID }
+                        objectIDs,
+                        objects.map { $0.objectID }
                     )
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let objects = stack.fetchAll(from, fetchClauses)
-                    XCTAssertNotNil(objects)
-                    XCTAssertEqual(objects?.count, 0)
+                    let objects = try stack.fetchAll(from, fetchClauses)
+                    XCTAssertEqual(objects.count, 0)
                     
-                    let objectIDs = stack.fetchObjectIDs(from, fetchClauses)
-                    XCTAssertNotNil(objectIDs)
-                    XCTAssertEqual(objectIDs?.count, 0)
+                    let objectIDs = try stack.fetchObjectIDs(from, fetchClauses)
+                    XCTAssertEqual(objectIDs.count, 0)
                 }
             }
             do {
@@ -820,68 +802,62 @@ final class FetchTests: BaseTestDataTestCase {
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     ]
-                    let objects = stack.fetchAll(from, fetchClauses)
-                    XCTAssertNotNil(objects)
-                    XCTAssertEqual(objects?.count, 3)
+                    let objects = try stack.fetchAll(from, fetchClauses)
+                    XCTAssertEqual(objects.count, 3)
                     XCTAssertEqual(
-                        (objects ?? []).map { $0.testString ?? "" },
+                        objects.map { $0.testString ?? "" },
                         [
                             "nil:TestEntity1:2",
                             "nil:TestEntity1:3",
                             "nil:TestEntity1:4"
                         ]
                     )
-                    let objectIDs = stack.fetchObjectIDs(from, fetchClauses)
-                    XCTAssertNotNil(objectIDs)
-                    XCTAssertEqual(objectIDs?.count, 3)
+                    let objectIDs = try stack.fetchObjectIDs(from, fetchClauses)
+                    XCTAssertEqual(objectIDs.count, 3)
                     XCTAssertEqual(
-                        (objectIDs ?? []),
-                        (objects ?? []).map { $0.objectID }
+                        objectIDs,
+                        objects.map { $0.objectID }
                     )
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     ]
-                    let objects = stack.fetchAll(from, fetchClauses)
-                    XCTAssertNotNil(objects)
-                    XCTAssertEqual(objects?.count, 3)
+                    let objects = try stack.fetchAll(from, fetchClauses)
+                    XCTAssertEqual(objects.count, 3)
                     XCTAssertEqual(
-                        (objects ?? []).map { $0.testString ?? "" },
+                        objects.map { $0.testString ?? "" },
                         [
                             "nil:TestEntity1:4",
                             "nil:TestEntity1:3",
                             "nil:TestEntity1:2"
                         ]
                     )
-                    let objectIDs = stack.fetchObjectIDs(from, fetchClauses)
-                    XCTAssertNotNil(objectIDs)
-                    XCTAssertEqual(objectIDs?.count, 3)
+                    let objectIDs = try stack.fetchObjectIDs(from, fetchClauses)
+                    XCTAssertEqual(objectIDs.count, 3)
                     XCTAssertEqual(
-                        (objectIDs ?? []),
-                        (objects ?? []).map { $0.objectID }
+                        objectIDs,
+                        objects.map { $0.objectID }
                     )
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let objects = stack.fetchAll(from, fetchClauses)
-                    XCTAssertNotNil(objects)
-                    XCTAssertEqual(objects?.count, 0)
+                    let objects = try stack.fetchAll(from, fetchClauses)
+                    XCTAssertEqual(objects.count, 0)
                     
-                    let objectIDs = stack.fetchObjectIDs(from, fetchClauses)
-                    XCTAssertNotNil(objectIDs)
-                    XCTAssertEqual(objectIDs?.count, 0)
+                    let objectIDs = try stack.fetchObjectIDs(from, fetchClauses)
+                    XCTAssertEqual(objectIDs.count, 0)
                 }
             }
             do {
@@ -890,56 +866,47 @@ final class FetchTests: BaseTestDataTestCase {
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 4),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 4),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let objects = self.expectLogger([.logWarning]) {
+                    self.expectError(code: .persistentStoreNotFound) {
                         
-                        stack.fetchAll(from, fetchClauses)
+                        try stack.fetchAll(from, fetchClauses)
                     }
-                    XCTAssertNil(objects)
-                    
-                    let objectIDs = self.expectLogger([.logWarning]) {
+                    self.expectError(code: .persistentStoreNotFound) {
                         
-                        stack.fetchObjectIDs(from, fetchClauses)
+                        try stack.fetchObjectIDs(from, fetchClauses)
                     }
-                    XCTAssertNil(objectIDs)
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where(#keyPath(TestEntity1.testNumber), isEqualTo: 0),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>(#keyPath(TestEntity1.testNumber), isEqualTo: 0),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let objects = self.expectLogger([.logWarning]) {
+                    self.expectError(code: .persistentStoreNotFound) {
                         
-                        stack.fetchAll(from, fetchClauses)
+                        try stack.fetchAll(from, fetchClauses)
                     }
-                    XCTAssertNil(objects)
-                    
-                    let objectIDs = self.expectLogger([.logWarning]) {
+                    self.expectError(code: .persistentStoreNotFound) {
                         
-                        stack.fetchObjectIDs(from, fetchClauses)
+                        try stack.fetchObjectIDs(from, fetchClauses)
                     }
-                    XCTAssertNil(objectIDs)
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where(#keyPath(TestEntity1.testNumber), isEqualTo: nil),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>(#keyPath(TestEntity1.testNumber), isEqualTo: nil),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let objects = self.expectLogger([.logWarning]) {
+                    self.expectError(code: .persistentStoreNotFound) {
                         
-                        stack.fetchAll(from, fetchClauses)
+                        try stack.fetchAll(from, fetchClauses)
                     }
-                    XCTAssertNil(objects)
-                    
-                    let objectIDs = self.expectLogger([.logWarning]) {
+                    self.expectError(code: .persistentStoreNotFound) {
                         
-                        stack.fetchObjectIDs(from, fetchClauses)
+                        try stack.fetchObjectIDs(from, fetchClauses)
                     }
-                    XCTAssertNil(objectIDs)
                 }
             }
         }
@@ -959,50 +926,44 @@ final class FetchTests: BaseTestDataTestCase {
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 3),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 3),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     ]
-                    let objects = stack.fetchAll(from, fetchClauses)
-                    XCTAssertNotNil(objects)
-                    XCTAssertEqual(objects?.count, 3)
+                    let objects = try stack.fetchAll(from, fetchClauses)
+                    XCTAssertEqual(objects.count, 3)
                     
-                    let objectIDs = stack.fetchObjectIDs(from, fetchClauses)
-                    XCTAssertNotNil(objectIDs)
-                    XCTAssertEqual(objectIDs?.count, 3)
+                    let objectIDs = try stack.fetchObjectIDs(from, fetchClauses)
+                    XCTAssertEqual(objectIDs.count, 3)
                     
                     // configuration ambiguous, no other behavior should be relied on
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 3),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 3),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     ]
-                    let objects = stack.fetchAll(from, fetchClauses)
-                    XCTAssertNotNil(objects)
-                    XCTAssertEqual(objects?.count, 3)
+                    let objects = try stack.fetchAll(from, fetchClauses)
+                    XCTAssertEqual(objects.count, 3)
                     
-                    let objectIDs = stack.fetchObjectIDs(from, fetchClauses)
-                    XCTAssertNotNil(objectIDs)
-                    XCTAssertEqual(objectIDs?.count, 3)
+                    let objectIDs = try stack.fetchObjectIDs(from, fetchClauses)
+                    XCTAssertEqual(objectIDs.count, 3)
                     
                     // configuration ambiguous, no other behavior should be relied on
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let objects = stack.fetchAll(from, fetchClauses)
-                    XCTAssertNotNil(objects)
-                    XCTAssertEqual(objects?.count, 0)
+                    let objects = try stack.fetchAll(from, fetchClauses)
+                    XCTAssertEqual(objects.count, 0)
                     
-                    let objectIDs = stack.fetchObjectIDs(from, fetchClauses)
-                    XCTAssertNotNil(objectIDs)
-                    XCTAssertEqual(objectIDs?.count, 0)
+                    let objectIDs = try stack.fetchObjectIDs(from, fetchClauses)
+                    XCTAssertEqual(objectIDs.count, 0)
                 }
             }
             do {
@@ -1011,66 +972,60 @@ final class FetchTests: BaseTestDataTestCase {
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 3),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 3),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     ]
-                    let objects = stack.fetchAll(from, fetchClauses)
-                    XCTAssertNotNil(objects)
-                    XCTAssertEqual(objects?.count, 2)
+                    let objects = try stack.fetchAll(from, fetchClauses)
+                    XCTAssertEqual(objects.count, 2)
                     XCTAssertEqual(
-                        (objects ?? []).map { $0.testString ?? "" },
+                        objects.map { $0.testString ?? "" },
                         [
                             "nil:TestEntity1:4",
                             "nil:TestEntity1:5"
                         ]
                     )
-                    let objectIDs = stack.fetchObjectIDs(from, fetchClauses)
-                    XCTAssertNotNil(objectIDs)
-                    XCTAssertEqual(objectIDs?.count, 2)
+                    let objectIDs = try stack.fetchObjectIDs(from, fetchClauses)
+                    XCTAssertEqual(objectIDs.count, 2)
                     XCTAssertEqual(
-                        (objectIDs ?? []),
-                        (objects ?? []).map { $0.objectID }
+                        objectIDs,
+                        objects.map { $0.objectID }
                     )
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 3),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 3),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     ]
-                    let objects = stack.fetchAll(from, fetchClauses)
-                    XCTAssertNotNil(objects)
-                    XCTAssertEqual(objects?.count, 2)
+                    let objects = try stack.fetchAll(from, fetchClauses)
+                    XCTAssertEqual(objects.count, 2)
                     XCTAssertEqual(
-                        (objects ?? []).map { $0.testString ?? "" },
+                        objects.map { $0.testString ?? "" },
                         [
                             "nil:TestEntity1:2",
                             "nil:TestEntity1:1"
                         ]
                     )
-                    let objectIDs = stack.fetchObjectIDs(from, fetchClauses)
-                    XCTAssertNotNil(objectIDs)
-                    XCTAssertEqual(objectIDs?.count, 2)
+                    let objectIDs = try stack.fetchObjectIDs(from, fetchClauses)
+                    XCTAssertEqual(objectIDs.count, 2)
                     XCTAssertEqual(
-                        (objectIDs ?? []),
-                        (objects ?? []).map { $0.objectID }
+                        objectIDs,
+                        objects.map { $0.objectID }
                     )
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let objects = stack.fetchAll(from, fetchClauses)
-                    XCTAssertNotNil(objects)
-                    XCTAssertEqual(objects?.count, 0)
+                    let objects = try stack.fetchAll(from, fetchClauses)
+                    XCTAssertEqual(objects.count, 0)
                     
-                    let objectIDs = stack.fetchObjectIDs(from, fetchClauses)
-                    XCTAssertNotNil(objectIDs)
-                    XCTAssertEqual(objectIDs?.count, 0)
+                    let objectIDs = try stack.fetchObjectIDs(from, fetchClauses)
+                    XCTAssertEqual(objectIDs.count, 0)
                 }
             }
             do {
@@ -1079,66 +1034,60 @@ final class FetchTests: BaseTestDataTestCase {
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 3),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 3),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     ]
-                    let objects = stack.fetchAll(from, fetchClauses)
-                    XCTAssertNotNil(objects)
-                    XCTAssertEqual(objects?.count, 2)
+                    let objects = try stack.fetchAll(from, fetchClauses)
+                    XCTAssertEqual(objects.count, 2)
                     XCTAssertEqual(
-                        (objects ?? []).map { $0.testString ?? "" },
+                        objects.map { $0.testString ?? "" },
                         [
                             "Config1:TestEntity1:4",
                             "Config1:TestEntity1:5"
                         ]
                     )
-                    let objectIDs = stack.fetchObjectIDs(from, fetchClauses)
-                    XCTAssertNotNil(objectIDs)
-                    XCTAssertEqual(objectIDs?.count, 2)
+                    let objectIDs = try stack.fetchObjectIDs(from, fetchClauses)
+                    XCTAssertEqual(objectIDs.count, 2)
                     XCTAssertEqual(
-                        (objectIDs ?? []),
-                        (objects ?? []).map { $0.objectID }
+                        objectIDs,
+                        objects.map { $0.objectID }
                     )
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 3),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 3),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     ]
-                    let objects = stack.fetchAll(from, fetchClauses)
-                    XCTAssertNotNil(objects)
-                    XCTAssertEqual(objects?.count, 2)
+                    let objects = try stack.fetchAll(from, fetchClauses)
+                    XCTAssertEqual(objects.count, 2)
                     XCTAssertEqual(
-                        (objects ?? []).map { $0.testString ?? "" },
+                        objects.map { $0.testString ?? "" },
                         [
                             "Config1:TestEntity1:2",
                             "Config1:TestEntity1:1"
                         ]
                     )
-                    let objectIDs = stack.fetchObjectIDs(from, fetchClauses)
-                    XCTAssertNotNil(objectIDs)
-                    XCTAssertEqual(objectIDs?.count, 2)
+                    let objectIDs = try stack.fetchObjectIDs(from, fetchClauses)
+                    XCTAssertEqual(objectIDs.count, 2)
                     XCTAssertEqual(
-                        (objectIDs ?? []),
-                        (objects ?? []).map { $0.objectID }
+                        objectIDs,
+                        objects.map { $0.objectID }
                     )
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let objects = stack.fetchAll(from, fetchClauses)
-                    XCTAssertNotNil(objects)
-                    XCTAssertEqual(objects?.count, 0)
+                    let objects = try stack.fetchAll(from, fetchClauses)
+                    XCTAssertEqual(objects.count, 0)
                     
-                    let objectIDs = stack.fetchObjectIDs(from, fetchClauses)
-                    XCTAssertNotNil(objectIDs)
-                    XCTAssertEqual(objectIDs?.count, 0)
+                    let objectIDs = try stack.fetchObjectIDs(from, fetchClauses)
+                    XCTAssertEqual(objectIDs.count, 0)
                 }
             }
             do {
@@ -1147,36 +1096,30 @@ final class FetchTests: BaseTestDataTestCase {
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let objects = self.expectLogger([.logWarning]) {
+                    self.expectError(code: .persistentStoreNotFound) {
                         
-                        stack.fetchAll(from, fetchClauses)
+                        try stack.fetchAll(from, fetchClauses)
                     }
-                    XCTAssertNil(objects)
-                    
-                    let objectIDs = self.expectLogger([.logWarning]) {
+                    self.expectError(code: .persistentStoreNotFound) {
                         
-                        stack.fetchObjectIDs(from, fetchClauses)
+                        try stack.fetchObjectIDs(from, fetchClauses)
                     }
-                    XCTAssertNil(objectIDs)
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let objects = self.expectLogger([.logWarning]) {
+                    self.expectError(code: .persistentStoreNotFound) {
                         
-                        stack.fetchAll(from, fetchClauses)
+                        try stack.fetchAll(from, fetchClauses)
                     }
-                    XCTAssertNil(objects)
-                    
-                    let objectIDs = self.expectLogger([.logWarning]) {
+                    self.expectError(code: .persistentStoreNotFound) {
                         
-                        stack.fetchObjectIDs(from, fetchClauses)
+                        try stack.fetchObjectIDs(from, fetchClauses)
                     }
-                    XCTAssertNil(objectIDs)
                 }
             }
         }
@@ -1196,50 +1139,44 @@ final class FetchTests: BaseTestDataTestCase {
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 3),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 3),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     ]
-                    let objects = stack.fetchAll(from, fetchClauses)
-                    XCTAssertNotNil(objects)
-                    XCTAssertEqual(objects?.count, 3)
+                    let objects = try stack.fetchAll(from, fetchClauses)
+                    XCTAssertEqual(objects.count, 3)
                     
-                    let objectIDs = stack.fetchObjectIDs(from, fetchClauses)
-                    XCTAssertNotNil(objectIDs)
-                    XCTAssertEqual(objectIDs?.count, 3)
+                    let objectIDs = try stack.fetchObjectIDs(from, fetchClauses)
+                    XCTAssertEqual(objectIDs.count, 3)
                     
                     // configuration ambiguous, no other behavior should be relied on
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 3),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 3),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     ]
-                    let objects = stack.fetchAll(from, fetchClauses)
-                    XCTAssertNotNil(objects)
-                    XCTAssertEqual(objects?.count, 3)
+                    let objects = try stack.fetchAll(from, fetchClauses)
+                    XCTAssertEqual(objects.count, 3)
                     
-                    let objectIDs = stack.fetchObjectIDs(from, fetchClauses)
-                    XCTAssertNotNil(objectIDs)
-                    XCTAssertEqual(objectIDs?.count, 3)
+                    let objectIDs = try stack.fetchObjectIDs(from, fetchClauses)
+                    XCTAssertEqual(objectIDs.count, 3)
                     
                     // configuration ambiguous, no other behavior should be relied on
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let objects = stack.fetchAll(from, fetchClauses)
-                    XCTAssertNotNil(objects)
-                    XCTAssertEqual(objects?.count, 0)
+                    let objects = try stack.fetchAll(from, fetchClauses)
+                    XCTAssertEqual(objects.count, 0)
                     
-                    let objectIDs = stack.fetchObjectIDs(from, fetchClauses)
-                    XCTAssertNotNil(objectIDs)
-                    XCTAssertEqual(objectIDs?.count, 0)
+                    let objectIDs = try stack.fetchObjectIDs(from, fetchClauses)
+                    XCTAssertEqual(objectIDs.count, 0)
                 }
             }
             do {
@@ -1248,66 +1185,60 @@ final class FetchTests: BaseTestDataTestCase {
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 3),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 3),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     ]
-                    let objects = stack.fetchAll(from, fetchClauses)
-                    XCTAssertNotNil(objects)
-                    XCTAssertEqual(objects?.count, 2)
+                    let objects = try stack.fetchAll(from, fetchClauses)
+                    XCTAssertEqual(objects.count, 2)
                     XCTAssertEqual(
-                        (objects ?? []).map { $0.testString ?? "" },
+                        objects.map { $0.testString ?? "" },
                         [
                             "nil:TestEntity1:4",
                             "nil:TestEntity1:5"
                         ]
                     )
-                    let objectIDs = stack.fetchObjectIDs(from, fetchClauses)
-                    XCTAssertNotNil(objectIDs)
-                    XCTAssertEqual(objectIDs?.count, 2)
+                    let objectIDs = try stack.fetchObjectIDs(from, fetchClauses)
+                    XCTAssertEqual(objectIDs.count, 2)
                     XCTAssertEqual(
-                        (objectIDs ?? []),
-                        (objects ?? []).map { $0.objectID }
+                        objectIDs,
+                        objects.map { $0.objectID }
                     )
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 3),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 3),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     ]
-                    let objects = stack.fetchAll(from, fetchClauses)
-                    XCTAssertNotNil(objects)
-                    XCTAssertEqual(objects?.count, 2)
+                    let objects = try stack.fetchAll(from, fetchClauses)
+                    XCTAssertEqual(objects.count, 2)
                     XCTAssertEqual(
-                        (objects ?? []).map { $0.testString ?? "" },
+                        objects.map { $0.testString ?? "" },
                         [
                             "nil:TestEntity1:2",
                             "nil:TestEntity1:1"
                         ]
                     )
-                    let objectIDs = stack.fetchObjectIDs(from, fetchClauses)
-                    XCTAssertNotNil(objectIDs)
-                    XCTAssertEqual(objectIDs?.count, 2)
+                    let objectIDs = try stack.fetchObjectIDs(from, fetchClauses)
+                    XCTAssertEqual(objectIDs.count, 2)
                     XCTAssertEqual(
-                        (objectIDs ?? []),
-                        (objects ?? []).map { $0.objectID }
+                        objectIDs,
+                        objects.map { $0.objectID }
                     )
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let objects = stack.fetchAll(from, fetchClauses)
-                    XCTAssertNotNil(objects)
-                    XCTAssertEqual(objects?.count, 0)
+                    let objects = try stack.fetchAll(from, fetchClauses)
+                    XCTAssertEqual(objects.count, 0)
                     
-                    let objectIDs = stack.fetchObjectIDs(from, fetchClauses)
-                    XCTAssertNotNil(objectIDs)
-                    XCTAssertEqual(objectIDs?.count, 0)
+                    let objectIDs = try stack.fetchObjectIDs(from, fetchClauses)
+                    XCTAssertEqual(objectIDs.count, 0)
                 }
             }
             do {
@@ -1316,66 +1247,60 @@ final class FetchTests: BaseTestDataTestCase {
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 3),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 3),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     ]
-                    let objects = stack.fetchAll(from, fetchClauses)
-                    XCTAssertNotNil(objects)
-                    XCTAssertEqual(objects?.count, 2)
+                    let objects = try stack.fetchAll(from, fetchClauses)
+                    XCTAssertEqual(objects.count, 2)
                     XCTAssertEqual(
-                        (objects ?? []).map { $0.testString ?? "" },
+                        objects.map { $0.testString ?? "" },
                         [
                             "Config1:TestEntity1:4",
                             "Config1:TestEntity1:5"
                         ]
                     )
-                    let objectIDs = stack.fetchObjectIDs(from, fetchClauses)
-                    XCTAssertNotNil(objectIDs)
-                    XCTAssertEqual(objectIDs?.count, 2)
+                    let objectIDs = try stack.fetchObjectIDs(from, fetchClauses)
+                    XCTAssertEqual(objectIDs.count, 2)
                     XCTAssertEqual(
-                        (objectIDs ?? []),
-                        (objects ?? []).map { $0.objectID }
+                        objectIDs,
+                        objects.map { $0.objectID }
                     )
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 3),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 3),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     ]
-                    let objects = stack.fetchAll(from, fetchClauses)
-                    XCTAssertNotNil(objects)
-                    XCTAssertEqual(objects?.count, 2)
+                    let objects = try stack.fetchAll(from, fetchClauses)
+                    XCTAssertEqual(objects.count, 2)
                     XCTAssertEqual(
-                        (objects ?? []).map { $0.testString ?? "" },
+                        objects.map { $0.testString ?? "" },
                         [
                             "Config1:TestEntity1:2",
                             "Config1:TestEntity1:1"
                         ]
                     )
-                    let objectIDs = stack.fetchObjectIDs(from, fetchClauses)
-                    XCTAssertNotNil(objectIDs)
-                    XCTAssertEqual(objectIDs?.count, 2)
+                    let objectIDs = try stack.fetchObjectIDs(from, fetchClauses)
+                    XCTAssertEqual(objectIDs.count, 2)
                     XCTAssertEqual(
-                        (objectIDs ?? []),
-                        (objects ?? []).map { $0.objectID }
+                        objectIDs,
+                        objects.map { $0.objectID }
                     )
                 }
                 do {
                     
                     let fetchClauses: [FetchClause] = [
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     ]
-                    let objects = stack.fetchAll(from, fetchClauses)
-                    XCTAssertNotNil(objects)
-                    XCTAssertEqual(objects?.count, 0)
+                    let objects = try stack.fetchAll(from, fetchClauses)
+                    XCTAssertEqual(objects.count, 0)
                     
-                    let objectIDs = stack.fetchObjectIDs(from, fetchClauses)
-                    XCTAssertNotNil(objectIDs)
-                    XCTAssertEqual(objectIDs?.count, 0)
+                    let objectIDs = try stack.fetchObjectIDs(from, fetchClauses)
+                    XCTAssertEqual(objectIDs.count, 0)
                 }
             }
         }
@@ -1394,34 +1319,31 @@ final class FetchTests: BaseTestDataTestCase {
                 let from = From<TestEntity1>()
                 do {
                     
-                    let count = stack.fetchCount(
+                    let count = try stack.fetchCount(
                         from,
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     )
-                    XCTAssertNotNil(count)
                     XCTAssertEqual(count, 3)
                 }
                 do {
                     
-                    let count = stack.fetchCount(
+                    let count = try stack.fetchCount(
                         from,
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     )
-                    XCTAssertNotNil(count)
                     XCTAssertEqual(count, 3)
                 }
                 do {
                     
-                    let count = stack.fetchCount(
+                    let count = try stack.fetchCount(
                         from,
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     )
-                    XCTAssertNotNil(count)
                     XCTAssertEqual(count, 0)
                 }
             }
@@ -1430,34 +1352,31 @@ final class FetchTests: BaseTestDataTestCase {
                 let from = From<TestEntity1>(nil)
                 do {
                     
-                    let count = stack.fetchCount(
+                    let count = try stack.fetchCount(
                         from,
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     )
-                    XCTAssertNotNil(count)
                     XCTAssertEqual(count, 3)
                 }
                 do {
                     
-                    let count = stack.fetchCount(
+                    let count = try stack.fetchCount(
                         from,
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     )
-                    XCTAssertNotNil(count)
                     XCTAssertEqual(count, 3)
                 }
                 do {
                     
-                    let count = stack.fetchCount(
+                    let count = try stack.fetchCount(
                         from,
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     )
-                    XCTAssertNotNil(count)
                     XCTAssertEqual(count, 0)
                 }
             }
@@ -1465,40 +1384,37 @@ final class FetchTests: BaseTestDataTestCase {
                 
                 let from = From<TestEntity1>("Config1")
                 do {
-                    
-                    let count = self.expectLogger([.logWarning]) {
+
+                    self.expectError(code: .persistentStoreNotFound) {
                         
-                        stack.fetchCount(
+                        try stack.fetchCount(
                             from,
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 4),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 4),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         )
                     }
-                    XCTAssertNil(count)
                 }
                 do {
-                    
-                    let count = self.expectLogger([.logWarning]) {
+
+                    self.expectError(code: .persistentStoreNotFound) {
                         
-                        stack.fetchCount(
+                        try stack.fetchCount(
                             from,
-                            Where(#keyPath(TestEntity1.testNumber), isEqualTo: 0),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>(#keyPath(TestEntity1.testNumber), isEqualTo: 0),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                         )
                     }
-                    XCTAssertNil(count)
                 }
                 do {
-                    
-                    let count = self.expectLogger([.logWarning]) {
+
+                    self.expectError(code: .persistentStoreNotFound) {
                         
-                        stack.fetchCount(
+                        try stack.fetchCount(
                             from,
-                            Where(#keyPath(TestEntity1.testNumber), isEqualTo: nil),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>(#keyPath(TestEntity1.testNumber), isEqualTo: nil),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                         )
                     }
-                    XCTAssertNil(count)
                 }
             }
         }
@@ -1517,34 +1433,31 @@ final class FetchTests: BaseTestDataTestCase {
                 let from = From<TestEntity1>()
                 do {
                     
-                    let count = stack.fetchCount(
+                    let count = try stack.fetchCount(
                         from,
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 3),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 3),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     )
-                    XCTAssertNotNil(count)
                     XCTAssertEqual(count, 3)
                 }
                 do {
                     
-                    let count = stack.fetchCount(
+                    let count = try stack.fetchCount(
                         from,
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 3),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 3),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     )
-                    XCTAssertNotNil(count)
                     XCTAssertEqual(count, 3)
                 }
                 do {
                     
-                    let count = stack.fetchCount(
+                    let count = try stack.fetchCount(
                         from,
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     )
-                    XCTAssertNotNil(count)
                     XCTAssertEqual(count, 0)
                 }
             }
@@ -1553,34 +1466,31 @@ final class FetchTests: BaseTestDataTestCase {
                 let from = From<TestEntity1>(nil)
                 do {
                     
-                    let count = stack.fetchCount(
+                    let count = try stack.fetchCount(
                         from,
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 3),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 3),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     )
-                    XCTAssertNotNil(count)
                     XCTAssertEqual(count, 2)
                 }
                 do {
                     
-                    let count = stack.fetchCount(
+                    let count = try stack.fetchCount(
                         from,
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 3),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 3),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     )
-                    XCTAssertNotNil(count)
                     XCTAssertEqual(count, 2)
                 }
                 do {
                     
-                    let count = stack.fetchCount(
+                    let count = try stack.fetchCount(
                         from,
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     )
-                    XCTAssertNotNil(count)
                     XCTAssertEqual(count, 0)
                 }
             }
@@ -1589,34 +1499,31 @@ final class FetchTests: BaseTestDataTestCase {
                 let from = From<TestEntity1>("Config1")
                 do {
                     
-                    let count = stack.fetchCount(
+                    let count = try stack.fetchCount(
                         from,
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 3),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 3),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     )
-                    XCTAssertNotNil(count)
                     XCTAssertEqual(count, 2)
                 }
                 do {
                     
-                    let count = stack.fetchCount(
+                    let count = try stack.fetchCount(
                         from,
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 3),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 3),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     )
-                    XCTAssertNotNil(count)
                     XCTAssertEqual(count, 2)
                 }
                 do {
                     
-                    let count = stack.fetchCount(
+                    let count = try stack.fetchCount(
                         from,
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     )
-                    XCTAssertNotNil(count)
                     XCTAssertEqual(count, 0)
                 }
             }
@@ -1624,40 +1531,37 @@ final class FetchTests: BaseTestDataTestCase {
                 
                 let from = From<TestEntity1>("Config2")
                 do {
-                    
-                    let count = self.expectLogger([.logWarning]) {
+
+                    self.expectError(code: .persistentStoreNotFound) {
                         
-                        stack.fetchCount(
+                        try stack.fetchCount(
                             from,
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 4),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 4),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         )
                     }
-                    XCTAssertNil(count)
                 }
                 do {
-                    
-                    let count = self.expectLogger([.logWarning]) {
+
+                    self.expectError(code: .persistentStoreNotFound) {
                         
-                        stack.fetchCount(
+                        try stack.fetchCount(
                             from,
-                            Where(#keyPath(TestEntity1.testNumber), isEqualTo: 0),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>(#keyPath(TestEntity1.testNumber), isEqualTo: 0),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                         )
                     }
-                    XCTAssertNil(count)
                 }
                 do {
-                    
-                    let count = self.expectLogger([.logWarning]) {
+
+                    self.expectError(code: .persistentStoreNotFound) {
                         
-                        stack.fetchCount(
+                        try stack.fetchCount(
                             from,
-                            Where(#keyPath(TestEntity1.testNumber), isEqualTo: nil),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>(#keyPath(TestEntity1.testNumber), isEqualTo: nil),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                         )
                     }
-                    XCTAssertNil(count)
                 }
             }
         }
@@ -1676,34 +1580,31 @@ final class FetchTests: BaseTestDataTestCase {
                 let from = From<TestEntity1>(nil, "Config1")
                 do {
                     
-                    let count = stack.fetchCount(
+                    let count = try stack.fetchCount(
                         from,
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 3),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 3),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     )
-                    XCTAssertNotNil(count)
                     XCTAssertEqual(count, 3)
                 }
                 do {
                     
-                    let count = stack.fetchCount(
+                    let count = try stack.fetchCount(
                         from,
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 3),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 3),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     )
-                    XCTAssertNotNil(count)
                     XCTAssertEqual(count, 3)
                 }
                 do {
                     
-                    let count = stack.fetchCount(
+                    let count = try stack.fetchCount(
                         from,
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     )
-                    XCTAssertNotNil(count)
                     XCTAssertEqual(count, 0)
                 }
             }
@@ -1712,34 +1613,31 @@ final class FetchTests: BaseTestDataTestCase {
                 let from = From<TestEntity1>(nil, "Config2")
                 do {
                     
-                    let count = stack.fetchCount(
+                    let count = try stack.fetchCount(
                         from,
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 3),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 3),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     )
-                    XCTAssertNotNil(count)
                     XCTAssertEqual(count, 2)
                 }
                 do {
                     
-                    let count = stack.fetchCount(
+                    let count = try stack.fetchCount(
                         from,
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 3),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 3),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     )
-                    XCTAssertNotNil(count)
                     XCTAssertEqual(count, 2)
                 }
                 do {
                     
-                    let count = stack.fetchCount(
+                    let count = try stack.fetchCount(
                         from,
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     )
-                    XCTAssertNotNil(count)
                     XCTAssertEqual(count, 0)
                 }
             }
@@ -1748,34 +1646,31 @@ final class FetchTests: BaseTestDataTestCase {
                 let from = From<TestEntity1>("Config1", "Config2")
                 do {
                     
-                    let count = stack.fetchCount(
+                    let count = try stack.fetchCount(
                         from,
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 3),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 3),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     )
-                    XCTAssertNotNil(count)
                     XCTAssertEqual(count, 2)
                 }
                 do {
                     
-                    let count = stack.fetchCount(
+                    let count = try stack.fetchCount(
                         from,
-                        Where("%K < %@", #keyPath(TestEntity1.testNumber), 3),
-                        OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                        Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 3),
+                        OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                         Tweak { $0.fetchLimit = 3 }
                     )
-                    XCTAssertNotNil(count)
                     XCTAssertEqual(count, 2)
                 }
                 do {
                     
-                    let count = stack.fetchCount(
+                    let count = try stack.fetchCount(
                         from,
-                        Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                        OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                        Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                        OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                     )
-                    XCTAssertNotNil(count)
                     XCTAssertEqual(count, 0)
                 }
             }
@@ -1796,41 +1691,41 @@ final class FetchTests: BaseTestDataTestCase {
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = transaction.fetchOne(from, fetchClauses)
+                        let object = try transaction.fetchOne(from, fetchClauses)
                         XCTAssertNotNil(object)
                         XCTAssertEqual(object?.testString, "nil:TestEntity1:2")
                         
-                        let objectID = transaction.fetchObjectID(from, fetchClauses)
+                        let objectID = try transaction.fetchObjectID(from, fetchClauses)
                         XCTAssertNotNil(objectID)
                         XCTAssertEqual(objectID, object?.objectID)
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 4),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 4),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = transaction.fetchOne(from, fetchClauses)
+                        let object = try transaction.fetchOne(from, fetchClauses)
                         XCTAssertNotNil(object)
                         XCTAssertEqual(object?.testString, "nil:TestEntity1:3")
                         
-                        let objectID = transaction.fetchObjectID(from, fetchClauses)
+                        let objectID = try transaction.fetchObjectID(from, fetchClauses)
                         XCTAssertNotNil(objectID)
                         XCTAssertEqual(objectID, object?.objectID)
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = transaction.fetchOne(from, fetchClauses)
+                        let object = try transaction.fetchOne(from, fetchClauses)
                         XCTAssertNil(object)
                         
-                        let objectID = transaction.fetchObjectID(from, fetchClauses)
+                        let objectID = try transaction.fetchObjectID(from, fetchClauses)
                         XCTAssertNil(objectID)
                     }
                     try transaction.cancel()
@@ -1843,41 +1738,41 @@ final class FetchTests: BaseTestDataTestCase {
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = transaction.fetchOne(from, fetchClauses)
+                        let object = try transaction.fetchOne(from, fetchClauses)
                         XCTAssertNotNil(object)
                         XCTAssertEqual(object?.testString, "nil:TestEntity1:2")
                         
-                        let objectID = transaction.fetchObjectID(from, fetchClauses)
+                        let objectID = try transaction.fetchObjectID(from, fetchClauses)
                         XCTAssertNotNil(objectID)
                         XCTAssertEqual(objectID, object?.objectID)
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 4),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 4),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = transaction.fetchOne(from, fetchClauses)
+                        let object = try transaction.fetchOne(from, fetchClauses)
                         XCTAssertNotNil(object)
                         XCTAssertEqual(object?.testString, "nil:TestEntity1:3")
                         
-                        let objectID = transaction.fetchObjectID(from, fetchClauses)
+                        let objectID = try transaction.fetchObjectID(from, fetchClauses)
                         XCTAssertNotNil(objectID)
                         XCTAssertEqual(objectID, object?.objectID)
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = transaction.fetchOne(from, fetchClauses)
+                        let object = try transaction.fetchOne(from, fetchClauses)
                         XCTAssertNil(object)
                         
-                        let objectID = transaction.fetchObjectID(from, fetchClauses)
+                        let objectID = try transaction.fetchObjectID(from, fetchClauses)
                         XCTAssertNil(objectID)
                     }
                     try transaction.cancel()
@@ -1890,38 +1785,32 @@ final class FetchTests: BaseTestDataTestCase {
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = self.expectLogger([.logWarning]) {
+                        self.expectError(code: .persistentStoreNotFound) {
                             
-                            transaction.fetchOne(from, fetchClauses)
+                            try transaction.fetchOne(from, fetchClauses)
                         }
-                        XCTAssertNil(object)
-                        
-                        let objectID = self.expectLogger([.logWarning]) {
+                        self.expectError(code: .persistentStoreNotFound) {
                             
-                            transaction.fetchObjectID(from, fetchClauses)
+                            try transaction.fetchObjectID(from, fetchClauses)
                         }
-                        XCTAssertNil(objectID)
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 4),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 4),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = self.expectLogger([.logWarning]) {
+                        self.expectError(code: .persistentStoreNotFound) {
                             
-                            transaction.fetchOne(from, fetchClauses)
+                            try transaction.fetchOne(from, fetchClauses)
                         }
-                        XCTAssertNil(object)
-                        
-                        let objectID = self.expectLogger([.logWarning]) {
+                        self.expectError(code: .persistentStoreNotFound) {
                             
-                            transaction.fetchObjectID(from, fetchClauses)
+                            try transaction.fetchObjectID(from, fetchClauses)
                         }
-                        XCTAssertNil(objectID)
                     }
                     try transaction.cancel()
                 }
@@ -1943,41 +1832,41 @@ final class FetchTests: BaseTestDataTestCase {
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = transaction.fetchOne(from, fetchClauses)
+                        let object = try transaction.fetchOne(from, fetchClauses)
                         XCTAssertNotNil(object)
                         XCTAssertEqual(object?.testNumber, 2) // configuration ambiguous
                         
-                        let objectID = transaction.fetchObjectID(from, fetchClauses)
+                        let objectID = try transaction.fetchObjectID(from, fetchClauses)
                         XCTAssertNotNil(objectID)
                         XCTAssertEqual(objectID, object?.objectID)
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 4),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 4),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = transaction.fetchOne(from, fetchClauses)
+                        let object = try transaction.fetchOne(from, fetchClauses)
                         XCTAssertNotNil(object)
                         XCTAssertEqual(object?.testNumber, 3) // configuration
                         
-                        let objectID = transaction.fetchObjectID(from, fetchClauses)
+                        let objectID = try transaction.fetchObjectID(from, fetchClauses)
                         XCTAssertNotNil(objectID)
                         XCTAssertEqual(objectID, object?.objectID)
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = transaction.fetchOne(from, fetchClauses)
+                        let object = try transaction.fetchOne(from, fetchClauses)
                         XCTAssertNil(object)
                         
-                        let objectID = transaction.fetchObjectID(from, fetchClauses)
+                        let objectID = try transaction.fetchObjectID(from, fetchClauses)
                         XCTAssertNil(objectID)
                     }
                     try transaction.cancel()
@@ -1990,41 +1879,41 @@ final class FetchTests: BaseTestDataTestCase {
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = transaction.fetchOne(from, fetchClauses)
+                        let object = try transaction.fetchOne(from, fetchClauses)
                         XCTAssertNotNil(object)
                         XCTAssertEqual(object?.testString, "nil:TestEntity1:2")
                         
-                        let objectID = transaction.fetchObjectID(from, fetchClauses)
+                        let objectID = try transaction.fetchObjectID(from, fetchClauses)
                         XCTAssertNotNil(objectID)
                         XCTAssertEqual(objectID, object?.objectID)
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 4),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 4),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = transaction.fetchOne(from, fetchClauses)
+                        let object = try transaction.fetchOne(from, fetchClauses)
                         XCTAssertNotNil(object)
                         XCTAssertEqual(object?.testString, "nil:TestEntity1:3")
                         
-                        let objectID = transaction.fetchObjectID(from, fetchClauses)
+                        let objectID = try transaction.fetchObjectID(from, fetchClauses)
                         XCTAssertNotNil(objectID)
                         XCTAssertEqual(objectID, object?.objectID)
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = transaction.fetchOne(from, fetchClauses)
+                        let object = try transaction.fetchOne(from, fetchClauses)
                         XCTAssertNil(object)
                         
-                        let objectID = transaction.fetchObjectID(from, fetchClauses)
+                        let objectID = try transaction.fetchObjectID(from, fetchClauses)
                         XCTAssertNil(objectID)
                     }
                     try transaction.cancel()
@@ -2037,41 +1926,41 @@ final class FetchTests: BaseTestDataTestCase {
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = transaction.fetchOne(from, fetchClauses)
+                        let object = try transaction.fetchOne(from, fetchClauses)
                         XCTAssertNotNil(object)
                         XCTAssertEqual(object?.testString, "Config1:TestEntity1:2")
                         
-                        let objectID = transaction.fetchObjectID(from, fetchClauses)
+                        let objectID = try transaction.fetchObjectID(from, fetchClauses)
                         XCTAssertNotNil(objectID)
                         XCTAssertEqual(objectID, object?.objectID)
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 4),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 4),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = transaction.fetchOne(from, fetchClauses)
+                        let object = try transaction.fetchOne(from, fetchClauses)
                         XCTAssertNotNil(object)
                         XCTAssertEqual(object?.testString, "Config1:TestEntity1:3")
                         
-                        let objectID = transaction.fetchObjectID(from, fetchClauses)
+                        let objectID = try transaction.fetchObjectID(from, fetchClauses)
                         XCTAssertNotNil(objectID)
                         XCTAssertEqual(objectID, object?.objectID)
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = transaction.fetchOne(from, fetchClauses)
+                        let object = try transaction.fetchOne(from, fetchClauses)
                         XCTAssertNil(object)
                         
-                        let objectID = transaction.fetchObjectID(from, fetchClauses)
+                        let objectID = try transaction.fetchObjectID(from, fetchClauses)
                         XCTAssertNil(objectID)
                     }
                     try transaction.cancel()
@@ -2084,38 +1973,32 @@ final class FetchTests: BaseTestDataTestCase {
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = self.expectLogger([.logWarning]) {
+                        self.expectError(code: .persistentStoreNotFound) {
                             
-                            transaction.fetchOne(from, fetchClauses)
+                            try transaction.fetchOne(from, fetchClauses)
                         }
-                        XCTAssertNil(object)
-                        
-                        let objectID = self.expectLogger([.logWarning]) {
+                        self.expectError(code: .persistentStoreNotFound) {
                             
-                            transaction.fetchObjectID(from, fetchClauses)
+                            try transaction.fetchObjectID(from, fetchClauses)
                         }
-                        XCTAssertNil(objectID)
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 4),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 4),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = self.expectLogger([.logWarning]) {
+                        self.expectError(code: .persistentStoreNotFound) {
                             
-                            transaction.fetchOne(from, fetchClauses)
+                            try transaction.fetchOne(from, fetchClauses)
                         }
-                        XCTAssertNil(object)
-                        
-                        let objectID = self.expectLogger([.logWarning]) {
+                        self.expectError(code: .persistentStoreNotFound) {
                             
-                            transaction.fetchObjectID(from, fetchClauses)
+                            try transaction.fetchObjectID(from, fetchClauses)
                         }
-                        XCTAssertNil(objectID)
                     }
                     try transaction.cancel()
                 }
@@ -2137,41 +2020,41 @@ final class FetchTests: BaseTestDataTestCase {
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = transaction.fetchOne(from, fetchClauses)
+                        let object = try transaction.fetchOne(from, fetchClauses)
                         XCTAssertNotNil(object)
                         XCTAssertEqual(object?.testNumber, 2) // configuration is ambiguous
                         
-                        let objectID = transaction.fetchObjectID(from, fetchClauses)
+                        let objectID = try transaction.fetchObjectID(from, fetchClauses)
                         XCTAssertNotNil(objectID)
                         XCTAssertEqual(objectID, object?.objectID)
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 4),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 4),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = transaction.fetchOne(from, fetchClauses)
+                        let object = try transaction.fetchOne(from, fetchClauses)
                         XCTAssertNotNil(object)
                         XCTAssertEqual(object?.testNumber, 3) // configuration is ambiguous
                         
-                        let objectID = transaction.fetchObjectID(from, fetchClauses)
+                        let objectID = try transaction.fetchObjectID(from, fetchClauses)
                         XCTAssertNotNil(objectID)
                         XCTAssertEqual(objectID, object?.objectID)
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = transaction.fetchOne(from, fetchClauses)
+                        let object = try transaction.fetchOne(from, fetchClauses)
                         XCTAssertNil(object)
                         
-                        let objectID = transaction.fetchObjectID(from, fetchClauses)
+                        let objectID = try transaction.fetchObjectID(from, fetchClauses)
                         XCTAssertNil(objectID)
                     }
                     try transaction.cancel()
@@ -2184,41 +2067,41 @@ final class FetchTests: BaseTestDataTestCase {
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = transaction.fetchOne(from, fetchClauses)
+                        let object = try transaction.fetchOne(from, fetchClauses)
                         XCTAssertNotNil(object)
                         XCTAssertEqual(object?.testString, "nil:TestEntity1:2")
                         
-                        let objectID = transaction.fetchObjectID(from, fetchClauses)
+                        let objectID = try transaction.fetchObjectID(from, fetchClauses)
                         XCTAssertNotNil(objectID)
                         XCTAssertEqual(objectID, object?.objectID)
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 4),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 4),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = transaction.fetchOne(from, fetchClauses)
+                        let object = try transaction.fetchOne(from, fetchClauses)
                         XCTAssertNotNil(object)
                         XCTAssertEqual(object?.testString, "nil:TestEntity1:3")
                         
-                        let objectID = transaction.fetchObjectID(from, fetchClauses)
+                        let objectID = try transaction.fetchObjectID(from, fetchClauses)
                         XCTAssertNotNil(objectID)
                         XCTAssertEqual(objectID, object?.objectID)
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = transaction.fetchOne(from, fetchClauses)
+                        let object = try transaction.fetchOne(from, fetchClauses)
                         XCTAssertNil(object)
                         
-                        let objectID = transaction.fetchObjectID(from, fetchClauses)
+                        let objectID = try transaction.fetchObjectID(from, fetchClauses)
                         XCTAssertNil(objectID)
                     }
                     try transaction.cancel()
@@ -2231,41 +2114,41 @@ final class FetchTests: BaseTestDataTestCase {
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = transaction.fetchOne(from, fetchClauses)
+                        let object = try transaction.fetchOne(from, fetchClauses)
                         XCTAssertNotNil(object)
                         XCTAssertEqual(object?.testString, "Config1:TestEntity1:2")
                         
-                        let objectID = transaction.fetchObjectID(from, fetchClauses)
+                        let objectID = try transaction.fetchObjectID(from, fetchClauses)
                         XCTAssertNotNil(objectID)
                         XCTAssertEqual(objectID, object?.objectID)
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 4),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 4),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = transaction.fetchOne(from, fetchClauses)
+                        let object = try transaction.fetchOne(from, fetchClauses)
                         XCTAssertNotNil(object)
                         XCTAssertEqual(object?.testString, "Config1:TestEntity1:3")
                         
-                        let objectID = transaction.fetchObjectID(from, fetchClauses)
+                        let objectID = try transaction.fetchObjectID(from, fetchClauses)
                         XCTAssertNotNil(objectID)
                         XCTAssertEqual(objectID, object?.objectID)
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let object = transaction.fetchOne(from, fetchClauses)
+                        let object = try transaction.fetchOne(from, fetchClauses)
                         XCTAssertNil(object)
                         
-                        let objectID = transaction.fetchObjectID(from, fetchClauses)
+                        let objectID = try transaction.fetchObjectID(from, fetchClauses)
                         XCTAssertNil(objectID)
                     }
                     try transaction.cancel()
@@ -2288,68 +2171,62 @@ final class FetchTests: BaseTestDataTestCase {
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         ]
-                        let objects = transaction.fetchAll(from, fetchClauses)
-                        XCTAssertNotNil(objects)
-                        XCTAssertEqual(objects?.count, 3)
+                        let objects = try transaction.fetchAll(from, fetchClauses)
+                        XCTAssertEqual(objects.count, 3)
                         XCTAssertEqual(
-                            (objects ?? []).map { $0.testString ?? "" },
+                            objects.map { $0.testString ?? "" },
                             [
                                 "nil:TestEntity1:2",
                                 "nil:TestEntity1:3",
                                 "nil:TestEntity1:4"
                             ]
                         )
-                        let objectIDs = transaction.fetchObjectIDs(from, fetchClauses)
-                        XCTAssertNotNil(objectIDs)
-                        XCTAssertEqual(objectIDs?.count, 3)
+                        let objectIDs = try transaction.fetchObjectIDs(from, fetchClauses)
+                        XCTAssertEqual(objectIDs.count, 3)
                         XCTAssertEqual(
-                            (objectIDs ?? []),
-                            (objects ?? []).map { $0.objectID }
+                            objectIDs,
+                            objects.map { $0.objectID }
                         )
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         ]
-                        let objects = transaction.fetchAll(from, fetchClauses)
-                        XCTAssertNotNil(objects)
-                        XCTAssertEqual(objects?.count, 3)
+                        let objects = try transaction.fetchAll(from, fetchClauses)
+                        XCTAssertEqual(objects.count, 3)
                         XCTAssertEqual(
-                            (objects ?? []).map { $0.testString ?? "" },
+                            objects.map { $0.testString ?? "" },
                             [
                                 "nil:TestEntity1:4",
                                 "nil:TestEntity1:3",
                                 "nil:TestEntity1:2"
                             ]
                         )
-                        let objectIDs = transaction.fetchObjectIDs(from, fetchClauses)
-                        XCTAssertNotNil(objectIDs)
-                        XCTAssertEqual(objectIDs?.count, 3)
+                        let objectIDs = try transaction.fetchObjectIDs(from, fetchClauses)
+                        XCTAssertEqual(objectIDs.count, 3)
                         XCTAssertEqual(
-                            (objectIDs ?? []),
-                            (objects ?? []).map { $0.objectID }
+                            objectIDs,
+                            objects.map { $0.objectID }
                         )
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let objects = transaction.fetchAll(from, fetchClauses)
-                        XCTAssertNotNil(objects)
-                        XCTAssertEqual(objects?.count, 0)
+                        let objects = try transaction.fetchAll(from, fetchClauses)
+                        XCTAssertEqual(objects.count, 0)
                         
-                        let objectIDs = transaction.fetchObjectIDs(from, fetchClauses)
-                        XCTAssertNotNil(objectIDs)
-                        XCTAssertEqual(objectIDs?.count, 0)
+                        let objectIDs = try transaction.fetchObjectIDs(from, fetchClauses)
+                        XCTAssertEqual(objectIDs.count, 0)
                     }
                     try transaction.cancel()
                 }
@@ -2361,68 +2238,62 @@ final class FetchTests: BaseTestDataTestCase {
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         ]
-                        let objects = transaction.fetchAll(from, fetchClauses)
-                        XCTAssertNotNil(objects)
-                        XCTAssertEqual(objects?.count, 3)
+                        let objects = try transaction.fetchAll(from, fetchClauses)
+                        XCTAssertEqual(objects.count, 3)
                         XCTAssertEqual(
-                            (objects ?? []).map { $0.testString ?? "" },
+                            objects.map { $0.testString ?? "" },
                             [
                                 "nil:TestEntity1:2",
                                 "nil:TestEntity1:3",
                                 "nil:TestEntity1:4"
                             ]
                         )
-                        let objectIDs = transaction.fetchObjectIDs(from, fetchClauses)
-                        XCTAssertNotNil(objectIDs)
-                        XCTAssertEqual(objectIDs?.count, 3)
+                        let objectIDs = try transaction.fetchObjectIDs(from, fetchClauses)
+                        XCTAssertEqual(objectIDs.count, 3)
                         XCTAssertEqual(
-                            (objectIDs ?? []),
-                            (objects ?? []).map { $0.objectID }
+                            objectIDs,
+                            objects.map { $0.objectID }
                         )
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         ]
-                        let objects = transaction.fetchAll(from, fetchClauses)
-                        XCTAssertNotNil(objects)
-                        XCTAssertEqual(objects?.count, 3)
+                        let objects = try transaction.fetchAll(from, fetchClauses)
+                        XCTAssertEqual(objects.count, 3)
                         XCTAssertEqual(
-                            (objects ?? []).map { $0.testString ?? "" },
+                            objects.map { $0.testString ?? "" },
                             [
                                 "nil:TestEntity1:4",
                                 "nil:TestEntity1:3",
                                 "nil:TestEntity1:2"
                             ]
                         )
-                        let objectIDs = transaction.fetchObjectIDs(from, fetchClauses)
-                        XCTAssertNotNil(objectIDs)
-                        XCTAssertEqual(objectIDs?.count, 3)
+                        let objectIDs = try transaction.fetchObjectIDs(from, fetchClauses)
+                        XCTAssertEqual(objectIDs.count, 3)
                         XCTAssertEqual(
-                            (objectIDs ?? []),
-                            (objects ?? []).map { $0.objectID }
+                            objectIDs,
+                            objects.map { $0.objectID }
                         )
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let objects = transaction.fetchAll(from, fetchClauses)
-                        XCTAssertNotNil(objects)
-                        XCTAssertEqual(objects?.count, 0)
+                        let objects = try transaction.fetchAll(from, fetchClauses)
+                        XCTAssertEqual(objects.count, 0)
                         
-                        let objectIDs = transaction.fetchObjectIDs(from, fetchClauses)
-                        XCTAssertNotNil(objectIDs)
-                        XCTAssertEqual(objectIDs?.count, 0)
+                        let objectIDs = try transaction.fetchObjectIDs(from, fetchClauses)
+                        XCTAssertEqual(objectIDs.count, 0)
                     }
                     try transaction.cancel()
                 }
@@ -2434,56 +2305,47 @@ final class FetchTests: BaseTestDataTestCase {
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 4),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 4),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let objects = self.expectLogger([.logWarning]) {
+                        self.expectError(code: .persistentStoreNotFound) {
                             
-                            transaction.fetchAll(from, fetchClauses)
+                            try transaction.fetchAll(from, fetchClauses)
                         }
-                        XCTAssertNil(objects)
-                        
-                        let objectIDs = self.expectLogger([.logWarning]) {
+                        self.expectError(code: .persistentStoreNotFound) {
                             
-                            transaction.fetchObjectIDs(from, fetchClauses)
+                            try transaction.fetchObjectIDs(from, fetchClauses)
                         }
-                        XCTAssertNil(objectIDs)
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where(#keyPath(TestEntity1.testNumber), isEqualTo: 0),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>(#keyPath(TestEntity1.testNumber), isEqualTo: 0),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let objects = self.expectLogger([.logWarning]) {
+                        self.expectError(code: .persistentStoreNotFound) {
                             
-                            transaction.fetchAll(from, fetchClauses)
+                            try transaction.fetchAll(from, fetchClauses)
                         }
-                        XCTAssertNil(objects)
-                        
-                        let objectIDs = self.expectLogger([.logWarning]) {
+                        self.expectError(code: .persistentStoreNotFound) {
                             
-                            transaction.fetchObjectIDs(from, fetchClauses)
+                            try transaction.fetchObjectIDs(from, fetchClauses)
                         }
-                        XCTAssertNil(objectIDs)
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where(#keyPath(TestEntity1.testNumber), isEqualTo: nil),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>(#keyPath(TestEntity1.testNumber), isEqualTo: nil),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let objects = self.expectLogger([.logWarning]) {
+                        self.expectError(code: .persistentStoreNotFound) {
                             
-                            transaction.fetchAll(from, fetchClauses)
+                            try transaction.fetchAll(from, fetchClauses)
                         }
-                        XCTAssertNil(objects)
-                        
-                        let objectIDs = self.expectLogger([.logWarning]) {
+                        self.expectError(code: .persistentStoreNotFound) {
                             
-                            transaction.fetchObjectIDs(from, fetchClauses)
+                            try transaction.fetchObjectIDs(from, fetchClauses)
                         }
-                        XCTAssertNil(objectIDs)
                     }
                     try transaction.cancel()
                 }
@@ -2505,62 +2367,56 @@ final class FetchTests: BaseTestDataTestCase {
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 3),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 3),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         ]
-                        let objects = transaction.fetchAll(from, fetchClauses)
-                        XCTAssertNotNil(objects)
-                        XCTAssertEqual(objects?.count, 3)
+                        let objects = try transaction.fetchAll(from, fetchClauses)
+                        XCTAssertEqual(objects.count, 3)
                         XCTAssertEqual(
-                            Set((objects ?? []).map { $0.testNumber!.intValue }),
+                            Set(objects.map { $0.testNumber!.intValue }),
                             [4, 5] as Set<Int>
                         ) // configuration is ambiguous
                         
-                        let objectIDs = transaction.fetchObjectIDs(from, fetchClauses)
-                        XCTAssertNotNil(objectIDs)
-                        XCTAssertEqual(objectIDs?.count, 3)
+                        let objectIDs = try transaction.fetchObjectIDs(from, fetchClauses)
+                        XCTAssertEqual(objectIDs.count, 3)
                         XCTAssertEqual(
-                            (objectIDs ?? []),
-                            (objects ?? []).map { $0.objectID }
+                            objectIDs,
+                            objects.map { $0.objectID }
                         )
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 3),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 3),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         ]
-                        let objects = transaction.fetchAll(from, fetchClauses)
-                        XCTAssertNotNil(objects)
-                        XCTAssertEqual(objects?.count, 3)
+                        let objects = try transaction.fetchAll(from, fetchClauses)
+                        XCTAssertEqual(objects.count, 3)
                         XCTAssertEqual(
-                            Set((objects ?? []).map { $0.testNumber!.intValue }),
+                            Set(objects.map { $0.testNumber!.intValue }),
                             [1, 2] as Set<Int>
                         ) // configuration is ambiguous
                         
-                        let objectIDs = transaction.fetchObjectIDs(from, fetchClauses)
-                        XCTAssertNotNil(objectIDs)
-                        XCTAssertEqual(objectIDs?.count, 3)
+                        let objectIDs = try transaction.fetchObjectIDs(from, fetchClauses)
+                        XCTAssertEqual(objectIDs.count, 3)
                         XCTAssertEqual(
-                            (objectIDs ?? []),
-                            (objects ?? []).map { $0.objectID }
+                            objectIDs,
+                            objects.map { $0.objectID }
                         )
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let objects = transaction.fetchAll(from, fetchClauses)
-                        XCTAssertNotNil(objects)
-                        XCTAssertEqual(objects?.count, 0)
+                        let objects = try transaction.fetchAll(from, fetchClauses)
+                        XCTAssertEqual(objects.count, 0)
                         
-                        let objectIDs = transaction.fetchObjectIDs(from, fetchClauses)
-                        XCTAssertNotNil(objectIDs)
-                        XCTAssertEqual(objectIDs?.count, 0)
+                        let objectIDs = try transaction.fetchObjectIDs(from, fetchClauses)
+                        XCTAssertEqual(objectIDs.count, 0)
                     }
                     try transaction.cancel()
                 }
@@ -2572,66 +2428,60 @@ final class FetchTests: BaseTestDataTestCase {
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 3),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 3),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         ]
-                        let objects = transaction.fetchAll(from, fetchClauses)
-                        XCTAssertNotNil(objects)
-                        XCTAssertEqual(objects?.count, 2)
+                        let objects = try transaction.fetchAll(from, fetchClauses)
+                        XCTAssertEqual(objects.count, 2)
                         XCTAssertEqual(
-                            (objects ?? []).map { $0.testString ?? "" },
+                            objects.map { $0.testString ?? "" },
                             [
                                 "nil:TestEntity1:4",
                                 "nil:TestEntity1:5"
                             ]
                         )
-                        let objectIDs = transaction.fetchObjectIDs(from, fetchClauses)
-                        XCTAssertNotNil(objectIDs)
-                        XCTAssertEqual(objectIDs?.count, 2)
+                        let objectIDs = try transaction.fetchObjectIDs(from, fetchClauses)
+                        XCTAssertEqual(objectIDs.count, 2)
                         XCTAssertEqual(
-                            (objectIDs ?? []),
-                            (objects ?? []).map { $0.objectID }
+                            objectIDs,
+                            objects.map { $0.objectID }
                         )
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 3),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 3),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         ]
-                        let objects = transaction.fetchAll(from, fetchClauses)
-                        XCTAssertNotNil(objects)
-                        XCTAssertEqual(objects?.count, 2)
+                        let objects = try transaction.fetchAll(from, fetchClauses)
+                        XCTAssertEqual(objects.count, 2)
                         XCTAssertEqual(
-                            (objects ?? []).map { $0.testString ?? "" },
+                            objects.map { $0.testString ?? "" },
                             [
                                 "nil:TestEntity1:2",
                                 "nil:TestEntity1:1"
                             ]
                         )
-                        let objectIDs = transaction.fetchObjectIDs(from, fetchClauses)
-                        XCTAssertNotNil(objectIDs)
-                        XCTAssertEqual(objectIDs?.count, 2)
+                        let objectIDs = try transaction.fetchObjectIDs(from, fetchClauses)
+                        XCTAssertEqual(objectIDs.count, 2)
                         XCTAssertEqual(
-                            (objectIDs ?? []),
-                            (objects ?? []).map { $0.objectID }
+                            objectIDs,
+                            objects.map { $0.objectID }
                         )
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let objects = transaction.fetchAll(from, fetchClauses)
-                        XCTAssertNotNil(objects)
-                        XCTAssertEqual(objects?.count, 0)
+                        let objects = try transaction.fetchAll(from, fetchClauses)
+                        XCTAssertEqual(objects.count, 0)
                         
-                        let objectIDs = transaction.fetchObjectIDs(from, fetchClauses)
-                        XCTAssertNotNil(objectIDs)
-                        XCTAssertEqual(objectIDs?.count, 0)
+                        let objectIDs = try transaction.fetchObjectIDs(from, fetchClauses)
+                        XCTAssertEqual(objectIDs.count, 0)
                     }
                     try transaction.cancel()
                 }
@@ -2643,66 +2493,60 @@ final class FetchTests: BaseTestDataTestCase {
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 3),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 3),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         ]
-                        let objects = transaction.fetchAll(from, fetchClauses)
-                        XCTAssertNotNil(objects)
-                        XCTAssertEqual(objects?.count, 2)
+                        let objects = try transaction.fetchAll(from, fetchClauses)
+                        XCTAssertEqual(objects.count, 2)
                         XCTAssertEqual(
-                            (objects ?? []).map { $0.testString ?? "" },
+                            objects.map { $0.testString ?? "" },
                             [
                                 "Config1:TestEntity1:4",
                                 "Config1:TestEntity1:5"
                             ]
                         )
-                        let objectIDs = transaction.fetchObjectIDs(from, fetchClauses)
-                        XCTAssertNotNil(objectIDs)
-                        XCTAssertEqual(objectIDs?.count, 2)
+                        let objectIDs = try transaction.fetchObjectIDs(from, fetchClauses)
+                        XCTAssertEqual(objectIDs.count, 2)
                         XCTAssertEqual(
-                            (objectIDs ?? []),
-                            (objects ?? []).map { $0.objectID }
+                            objectIDs,
+                            objects.map { $0.objectID }
                         )
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 3),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 3),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         ]
-                        let objects = transaction.fetchAll(from, fetchClauses)
-                        XCTAssertNotNil(objects)
-                        XCTAssertEqual(objects?.count, 2)
+                        let objects = try transaction.fetchAll(from, fetchClauses)
+                        XCTAssertEqual(objects.count, 2)
                         XCTAssertEqual(
-                            (objects ?? []).map { $0.testString ?? "" },
+                            objects.map { $0.testString ?? "" },
                             [
                                 "Config1:TestEntity1:2",
                                 "Config1:TestEntity1:1"
                             ]
                         )
-                        let objectIDs = transaction.fetchObjectIDs(from, fetchClauses)
-                        XCTAssertNotNil(objectIDs)
-                        XCTAssertEqual(objectIDs?.count, 2)
+                        let objectIDs = try transaction.fetchObjectIDs(from, fetchClauses)
+                        XCTAssertEqual(objectIDs.count, 2)
                         XCTAssertEqual(
-                            (objectIDs ?? []),
-                            (objects ?? []).map { $0.objectID }
+                            objectIDs,
+                            objects.map { $0.objectID }
                         )
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let objects = transaction.fetchAll(from, fetchClauses)
-                        XCTAssertNotNil(objects)
-                        XCTAssertEqual(objects?.count, 0)
+                        let objects = try transaction.fetchAll(from, fetchClauses)
+                        XCTAssertEqual(objects.count, 0)
                         
-                        let objectIDs = transaction.fetchObjectIDs(from, fetchClauses)
-                        XCTAssertNotNil(objectIDs)
-                        XCTAssertEqual(objectIDs?.count, 0)
+                        let objectIDs = try transaction.fetchObjectIDs(from, fetchClauses)
+                        XCTAssertEqual(objectIDs.count, 0)
                     }
                     try transaction.cancel()
                 }
@@ -2714,36 +2558,30 @@ final class FetchTests: BaseTestDataTestCase {
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let objects = self.expectLogger([.logWarning]) {
+                        self.expectError(code: .persistentStoreNotFound) {
                             
-                            transaction.fetchAll(from, fetchClauses)
+                            try transaction.fetchAll(from, fetchClauses)
                         }
-                        XCTAssertNil(objects)
-                        
-                        let objectIDs = self.expectLogger([.logWarning]) {
+                        self.expectError(code: .persistentStoreNotFound) {
                             
-                            transaction.fetchObjectIDs(from, fetchClauses)
+                            try transaction.fetchObjectIDs(from, fetchClauses)
                         }
-                        XCTAssertNil(objectIDs)
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let objects = self.expectLogger([.logWarning]) {
+                        self.expectError(code: .persistentStoreNotFound) {
                             
-                            transaction.fetchAll(from, fetchClauses)
+                            try transaction.fetchAll(from, fetchClauses)
                         }
-                        XCTAssertNil(objects)
-                        
-                        let objectIDs = self.expectLogger([.logWarning]) {
+                        self.expectError(code: .persistentStoreNotFound) {
                             
-                            transaction.fetchObjectIDs(from, fetchClauses)
+                            try transaction.fetchObjectIDs(from, fetchClauses)
                         }
-                        XCTAssertNil(objectIDs)
                     }
                     try transaction.cancel()
                 }
@@ -2765,62 +2603,56 @@ final class FetchTests: BaseTestDataTestCase {
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 3),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 3),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         ]
-                        let objects = transaction.fetchAll(from, fetchClauses)
-                        XCTAssertNotNil(objects)
-                        XCTAssertEqual(objects?.count, 3)
+                        let objects = try transaction.fetchAll(from, fetchClauses)
+                        XCTAssertEqual(objects.count, 3)
                         XCTAssertEqual(
-                            Set((objects ?? []).map { $0.testNumber!.intValue }),
+                            Set(objects.map { $0.testNumber!.intValue }),
                             [4, 5] as Set<Int>
                         ) // configuration is ambiguous
                         
-                        let objectIDs = transaction.fetchObjectIDs(from, fetchClauses)
-                        XCTAssertNotNil(objectIDs)
-                        XCTAssertEqual(objectIDs?.count, 3)
+                        let objectIDs = try transaction.fetchObjectIDs(from, fetchClauses)
+                        XCTAssertEqual(objectIDs.count, 3)
                         XCTAssertEqual(
-                            (objectIDs ?? []),
-                            (objects ?? []).map { $0.objectID }
+                            objectIDs,
+                            objects.map { $0.objectID }
                         )
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 3),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 3),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         ]
-                        let objects = transaction.fetchAll(from, fetchClauses)
-                        XCTAssertNotNil(objects)
-                        XCTAssertEqual(objects?.count, 3)
+                        let objects = try transaction.fetchAll(from, fetchClauses)
+                        XCTAssertEqual(objects.count, 3)
                         XCTAssertEqual(
-                            Set((objects ?? []).map { $0.testNumber!.intValue }),
+                            Set(objects.map { $0.testNumber!.intValue }),
                             [1, 2] as Set<Int>
                         ) // configuration is ambiguous
                         
-                        let objectIDs = transaction.fetchObjectIDs(from, fetchClauses)
-                        XCTAssertNotNil(objectIDs)
-                        XCTAssertEqual(objectIDs?.count, 3)
+                        let objectIDs = try transaction.fetchObjectIDs(from, fetchClauses)
+                        XCTAssertEqual(objectIDs.count, 3)
                         XCTAssertEqual(
-                            (objectIDs ?? []),
-                            (objects ?? []).map { $0.objectID }
+                            objectIDs,
+                            objects.map { $0.objectID }
                         )
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let objects = transaction.fetchAll(from, fetchClauses)
-                        XCTAssertNotNil(objects)
-                        XCTAssertEqual(objects?.count, 0)
+                        let objects = try transaction.fetchAll(from, fetchClauses)
+                        XCTAssertEqual(objects.count, 0)
                         
-                        let objectIDs = transaction.fetchObjectIDs(from, fetchClauses)
-                        XCTAssertNotNil(objectIDs)
-                        XCTAssertEqual(objectIDs?.count, 0)
+                        let objectIDs = try transaction.fetchObjectIDs(from, fetchClauses)
+                        XCTAssertEqual(objectIDs.count, 0)
                     }
                     try transaction.cancel()
                 }
@@ -2832,66 +2664,60 @@ final class FetchTests: BaseTestDataTestCase {
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 3),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 3),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         ]
-                        let objects = transaction.fetchAll(from, fetchClauses)
-                        XCTAssertNotNil(objects)
-                        XCTAssertEqual(objects?.count, 2)
+                        let objects = try transaction.fetchAll(from, fetchClauses)
+                        XCTAssertEqual(objects.count, 2)
                         XCTAssertEqual(
-                            (objects ?? []).map { $0.testString ?? "" },
+                            objects.map { $0.testString ?? "" },
                             [
                                 "nil:TestEntity1:4",
                                 "nil:TestEntity1:5"
                             ]
                         )
-                        let objectIDs = transaction.fetchObjectIDs(from, fetchClauses)
-                        XCTAssertNotNil(objectIDs)
-                        XCTAssertEqual(objectIDs?.count, 2)
+                        let objectIDs = try transaction.fetchObjectIDs(from, fetchClauses)
+                        XCTAssertEqual(objectIDs.count, 2)
                         XCTAssertEqual(
-                            (objectIDs ?? []),
-                            (objects ?? []).map { $0.objectID }
+                            objectIDs,
+                            objects.map { $0.objectID }
                         )
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 3),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 3),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         ]
-                        let objects = transaction.fetchAll(from, fetchClauses)
-                        XCTAssertNotNil(objects)
-                        XCTAssertEqual(objects?.count, 2)
+                        let objects = try transaction.fetchAll(from, fetchClauses)
+                        XCTAssertEqual(objects.count, 2)
                         XCTAssertEqual(
-                            (objects ?? []).map { $0.testString ?? "" },
+                            objects.map { $0.testString ?? "" },
                             [
                                 "nil:TestEntity1:2",
                                 "nil:TestEntity1:1"
                             ]
                         )
-                        let objectIDs = transaction.fetchObjectIDs(from, fetchClauses)
-                        XCTAssertNotNil(objectIDs)
-                        XCTAssertEqual(objectIDs?.count, 2)
+                        let objectIDs = try transaction.fetchObjectIDs(from, fetchClauses)
+                        XCTAssertEqual(objectIDs.count, 2)
                         XCTAssertEqual(
-                            (objectIDs ?? []),
-                            (objects ?? []).map { $0.objectID }
+                            objectIDs,
+                            objects.map { $0.objectID }
                         )
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let objects = transaction.fetchAll(from, fetchClauses)
-                        XCTAssertNotNil(objects)
-                        XCTAssertEqual(objects?.count, 0)
+                        let objects = try transaction.fetchAll(from, fetchClauses)
+                        XCTAssertEqual(objects.count, 0)
                         
-                        let objectIDs = transaction.fetchObjectIDs(from, fetchClauses)
-                        XCTAssertNotNil(objectIDs)
-                        XCTAssertEqual(objectIDs?.count, 0)
+                        let objectIDs = try transaction.fetchObjectIDs(from, fetchClauses)
+                        XCTAssertEqual(objectIDs.count, 0)
                     }
                     try transaction.cancel()
                 }
@@ -2903,66 +2729,60 @@ final class FetchTests: BaseTestDataTestCase {
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 3),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 3),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         ]
-                        let objects = transaction.fetchAll(from, fetchClauses)
-                        XCTAssertNotNil(objects)
-                        XCTAssertEqual(objects?.count, 2)
+                        let objects = try transaction.fetchAll(from, fetchClauses)
+                        XCTAssertEqual(objects.count, 2)
                         XCTAssertEqual(
-                            (objects ?? []).map { $0.testString ?? "" },
+                            objects.map { $0.testString ?? "" },
                             [
                                 "Config1:TestEntity1:4",
                                 "Config1:TestEntity1:5"
                             ]
                         )
-                        let objectIDs = transaction.fetchObjectIDs(from, fetchClauses)
-                        XCTAssertNotNil(objectIDs)
-                        XCTAssertEqual(objectIDs?.count, 2)
+                        let objectIDs = try transaction.fetchObjectIDs(from, fetchClauses)
+                        XCTAssertEqual(objectIDs.count, 2)
                         XCTAssertEqual(
-                            (objectIDs ?? []),
-                            (objects ?? []).map { $0.objectID }
+                            objectIDs,
+                            objects.map { $0.objectID }
                         )
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 3),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 3),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         ]
-                        let objects = transaction.fetchAll(from, fetchClauses)
-                        XCTAssertNotNil(objects)
-                        XCTAssertEqual(objects?.count, 2)
+                        let objects = try transaction.fetchAll(from, fetchClauses)
+                        XCTAssertEqual(objects.count, 2)
                         XCTAssertEqual(
-                            (objects ?? []).map { $0.testString ?? "" },
+                            objects.map { $0.testString ?? "" },
                             [
                                 "Config1:TestEntity1:2",
                                 "Config1:TestEntity1:1"
                             ]
                         )
-                        let objectIDs = transaction.fetchObjectIDs(from, fetchClauses)
-                        XCTAssertNotNil(objectIDs)
-                        XCTAssertEqual(objectIDs?.count, 2)
+                        let objectIDs = try transaction.fetchObjectIDs(from, fetchClauses)
+                        XCTAssertEqual(objectIDs.count, 2)
                         XCTAssertEqual(
-                            (objectIDs ?? []),
-                            (objects ?? []).map { $0.objectID }
+                            objectIDs,
+                            objects.map { $0.objectID }
                         )
                     }
                     do {
                         
                         let fetchClauses: [FetchClause] = [
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         ]
-                        let objects = transaction.fetchAll(from, fetchClauses)
-                        XCTAssertNotNil(objects)
-                        XCTAssertEqual(objects?.count, 0)
+                        let objects = try transaction.fetchAll(from, fetchClauses)
+                        XCTAssertEqual(objects.count, 0)
                         
-                        let objectIDs = transaction.fetchObjectIDs(from, fetchClauses)
-                        XCTAssertNotNil(objectIDs)
-                        XCTAssertEqual(objectIDs?.count, 0)
+                        let objectIDs = try transaction.fetchObjectIDs(from, fetchClauses)
+                        XCTAssertEqual(objectIDs.count, 0)
                     }
                     try transaction.cancel()
                 }
@@ -2983,10 +2803,10 @@ final class FetchTests: BaseTestDataTestCase {
                     let from = From<TestEntity1>()
                     do {
                         
-                        let count = transaction.fetchCount(
+                        let count = try transaction.fetchCount(
                             from,
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         )
                         XCTAssertNotNil(count)
@@ -2994,10 +2814,10 @@ final class FetchTests: BaseTestDataTestCase {
                     }
                     do {
                         
-                        let count = transaction.fetchCount(
+                        let count = try transaction.fetchCount(
                             from,
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         )
                         XCTAssertNotNil(count)
@@ -3005,10 +2825,10 @@ final class FetchTests: BaseTestDataTestCase {
                     }
                     do {
                         
-                        let count = transaction.fetchCount(
+                        let count = try transaction.fetchCount(
                             from,
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         )
                         XCTAssertNotNil(count)
                         XCTAssertEqual(count, 0)
@@ -3022,10 +2842,10 @@ final class FetchTests: BaseTestDataTestCase {
                     let from = From<TestEntity1>(nil)
                     do {
                         
-                        let count = transaction.fetchCount(
+                        let count = try transaction.fetchCount(
                             from,
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 1),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 1),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         )
                         XCTAssertNotNil(count)
@@ -3033,10 +2853,10 @@ final class FetchTests: BaseTestDataTestCase {
                     }
                     do {
                         
-                        let count = transaction.fetchCount(
+                        let count = try transaction.fetchCount(
                             from,
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         )
                         XCTAssertNotNil(count)
@@ -3044,10 +2864,10 @@ final class FetchTests: BaseTestDataTestCase {
                     }
                     do {
                         
-                        let count = transaction.fetchCount(
+                        let count = try transaction.fetchCount(
                             from,
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         )
                         XCTAssertNotNil(count)
                         XCTAssertEqual(count, 0)
@@ -3060,40 +2880,37 @@ final class FetchTests: BaseTestDataTestCase {
                     
                     let from = From<TestEntity1>("Config1")
                     do {
-                        
-                        let count = self.expectLogger([.logWarning]) {
+
+                        self.expectError(code: .persistentStoreNotFound) {
                             
-                            transaction.fetchCount(
+                            try transaction.fetchCount(
                                 from,
-                                Where("%K < %@", #keyPath(TestEntity1.testNumber), 4),
-                                OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                                Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 4),
+                                OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                             )
                         }
-                        XCTAssertNil(count)
                     }
                     do {
-                        
-                        let count = self.expectLogger([.logWarning]) {
+
+                        self.expectError(code: .persistentStoreNotFound) {
                             
-                            transaction.fetchCount(
+                            try transaction.fetchCount(
                                 from,
-                                Where(#keyPath(TestEntity1.testNumber), isEqualTo: 0),
-                                OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                                Where<TestEntity1>(#keyPath(TestEntity1.testNumber), isEqualTo: 0),
+                                OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                             )
                         }
-                        XCTAssertNil(count)
                     }
                     do {
-                        
-                        let count = self.expectLogger([.logWarning]) {
+
+                        self.expectError(code: .persistentStoreNotFound) {
                             
-                            transaction.fetchCount(
+                            try transaction.fetchCount(
                                 from,
-                                Where(#keyPath(TestEntity1.testNumber), isEqualTo: nil),
-                                OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                                Where<TestEntity1>(#keyPath(TestEntity1.testNumber), isEqualTo: nil),
+                                OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                             )
                         }
-                        XCTAssertNil(count)
                     }
                     try transaction.cancel()
                 }
@@ -3114,34 +2931,31 @@ final class FetchTests: BaseTestDataTestCase {
                     let from = From<TestEntity1>()
                     do {
                         
-                        let count = transaction.fetchCount(
+                        let count = try transaction.fetchCount(
                             from,
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 3),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 3),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         )
-                        XCTAssertNotNil(count)
                         XCTAssertEqual(count, 3)
                     }
                     do {
                         
-                        let count = transaction.fetchCount(
+                        let count = try transaction.fetchCount(
                             from,
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 3),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 3),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         )
-                        XCTAssertNotNil(count)
                         XCTAssertEqual(count, 3)
                     }
                     do {
                         
-                        let count = transaction.fetchCount(
+                        let count = try transaction.fetchCount(
                             from,
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         )
-                        XCTAssertNotNil(count)
                         XCTAssertEqual(count, 0)
                     }
                     try transaction.cancel()
@@ -3153,34 +2967,31 @@ final class FetchTests: BaseTestDataTestCase {
                     let from = From<TestEntity1>(nil)
                     do {
                         
-                        let count = transaction.fetchCount(
+                        let count = try transaction.fetchCount(
                             from,
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 3),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 3),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         )
-                        XCTAssertNotNil(count)
                         XCTAssertEqual(count, 2)
                     }
                     do {
                         
-                        let count = transaction.fetchCount(
+                        let count = try transaction.fetchCount(
                             from,
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 3),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 3),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         )
-                        XCTAssertNotNil(count)
                         XCTAssertEqual(count, 2)
                     }
                     do {
                         
-                        let count = transaction.fetchCount(
+                        let count = try transaction.fetchCount(
                             from,
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         )
-                        XCTAssertNotNil(count)
                         XCTAssertEqual(count, 0)
                     }
                     try transaction.cancel()
@@ -3192,34 +3003,31 @@ final class FetchTests: BaseTestDataTestCase {
                     let from = From<TestEntity1>("Config1")
                     do {
                         
-                        let count = transaction.fetchCount(
+                        let count = try transaction.fetchCount(
                             from,
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 3),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 3),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         )
-                        XCTAssertNotNil(count)
                         XCTAssertEqual(count, 2)
                     }
                     do {
                         
-                        let count = transaction.fetchCount(
+                        let count = try transaction.fetchCount(
                             from,
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 3),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 3),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         )
-                        XCTAssertNotNil(count)
                         XCTAssertEqual(count, 2)
                     }
                     do {
                         
-                        let count = transaction.fetchCount(
+                        let count = try transaction.fetchCount(
                             from,
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         )
-                        XCTAssertNotNil(count)
                         XCTAssertEqual(count, 0)
                     }
                     try transaction.cancel()
@@ -3230,40 +3038,37 @@ final class FetchTests: BaseTestDataTestCase {
                     
                     let from = From<TestEntity1>("Config2")
                     do {
-                        
-                        let count = self.expectLogger([.logWarning]) {
+
+                        self.expectError(code: .persistentStoreNotFound) {
                             
-                            transaction.fetchCount(
+                            try transaction.fetchCount(
                                 from,
-                                Where("%K < %@", #keyPath(TestEntity1.testNumber), 4),
-                                OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                                Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 4),
+                                OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                             )
                         }
-                        XCTAssertNil(count)
                     }
                     do {
-                        
-                        let count = self.expectLogger([.logWarning]) {
+
+                        self.expectError(code: .persistentStoreNotFound) {
                             
-                            transaction.fetchCount(
+                            try transaction.fetchCount(
                                 from,
-                                Where(#keyPath(TestEntity1.testNumber), isEqualTo: 0),
-                                OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                                Where<TestEntity1>(#keyPath(TestEntity1.testNumber), isEqualTo: 0),
+                                OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                             )
                         }
-                        XCTAssertNil(count)
                     }
                     do {
-                        
-                        let count = self.expectLogger([.logWarning]) {
+
+                        self.expectError(code: .persistentStoreNotFound) {
                             
-                            transaction.fetchCount(
+                            try transaction.fetchCount(
                                 from,
-                                Where(#keyPath(TestEntity1.testNumber), isEqualTo: nil),
-                                OrderBy(.descending(#keyPath(TestEntity1.testEntityID)))
+                                Where<TestEntity1>(#keyPath(TestEntity1.testNumber), isEqualTo: nil),
+                                OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID)))
                             )
                         }
-                        XCTAssertNil(count)
                     }
                     try transaction.cancel()
                 }
@@ -3284,34 +3089,31 @@ final class FetchTests: BaseTestDataTestCase {
                     let from = From<TestEntity1>(nil, "Config1")
                     do {
                         
-                        let count = transaction.fetchCount(
+                        let count = try transaction.fetchCount(
                             from,
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 3),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 3),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         )
-                        XCTAssertNotNil(count)
                         XCTAssertEqual(count, 3)
                     }
                     do {
                         
-                        let count = transaction.fetchCount(
+                        let count = try transaction.fetchCount(
                             from,
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 3),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 3),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         )
-                        XCTAssertNotNil(count)
                         XCTAssertEqual(count, 3)
                     }
                     do {
                         
-                        let count = transaction.fetchCount(
+                        let count = try transaction.fetchCount(
                             from,
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         )
-                        XCTAssertNotNil(count)
                         XCTAssertEqual(count, 0)
                     }
                     try transaction.cancel()
@@ -3323,34 +3125,31 @@ final class FetchTests: BaseTestDataTestCase {
                     let from = From<TestEntity1>(nil, "Config2")
                     do {
                         
-                        let count = transaction.fetchCount(
+                        let count = try transaction.fetchCount(
                             from,
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 3),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 3),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         )
-                        XCTAssertNotNil(count)
                         XCTAssertEqual(count, 2)
                     }
                     do {
                         
-                        let count = transaction.fetchCount(
+                        let count = try transaction.fetchCount(
                             from,
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 3),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 3),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         )
-                        XCTAssertNotNil(count)
                         XCTAssertEqual(count, 2)
                     }
                     do {
                         
-                        let count = transaction.fetchCount(
+                        let count = try transaction.fetchCount(
                             from,
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         )
-                        XCTAssertNotNil(count)
                         XCTAssertEqual(count, 0)
                     }
                     try transaction.cancel()
@@ -3362,34 +3161,31 @@ final class FetchTests: BaseTestDataTestCase {
                     let from = From<TestEntity1>("Config1", "Config2")
                     do {
                         
-                        let count = transaction.fetchCount(
+                        let count = try transaction.fetchCount(
                             from,
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 3),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 3),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         )
-                        XCTAssertNotNil(count)
                         XCTAssertEqual(count, 2)
                     }
                     do {
                         
-                        let count = transaction.fetchCount(
+                        let count = try transaction.fetchCount(
                             from,
-                            Where("%K < %@", #keyPath(TestEntity1.testNumber), 3),
-                            OrderBy(.descending(#keyPath(TestEntity1.testEntityID))),
+                            Where<TestEntity1>("%K < %@", #keyPath(TestEntity1.testNumber), 3),
+                            OrderBy<TestEntity1>(.descending(#keyPath(TestEntity1.testEntityID))),
                             Tweak { $0.fetchLimit = 3 }
                         )
-                        XCTAssertNotNil(count)
                         XCTAssertEqual(count, 2)
                     }
                     do {
                         
-                        let count = transaction.fetchCount(
+                        let count = try transaction.fetchCount(
                             from,
-                            Where("%K > %@", #keyPath(TestEntity1.testNumber), 5),
-                            OrderBy(.ascending(#keyPath(TestEntity1.testEntityID)))
+                            Where<TestEntity1>("%K > %@", #keyPath(TestEntity1.testNumber), 5),
+                            OrderBy<TestEntity1>(.ascending(#keyPath(TestEntity1.testEntityID)))
                         )
-                        XCTAssertNotNil(count)
                         XCTAssertEqual(count, 0)
                     }
                     try transaction.cancel()

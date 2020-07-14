@@ -2,7 +2,7 @@
 //  CoreStoreBridge.h
 //  CoreStore
 //
-//  Copyright © 2016 John Rommel Estropia
+//  Copyright © 2018 John Rommel Estropia
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -37,13 +37,13 @@
 #error CoreStore Objective-C utilities can only be used on platforms that support C function overloading
 #endif
 
-#define CORESTORE_EXTERN                    extern
+#define CORESTORE_EXTERN                    extern __deprecated_msg("CoreStore Objective-C API will be removed soon.")
 #define CORESTORE_OVERLOADABLE              __attribute__((__overloadable__))
 #define CORESTORE_REQUIRES_NIL_TERMINATION  __attribute__((sentinel(0, 1)))
 #define CORESTORE_RETURNS_RETAINED          __attribute__((ns_returns_retained))
 
 
-#pragma mark - KeyPath Utilities
+#pragma mark - KeyPathString Utilities
 
 #define CSKeyPath(type, property) ({ \
     type *_je_keypath_dummy __attribute__((unused)); \
@@ -477,7 +477,7 @@ CSSelect *_Nonnull CSSelectData(CSSelectTerm *_Nonnull selectTerm) CORESTORE_RET
  a <tt>CSSelect</tt> clause for querying an <tt>NSManagedObjectID</tt> value
  */
 CORESTORE_EXTERN
-CSSelect *_Nonnull CSSelectObjectID() CORESTORE_RETURNS_RETAINED;
+CSSelect *_Nonnull CSSelectObjectID(void) CORESTORE_RETURNS_RETAINED;
 
 
 #pragma mark CSTweak
@@ -562,18 +562,6 @@ CSWhere *_Nonnull CSWhereFormat(NSString *_Nonnull format, ...) CORESTORE_RETURN
  */
 CORESTORE_EXTERN
 CSWhere *_Nonnull CSWherePredicate(NSPredicate *_Nonnull predicate) CORESTORE_RETURNS_RETAINED;
-
-
-#pragma mark CoreStoreFetchRequest
-
-// Bugfix for NSFetchRequest messing up memory management for `affectedStores`
-// http://stackoverflow.com/questions/14396375/nsfetchedresultscontroller-crashes-in-ios-6-if-affectedstores-is-specified
-NS_SWIFT_NAME(CoreStoreFetchRequest)
-@interface _CSFetchRequest: NSFetchRequest
-
-@property (nullable, nonatomic, copy, readonly) NSArray<NSPersistentStore *> *safeAffectedStores;
-
-@end
 
 
 #endif /* CoreStoreBridge_h */

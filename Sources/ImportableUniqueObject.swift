@@ -2,7 +2,7 @@
 //  ImportableUniqueObject.swift
 //  CoreStore
 //
-//  Copyright © 2015 John Rommel Estropia
+//  Copyright © 2018 John Rommel Estropia
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -38,7 +38,7 @@ import CoreData
      // ...
  }
  
- CoreStore.perform(
+ dataStack.perform(
      asynchronous: { (transaction) -> Void in
          let json: NSDictionary = // ...
          let person = try transaction.importUniqueObject(
@@ -54,11 +54,6 @@ import CoreData
  ```
  */
 public protocol ImportableUniqueObject: ImportableObject {
-    
-    /**
-     The data type for the import source. This is most commonly an json type, `NSDictionary`, or another external source such as `NSUserDefaults`.
-     */
-    associatedtype ImportSource
     
     /**
      The data type for the entity's unique ID attribute
@@ -121,71 +116,17 @@ public protocol ImportableUniqueObject: ImportableObject {
 }
 
 
-// MARK: - ImportableUniqueObject (Default Implementations)
+// MARK: - ImportableUniqueObject where UniqueIDType.QueryableNativeType: CoreDataNativeType
 
-public extension ImportableUniqueObject {
+extension ImportableUniqueObject where UniqueIDType.QueryableNativeType: CoreDataNativeType {
     
-    static func shouldInsert(from source: ImportSource, in transaction: BaseDataTransaction) -> Bool {
-        
-        return Self.shouldUpdate(from: source, in: transaction)
-    }
-    
-    static func shouldUpdate(from source: ImportSource, in transaction: BaseDataTransaction) -> Bool{
-        
-        return true
-    }
-    
-    func didInsert(from source: Self.ImportSource, in transaction: BaseDataTransaction) throws {
-        
-        try self.update(from: source, in: transaction)
-    }
-    
-    
-    // MARK: Obsolete
-    
-    @available(*, obsoleted: 3.1, renamed: "shouldInsert(from:in:)")
-    static func shouldInsertFromImportSource(_ source: ImportSource, inTransaction transaction: BaseDataTransaction) -> Bool {
-        
-        return Self.shouldInsert(from: source, in: transaction)
-    }
-    
-    @available(*, obsoleted: 3.1, renamed: "shouldUpdate(from:in:)")
-    static func shouldUpdateFromImportSource(_ source: ImportSource, inTransaction transaction: BaseDataTransaction) -> Bool {
-        
-        return Self.shouldUpdate(from: source, in: transaction)
-    }
-    
-    @available(*, obsoleted: 3.1, renamed: "uniqueID(from:in:)")
-    static func uniqueIDFromImportSource(_ source: ImportSource, inTransaction transaction: BaseDataTransaction) throws -> UniqueIDType? {
-        
-        return try Self.uniqueID(from: source, in: transaction)
-    }
-    
-    @available(*, obsoleted: 3.1, renamed: "didInsert(from:in:)")
-    func didInsertFromImportSource(_ source: ImportSource, inTransaction transaction: BaseDataTransaction) throws {
-        
-        try self.didInsert(from: source, in: transaction)
-    }
-    
-    @available(*, obsoleted: 3.1, renamed: "update(from:in:)")
-    func updateFromImportSource(_ source: ImportSource, inTransaction transaction: BaseDataTransaction) throws {
-        
-        try self.update(from: source, in: transaction)
-    }
-}
-
-
-// MARK: - ImportableUniqueObject (Default Implementations)
-
-public extension ImportableUniqueObject where Self: DynamicObject {
-    
-    var uniqueIDValue: UniqueIDType {
+    public var uniqueIDValue: UniqueIDType {
         
         get {
             
             return self.cs_toRaw().getValue(
-                forKvcKey: type(of: self).uniqueIDKeyPath,
-                didGetValue: { UniqueIDType.cs_fromImportableNativeType($0 as! UniqueIDType.ImportableNativeType)! }
+                forKvcKey: self.runtimeType().uniqueIDKeyPath,
+                didGetValue: { UniqueIDType.cs_fromQueryableNativeType($0 as! UniqueIDType.QueryableNativeType)! }
             )
         }
         set {
@@ -193,9 +134,30 @@ public extension ImportableUniqueObject where Self: DynamicObject {
             self.cs_toRaw()
                 .setValue(
                     newValue,
-                    forKvcKey: type(of: self).uniqueIDKeyPath,
-                    willSetValue: { ($0.cs_toImportableNativeType() as! CoreDataNativeType) }
-                )
+                    forKvcKey: self.runtimeType().uniqueIDKeyPath,
+                    willSetValue: { ($0.cs_toQueryableNativeType() as CoreDataNativeType) }
+            )
         }
+    }
+}
+
+
+// MARK: - ImportableUniqueObject
+
+extension ImportableUniqueObject {
+    
+    public static func shouldInsert(from source: ImportSource, in transaction: BaseDataTransaction) -> Bool {
+        
+        return Self.shouldUpdate(from: source, in: transaction)
+    }
+    
+    public static func shouldUpdate(from source: ImportSource, in transaction: BaseDataTransaction) -> Bool{
+        
+        return true
+    }
+    
+    public func didInsert(from source: Self.ImportSource, in transaction: BaseDataTransaction) throws {
+        
+        try self.update(from: source, in: transaction)
     }
 }
